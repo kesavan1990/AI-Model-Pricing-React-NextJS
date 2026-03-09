@@ -1078,6 +1078,24 @@
         const STORAGE_KEY = 'ai_pricing_cache';
         const HISTORY_KEY = 'ai_pricing_history';
         const LAST_DAILY_KEY = 'ai_pricing_last_daily';
+        const CACHE_HOURS = 12;
+
+        function isCacheFresh(cachedAt) {
+            if (cachedAt == null) return false;
+            const ageMs = Date.now() - Number(cachedAt);
+            return ageMs >= 0 && ageMs < CACHE_HOURS * 60 * 60 * 1000;
+        }
+
+        function getCachedPricingPayload() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return null;
+                const data = JSON.parse(raw);
+                return data && typeof data === 'object' ? data : null;
+            } catch (_) {
+                return null;
+            }
+        }
 
         const DEFAULT_PRICING = {
             gemini: [
@@ -1864,31 +1882,39 @@
             const today = getTodayIST();
             try {
                 let g = geminiData.slice(), o = openaiData.slice(), a = anthropicData.slice(), m = mistralData.slice();
-                try {
-                    const vizraRes = await fetch(VIZRA_PRICING_URL);
-                    if (vizraRes.ok) {
-                        let vizraData;
-                        try {
-                            vizraData = await vizraRes.json();
-                        } catch (_) {}
-                        if (vizraData && typeof vizraData === 'object') {
-                            const parsed = parseVizraResponse(vizraData);
-                            if (parsed && (parsed.gemini.length > 0 || parsed.openai.length > 0)) {
-                                g = parsed.gemini.length ? parsed.gemini : g;
-                                o = parsed.openai.length ? parsed.openai : o;
-                                a = parsed.anthropic.length ? parsed.anthropic : a;
-                                m = parsed.mistral.length ? parsed.mistral : m;
+                const cache = getCachedPricingPayload();
+                if (cache && isCacheFresh(cache.cachedAt)) {
+                    if (cache.gemini && cache.gemini.length) g = cache.gemini.slice();
+                    if (cache.openai && cache.openai.length) o = cache.openai.slice();
+                    if (cache.anthropic && cache.anthropic.length) a = cache.anthropic.slice();
+                    if (cache.mistral && cache.mistral.length) m = cache.mistral.slice();
+                } else {
+                    try {
+                        const vizraRes = await fetch(VIZRA_PRICING_URL);
+                        if (vizraRes.ok) {
+                            let vizraData;
+                            try {
+                                vizraData = await vizraRes.json();
+                            } catch (_) {}
+                            if (vizraData && typeof vizraData === 'object') {
+                                const parsed = parseVizraResponse(vizraData);
+                                if (parsed && (parsed.gemini.length > 0 || parsed.openai.length > 0)) {
+                                    g = parsed.gemini.length ? parsed.gemini : g;
+                                    o = parsed.openai.length ? parsed.openai : o;
+                                    a = parsed.anthropic.length ? parsed.anthropic : a;
+                                    m = parsed.mistral.length ? parsed.mistral : m;
+                                }
                             }
                         }
-                    }
-                } catch (_) {}
+                    } catch (_) {}
+                }
                 saveToHistory(g, o, { daily: true, date: getToday10AMIST(), anthropic: a, mistral: m });
                 try { localStorage.setItem(LAST_DAILY_KEY, today); } catch (_) {}
                 geminiData = g;
                 openaiData = o;
                 anthropicData = a;
                 mistralData = m;
-                const payload = { gemini: geminiData, openai: openaiData, anthropic: anthropicData, mistral: mistralData, updated: new Date().toISOString().slice(0, 10) };
+                const payload = { gemini: geminiData, openai: openaiData, anthropic: anthropicData, mistral: mistralData, updated: new Date().toISOString().slice(0, 10), cachedAt: Date.now() };
                 try { localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); } catch (_) {}
                 setLastUpdated(payload.updated + ' (from web)');
                 renderTables();
@@ -2163,6 +2189,17 @@
 
         async function fillMissingProvidersFromVizra() {
             if (anthropicData.length > 0 && mistralData.length > 0) return;
+            const cache = getCachedPricingPayload();
+            if (cache && isCacheFresh(cache.cachedAt)) {
+                const hasAnthropic = cache.anthropic && Array.isArray(cache.anthropic) && cache.anthropic.length > 0;
+                const hasMistral = cache.mistral && Array.isArray(cache.mistral) && cache.mistral.length > 0;
+                if (anthropicData.length === 0 && hasAnthropic) anthropicData = cache.anthropic.slice();
+                if (mistralData.length === 0 && hasMistral) mistralData = cache.mistral.slice();
+                if (anthropicData.length > 0 || mistralData.length > 0) {
+                    renderTables();
+                    return;
+                }
+            }
             try {
                 const res = await fetch('https://vizra.ai/api/v1/pricing/ai-models', { cache: 'no-store' });
                 if (!res.ok) return;
@@ -2186,7 +2223,7 @@
                 }
                 if (updated) {
                     renderTables();
-                    const payload = { gemini: geminiData, openai: openaiData, anthropic: anthropicData, mistral: mistralData, updated: new Date().toISOString().slice(0, 10) };
+                    const payload = { gemini: geminiData, openai: openaiData, anthropic: anthropicData, mistral: mistralData, updated: new Date().toISOString().slice(0, 10), cachedAt: Date.now() };
                     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); } catch (_) {}
                 }
             } catch (_) {}
@@ -2291,7 +2328,7 @@
                 } else {
                     throw new Error('No pricing data in response');
                 }
-                const payload = { gemini: geminiData, openai: openaiData, anthropic: anthropicData, mistral: mistralData, updated: new Date().toISOString().slice(0, 10) };
+                const payload = { gemini: geminiData, openai: openaiData, anthropic: anthropicData, mistral: mistralData, updated: new Date().toISOString().slice(0, 10), cachedAt: Date.now() };
                 const last = localStorage.getItem(STORAGE_KEY);
                 let changeMsg = '';
                 let drops = [];
