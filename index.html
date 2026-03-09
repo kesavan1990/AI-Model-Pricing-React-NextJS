@@ -1903,13 +1903,8 @@
                     if (cache.mistral && cache.mistral.length) m = cache.mistral.slice();
                 } else {
                     try {
-const vizraRes = await fetch(CORS_PROXY + encodeURIComponent(VIZRA_PRICING_URL), { cache: 'no-store' });
-                    if (vizraRes.ok) {
-                            let vizraData;
-                            try {
-                                vizraData = await vizraRes.json();
-                            } catch (_) {}
-                            if (vizraData && typeof vizraData === 'object') {
+                    const vizraData = await fetchVizraPricing();
+                    if (vizraData && typeof vizraData === 'object') {
                                 const parsed = parseVizraResponse(vizraData);
                                 if (parsed && (parsed.gemini.length > 0 || parsed.openai.length > 0)) {
                                     g = parsed.gemini.length ? parsed.gemini : g;
@@ -1918,7 +1913,6 @@ const vizraRes = await fetch(CORS_PROXY + encodeURIComponent(VIZRA_PRICING_URL),
                                     m = parsed.mistral.length ? parsed.mistral : m;
                                 }
                             }
-                        }
                     } catch (_) {}
                 }
                 saveToHistory(g, o, { daily: true, date: getToday10AMIST(), anthropic: a, mistral: m });
@@ -2214,14 +2208,7 @@ const vizraRes = await fetch(CORS_PROXY + encodeURIComponent(VIZRA_PRICING_URL),
                 }
             }
             try {
-                const res = await fetch(CORS_PROXY + encodeURIComponent(VIZRA_PRICING_URL), { cache: 'no-store' });
-                if (!res.ok) throw new Error('API ' + res.status);
-                let data;
-                try {
-                    data = await res.json();
-                } catch (_) {
-                    throw new Error('Invalid JSON');
-                }
+                const data = await fetchVizraPricing();
                 if (!data || typeof data !== 'object') throw new Error('Invalid response');
                 const parsed = parseVizraResponse(data);
                 if (!parsed || !Array.isArray(parsed.anthropic) || !Array.isArray(parsed.mistral)) throw new Error('Could not parse');
@@ -2251,6 +2238,25 @@ const vizraRes = await fetch(CORS_PROXY + encodeURIComponent(VIZRA_PRICING_URL),
         }
 
         const VIZRA_PRICING_URL = 'https://vizra.ai/api/v1/pricing/ai-models';
+        const CORS_PROXIES = [
+            (url) => 'https://corsproxy.io/?' + encodeURIComponent(url),
+            (url) => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url)
+        ];
+
+        async function fetchVizraPricing() {
+            const opts = { cache: 'no-store' };
+            try {
+                const direct = await fetch(VIZRA_PRICING_URL, opts);
+                if (direct.ok) return await direct.json();
+            } catch (_) {}
+            for (const proxy of CORS_PROXIES) {
+                try {
+                    const res = await fetch(proxy(VIZRA_PRICING_URL), opts);
+                    if (res.ok) return await res.json();
+                } catch (_) {}
+            }
+            return null;
+        }
 
         async function applyFallbackPricingFromFile() {
             try {
@@ -2348,15 +2354,8 @@ const vizraRes = await fetch(CORS_PROXY + encodeURIComponent(VIZRA_PRICING_URL),
             btn.disabled = true;
             icon.classList.add('spinning');
             try {
-                const vizraRes = await fetch(CORS_PROXY + encodeURIComponent(VIZRA_PRICING_URL), { cache: 'no-store' });
-                if (!vizraRes.ok) throw new Error('Vizra API ' + vizraRes.status);
-                let vizraData;
-                try {
-                    vizraData = await vizraRes.json();
-                } catch (e) {
-                    throw new Error('Invalid JSON from API');
-                }
-                if (!vizraData || typeof vizraData !== 'object') throw new Error('Invalid API response');
+                const vizraData = await fetchVizraPricing();
+                if (!vizraData || typeof vizraData !== 'object') throw new Error('Vizra API unavailable');
                 const parsed = parseVizraResponse(vizraData);
                 if (!parsed || typeof parsed !== 'object') throw new Error('Could not parse pricing');
                 if (parsed.gemini.length > 0 || parsed.openai.length > 0) {
