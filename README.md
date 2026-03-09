@@ -21,7 +21,7 @@ Deployed site (e.g. GitHub Pages) serves updated pricing on next load
 ```
 
 - **Workflow:** [`.github/workflows/update-pricing.yml`](.github/workflows/update-pricing.yml) — runs the script, then commits and pushes only when `pricing.json` has changed (`git diff --staged --quiet`), so no empty commits on every run.
-- **Script:** [`scripts/update-pricing.js`](scripts/update-pricing.js) — fetches [Vizra API](https://vizra.ai/api/v1/pricing/ai-models), normalizes provider names and units, deduplicates by model name, writes `pricing.json`.
+- **Script:** [`scripts/update-pricing.js`](scripts/update-pricing.js) — fetches [Vizra API](https://vizra.ai/api/v1/pricing/ai-models), normalizes provider names and units, deduplicates by model name, writes `pricing.json`. On API timeout, rate limit, empty response, or malformed JSON it exits with code 1 so the workflow does not commit bad data. See [PRICING_UPDATES.md](PRICING_UPDATES.md#api-failure-handling).
 
 ### Run the update locally
 
