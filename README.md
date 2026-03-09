@@ -43,6 +43,7 @@ In the repo: **Actions → Update pricing → Run workflow**.
 ## What’s in the app
 
 - **Pricing grid** — Gemini, OpenAI, Anthropic, Mistral (input/output/cached per 1M tokens).
+- **Dark mode / light mode** — Toggle in the header (☀️/🌙). Preference is saved and respects system `prefers-color-scheme` on first visit. See [docs/UI.md](docs/UI.md#dark-mode-and-light-mode).
 - **Model comparison table** — On the **Compare** tab: single table **Model | Provider | Input | Output | Context** (all models in one view; context = context window, e.g. 1M, 128k). See [Model comparison table](docs/UI.md#model-comparison-table).
 - **Calculators** — **Cost calculator** (input: Prompt tokens, Output tokens, Model → output: Estimated cost; see [docs/UI.md](docs/UI.md#cost-calculator)), prompt cost from text, context-window check, production cost.
 - **Benchmarks** — MMLU, code, reasoning, arena-style.
@@ -70,6 +71,6 @@ Static only (HTML/CSS/JS). No server or database. See [HOSTING.md](HOSTING.md) f
 
 ## Docs
 
-- [docs/UI.md](docs/UI.md) — UI overview: **Cost calculator** (Prompt tokens, Output tokens, Model → Estimated cost), **Model comparison table** (Model \| Provider \| Input \| Output \| Context).
+- [docs/UI.md](docs/UI.md) — UI overview: **Dark mode / light mode**, **Cost calculator** (Prompt tokens, Output tokens, Model → Estimated cost), **Model comparison table** (Model \| Provider \| Input \| Output \| Context).
 - [docs/PRICING_UPDATES.md](docs/PRICING_UPDATES.md) — Pricing update architecture and flow.
 - [docs/PRICING_SCENARIOS.md](docs/PRICING_SCENARIOS.md) — How pricing is loaded in each scenario (first load, refresh, GitHub vs local).

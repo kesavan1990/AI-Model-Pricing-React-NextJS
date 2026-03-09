@@ -5,11 +5,40 @@
 }
 html { scroll-behavior: smooth; }
 
+/* Theme: dark (default). Toggle via data-theme="light" on <html>. */
+:root {
+    --theme-bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    --theme-text: #ffffff;
+    --theme-text-muted: #a0a0a0;
+    --theme-card: rgba(255, 255, 255, 0.05);
+    --theme-card-border: rgba(255, 255, 255, 0.1);
+    --theme-input-bg: rgba(0, 0, 0, 0.25);
+    --theme-input-border: rgba(255, 255, 255, 0.2);
+    --theme-tab-bg: rgba(255,255,255,0.04);
+    --theme-tab-border: rgba(255,255,255,0.08);
+    --theme-modal-bg: linear-gradient(180deg, #1e2a3e 0%, #16213e 100%);
+}
+
+[data-theme="light"] {
+    --theme-bg: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    --theme-text: #1e293b;
+    --theme-text-muted: #64748b;
+    --theme-card: rgba(255, 255, 255, 0.95);
+    --theme-card-border: rgba(0, 0, 0, 0.1);
+    --theme-input-bg: rgba(255, 255, 255, 0.9);
+    --theme-input-border: rgba(0, 0, 0, 0.2);
+    --theme-tab-bg: rgba(255,255,255,0.8);
+    --theme-tab-border: rgba(0,0,0,0.1);
+    --theme-modal-bg: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    background: var(--theme-bg);
+    color: var(--theme-text);
     min-height: 100vh;
     padding: 40px 20px;
+    transition: background 0.25s ease, color 0.2s ease;
 }
 
 .container {
@@ -48,6 +77,25 @@ h1 {
     font-size: 1.05rem;
     line-height: 1.4;
 }
+
+.theme-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.25rem;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+.theme-toggle-btn:hover { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.35); transform: translateY(-1px); }
+[data-theme="light"] .theme-toggle-btn { background: rgba(0,0,0,0.08); border-color: rgba(0,0,0,0.15); color: var(--theme-text); }
+[data-theme="light"] .theme-toggle-btn:hover { background: rgba(0,0,0,0.12); }
 
 .refresh-btn {
     display: inline-flex;
@@ -735,6 +783,90 @@ h1 {
 .history-compare-result .price-same { color: #888; }
 .history-compare-result .model-added { color: #4ade80; }
 .history-compare-result .model-removed { color: #f87171; }
+
+/* --- Light theme overrides --- */
+[data-theme="light"] h1,
+[data-theme="light"] .section-title,
+[data-theme="light"] .provider-name,
+[data-theme="light"] .model-table td,
+[data-theme="light"] .calculator-card h3 { color: var(--theme-text); }
+[data-theme="light"] h1 { text-shadow: none; }
+[data-theme="light"] .subtitle,
+[data-theme="light"] .model-table th,
+[data-theme="light"] .section-subtitle,
+[data-theme="light"] .calc-row label,
+[data-theme="light"] .modal-subtitle,
+[data-theme="light"] .history-entry-summary,
+[data-theme="light"] .history-entry-body h4,
+[data-theme="light"] .history-compare-result h4,
+[data-theme="light"] .history-compare-controls label { color: var(--theme-text-muted); }
+[data-theme="light"] .provider-card,
+[data-theme="light"] .calculator-card,
+[data-theme="light"] .prompt-estimator-card,
+[data-theme="light"] .context-window-card,
+[data-theme="light"] .production-cost-card,
+[data-theme="light"] .recommend-card { background: var(--theme-card); border-color: var(--theme-card-border); box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+[data-theme="light"] .provider-card:hover,
+[data-theme="light"] .calculator-card:hover { box-shadow: 0 12px 28px rgba(0,0,0,0.12); }
+[data-theme="light"] .provider-header,
+[data-theme="light"] .tab-panel .page-section { border-color: var(--theme-card-border); }
+[data-theme="light"] .tab-nav { background: var(--theme-tab-bg); border-color: var(--theme-tab-border); }
+[data-theme="light"] .tab-link { color: var(--theme-text-muted); }
+[data-theme="light"] .tab-link:hover { color: var(--theme-text); background: rgba(0,0,0,0.06); }
+[data-theme="light"] .tab-link.active { color: #fff; }
+[data-theme="light"] .calc-sub-link { color: var(--theme-text-muted); background: rgba(0,0,0,0.05); }
+[data-theme="light"] .calc-sub-link:hover,
+[data-theme="light"] .calc-sub-link.active { color: var(--theme-text); }
+[data-theme="light"] .pricing-search,
+[data-theme="light"] .calc-row input,
+[data-theme="light"] .calc-row select,
+[data-theme="light"] .prompt-estimator-card textarea,
+[data-theme="light"] .production-cost-inputs .calc-row input,
+[data-theme="light"] .recommend-form .calc-row textarea { background: var(--theme-input-bg); border-color: var(--theme-input-border); color: var(--theme-text); }
+[data-theme="light"] .pricing-search::placeholder,
+[data-theme="light"] .calc-row input::placeholder { color: var(--theme-text-muted); }
+[data-theme="light"] .calc-row select option { background: #fff; color: #1e293b; }
+[data-theme="light"] .refresh-btn,
+[data-theme="light"] .history-btn,
+[data-theme="light"] .export-btn { background: rgba(0,0,0,0.08); border-color: rgba(0,0,0,0.15); color: var(--theme-text); }
+[data-theme="light"] .refresh-btn:hover,
+[data-theme="light"] .history-btn:hover,
+[data-theme="light"] .export-btn:hover { background: rgba(0,0,0,0.12); }
+[data-theme="light"] .calc-btn.reset { background: rgba(0,0,0,0.08); border-color: rgba(0,0,0,0.2); color: var(--theme-text); }
+[data-theme="light"] .calc-btn.reset:hover { background: rgba(0,0,0,0.12); }
+[data-theme="light"] .pricing-table-scroll,
+[data-theme="light"] .model-table th,
+[data-theme="light"] .model-table td { border-color: rgba(0,0,0,0.08); }
+[data-theme="light"] .pricing-section-header,
+[data-theme="light"] .price-changes-summary,
+[data-theme="light"] .calc-result,
+[data-theme="light"] .history-entry,
+[data-theme="light"] .recommend-item { background: var(--theme-card); border-color: var(--theme-card-border); }
+[data-theme="light"] .modal-panel { background: var(--theme-modal-bg); border-color: rgba(0,0,0,0.1); }
+[data-theme="light"] .modal-header { border-color: rgba(0,0,0,0.08); }
+[data-theme="light"] .modal-header h2 { color: var(--theme-text); }
+[data-theme="light"] .modal-close { color: var(--theme-text-muted); }
+[data-theme="light"] .modal-close:hover { color: var(--theme-text); }
+[data-theme="light"] .history-entry-header:hover { background: rgba(0,0,0,0.04); }
+[data-theme="light"] .history-entry-date { color: var(--theme-text); }
+[data-theme="light"] .history-compare-controls select { background: #fff; color: #1e293b; border-color: var(--theme-input-border); }
+[data-theme="light"] .page-footer,
+[data-theme="light"] .prompt-cost-result,
+[data-theme="light"] .context-window-result,
+[data-theme="light"] .production-cost-result { border-color: rgba(0,0,0,0.08); }
+[data-theme="light"] .toast { background: #1e293b; color: #f8fafc; }
+[data-theme="light"] .recommend-item .model-name-rec { color: var(--theme-text); }
+[data-theme="light"] .recommend-item .model-reason { color: var(--theme-text-muted); }
+[data-theme="light"] .benchmark-legend,
+[data-theme="light"] .benchmark-note { color: var(--theme-text-muted); }
+[data-theme="light"] .price-changes-summary h4,
+[data-theme="light"] .prompt-cost-result h4,
+[data-theme="light"] .recommend-result-title { color: var(--theme-text); }
+[data-theme="light"] .sticky thead th,
+[data-theme="light"] .pricing-table-scroll .model-table thead th,
+[data-theme="light"] .context-window-result .model-table thead th,
+[data-theme="light"] .production-cost-result .model-table thead th,
+[data-theme="light"] .benchmark-dashboard-table .model-table thead th { background: var(--theme-card); }
 
 @media (max-width: 768px) {
     .pricing-grid {

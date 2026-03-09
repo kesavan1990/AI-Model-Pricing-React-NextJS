@@ -811,9 +811,35 @@ window.resetContextWindowCheck = resetContextWindowCheck;
 window.runProductionCostSim = runProductionCostSim;
 window.resetProductionCostSim = resetProductionCostSim;
 
+const THEME_STORAGE_KEY = 'ai-pricing-theme';
+
+function getPreferredTheme() {
+  const stored = localStorage.getItem(THEME_STORAGE_KEY);
+  if (stored === 'light' || stored === 'dark') return stored;
+  if (typeof window.matchMedia !== 'undefined' && window.matchMedia('(prefers-color-scheme: light)').matches) return 'light';
+  return 'dark';
+}
+
+function setTheme(theme) {
+  const root = document.documentElement;
+  root.setAttribute('data-theme', theme === 'light' ? 'light' : '');
+  const icon = document.getElementById('themeIcon');
+  if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+  } catch (_) {}
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+  setTheme(current === 'dark' ? 'light' : 'dark');
+}
+
 // --- Init: run after DOM is ready so elements and tab panels exist ---
 function init() {
   if (typeof window.__appLoadFailed !== 'undefined') window.__appLoadFailed = false;
+  setTheme(getPreferredTheme());
+  document.getElementById('themeToggleBtn')?.addEventListener('click', toggleTheme);
   document.querySelectorAll('.calc-sub-link').forEach((link) => {
     link.addEventListener('click', (e) => {
       e.preventDefault();

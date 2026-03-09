@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Model Pricing - Gemini, OpenAI, Anthropic, Mistral</title>
+    <script>
+      (function() {
+        var t = localStorage.getItem('ai-pricing-theme');
+        if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+        else if (t !== 'dark' && typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: light)').matches) document.documentElement.setAttribute('data-theme', 'light');
+      })();
+    </script>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -14,6 +21,9 @@
                 <p class="subtitle">Compare pricing for Gemini and OpenAI models — updates automatically from official sources</p>
             </div>
             <div class="header-right-actions">
+                <button type="button" class="theme-toggle-btn" id="themeToggleBtn" title="Toggle dark/light mode" aria-label="Toggle dark/light mode">
+                    <span id="themeIcon">🌙</span>
+                </button>
                 <button type="button" class="refresh-btn" id="refreshWebBtn" title="Fetch latest pricing from Google & OpenAI">
                     <span class="refresh-icon" id="refreshIcon">🔄</span>
                     <span id="refreshText">Refresh from web</span>
