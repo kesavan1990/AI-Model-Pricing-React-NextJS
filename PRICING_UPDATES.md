@@ -32,16 +32,32 @@ The script exits with code 1 (and does not write `pricing.json`) on:
 - **Rate limit** — HTTP 429 or any non-OK status
 - **Empty response** — response body empty
 - **Malformed JSON** — invalid JSON from the API
-- **No usable data** — response parses but has no Gemini/OpenAI models
+- **No usable data** — response parses but has no Gemini/OpenAI models, or no valid models remain after validation
 
 When the script fails, the workflow step fails too, so no bad `pricing.json` is committed. See [docs/PRICING_UPDATES.md](docs/PRICING_UPDATES.md) for the full table.
 
+## Validation (before writing)
+
+Before writing, each model is validated. Invalid models are **skipped**; only valid ones are written. Rules:
+
+- **Missing fields** — must have non-empty `name`, and both `input` and `output` (numbers).
+- **NaN** — `input`, `output`, and if present `cachedInput` must be finite numbers; NaN → skipped.
+- **Negative values** — all price fields must be ≥ 0; negative → skipped.
+- At least one of `input` or `output` must be &gt; 0.
+
+If no valid Gemini/OpenAI models remain after validation, the script exits 1 and does not write the file. Full details: [docs/PRICING_UPDATES.md](docs/PRICING_UPDATES.md#validation-before-writing).
+
+## JSON schema validation
+
+The payload is validated against **`schemas/pricing.schema.json`** before write. This prevents corrupted datasets (wrong shape, extra keys, invalid types). On schema failure the script exits 1 and does not write the file. See [docs/PRICING_UPDATES.md](docs/PRICING_UPDATES.md#json-schema-validation-before-writing).
+
 ## Running the script locally
 
-To refresh `pricing.json` yourself:
+To refresh `pricing.json` yourself (from repo root, after `npm ci` or `npm install`):
 
 ```bash
-node scripts/update-pricing.js
+npm run update-pricing
+# or: node scripts/update-pricing.js
 ```
 
 On success, commit and push `pricing.json` if needed. On failure the script exits 1 and does not overwrite the file. You can also use **Actions → Update pricing → Run workflow** in GitHub.

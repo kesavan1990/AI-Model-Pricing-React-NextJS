@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "pricing",
+  "title": "AI pricing payload",
+  "description": "Schema for pricing.json: normalized per-1M-token pricing by provider. Validated before write to prevent corrupted datasets.",
+  "type": "object",
+  "required": ["updated", "gemini", "openai", "anthropic", "mistral"],
+  "additionalProperties": false,
+  "properties": {
+    "updated": {
+      "type": "string",
+      "description": "Date of last update (YYYY-MM-DD)"
+    },
+    "gemini": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/model" }
+    },
+    "openai": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/model" }
+    },
+    "anthropic": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/model" }
+    },
+    "mistral": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/model" }
+    }
+  },
+  "definitions": {
+    "model": {
+      "type": "object",
+      "required": ["name", "input", "output"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "input": { "type": "number", "minimum": 0 },
+        "output": { "type": "number", "minimum": 0 },
+        "cachedInput": { "type": ["number", "null"], "minimum": 0 }
+      }
+    }
+  }
+}

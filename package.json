@@ -1,0 +1,12 @@
+{
+  "name": "ai-pricing-app",
+  "private": true,
+  "type": "module",
+  "description": "Script dependencies for pricing update (JSON schema validation).",
+  "scripts": {
+    "update-pricing": "node scripts/update-pricing.js"
+  },
+  "dependencies": {
+    "ajv": "^8.12.0"
+  }
+}

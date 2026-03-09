@@ -21,14 +21,15 @@ Deployed site (e.g. GitHub Pages) serves updated pricing on next load
 ```
 
 - **Workflow:** [`.github/workflows/update-pricing.yml`](.github/workflows/update-pricing.yml) — runs the script, then commits and pushes only when `pricing.json` has changed (`git diff --staged --quiet`), so no empty commits on every run.
-- **Script:** [`scripts/update-pricing.js`](scripts/update-pricing.js) — fetches [Vizra API](https://vizra.ai/api/v1/pricing/ai-models), normalizes provider names and units, deduplicates by model name, writes `pricing.json`. On API timeout, rate limit, empty response, or malformed JSON it exits with code 1 so the workflow does not commit bad data. See [PRICING_UPDATES.md](PRICING_UPDATES.md#api-failure-handling).
+- **Script:** [`scripts/update-pricing.js`](scripts/update-pricing.js) — fetches [Vizra API](https://vizra.ai/api/v1/pricing/ai-models), normalizes and deduplicates, validates each model (required fields, no NaN/negatives), then **validates the payload against [`schemas/pricing.schema.json`](schemas/pricing.schema.json)** before writing. This prevents corrupted datasets (wrong shape, extra keys, invalid types). On API failure, validation failure, or schema failure it exits with code 1. See [PRICING_UPDATES.md](PRICING_UPDATES.md#api-failure-handling), [validation](PRICING_UPDATES.md#validation-before-writing), and [JSON schema](PRICING_UPDATES.md#json-schema-validation).
 
 ### Run the update locally
 
-From the repo root:
+From the repo root (install deps first if needed: `npm ci`):
 
 ```bash
-node scripts/update-pricing.js
+npm run update-pricing
+# or: node scripts/update-pricing.js
 ```
 
 Then commit and push `pricing.json` if you want, or rely on the daily Action.

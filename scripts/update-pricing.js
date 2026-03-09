@@ -6,10 +6,18 @@
  *
  * Failure handling: on API timeout, rate limit (429), non-OK status, empty response,
  * or malformed JSON, logs an error and exits with code 1 so the workflow does not commit.
+ *
+ * Validation: before writing, each model is validated (required name/input/output;
+ * no NaN, no negative values; optional cachedInput must be valid if present).
+ * Invalid models are skipped; if no valid Gemini/OpenAI remain, the script exits 1.
+ *
+ * JSON schema: payload is validated against schemas/pricing.schema.json before write.
+ * Schema validation prevents corrupted datasets (wrong shape, extra keys, invalid types).
  */
 
 const VIZRA_URL = 'https://vizra.ai/api/v1/pricing/ai-models';
 const OUT_FILE = 'pricing.json';
+const SCHEMA_PATH = 'schemas/pricing.schema.json';
 
 function normalizeProvider(p) {
   if (p == null || p === '') return '';
@@ -64,6 +72,34 @@ function dedupeModelsByName(arr) {
     if (!seen.has(key)) seen.set(key, m);
   }
   return Array.from(seen.values());
+}
+
+/** Valid number: finite, not NaN, not negative. */
+function isValidPrice(v) {
+  return typeof v === 'number' && Number.isFinite(v) && !Number.isNaN(v) && v >= 0;
+}
+
+/**
+ * Validate a normalized model before writing. Skip if missing fields, NaN, or negative values.
+ * @returns {boolean} true if the model is valid and should be included
+ */
+function validateModel(m) {
+  if (!m || typeof m !== 'object') return false;
+  if (!m.name || typeof m.name !== 'string' || !String(m.name).trim()) return false;
+  if (!isValidPrice(m.input) || !isValidPrice(m.output)) return false;
+  if (m.cachedInput != null && !isValidPrice(m.cachedInput)) return false;
+  if (m.input === 0 && m.output === 0) return false;
+  return true;
+}
+
+function validateAndFilter(parsed) {
+  const out = { gemini: [], openai: [], anthropic: [], mistral: [] };
+  for (const key of Object.keys(out)) {
+    const arr = parsed[key];
+    if (!Array.isArray(arr)) continue;
+    out[key] = arr.filter(validateModel);
+  }
+  return out;
 }
 
 function parseVizraResponse(data) {
@@ -149,21 +185,40 @@ async function main() {
   }
 
   const parsed = parseVizraResponse(data);
-  if (!parsed.gemini.length && !parsed.openai.length) {
-    console.error('Pricing fetch failed: No pricing data in response');
+  const validated = validateAndFilter(parsed);
+  if (!validated.gemini.length && !validated.openai.length) {
+    console.error('Pricing fetch failed: No valid pricing data after validation');
     process.exit(1);
   }
 
   const updated = new Date().toISOString().slice(0, 10);
   const payload = {
     updated,
-    gemini: parsed.gemini,
-    openai: parsed.openai,
-    anthropic: parsed.anthropic || [],
-    mistral: parsed.mistral || [],
+    gemini: validated.gemini,
+    openai: validated.openai,
+    anthropic: validated.anthropic || [],
+    mistral: validated.mistral || [],
   };
+
+  const schemaPath = path.join(process.cwd(), SCHEMA_PATH);
+  let schema;
+  try {
+    schema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
+  } catch (e) {
+    console.error('Pricing fetch failed: Could not load schema', SCHEMA_PATH, e.message);
+    process.exit(1);
+  }
+  const { default: Ajv } = await import('ajv');
+  const ajv = new Ajv({ allErrors: true });
+  const validate = ajv.compile(schema);
+  if (!validate(payload)) {
+    const errs = (validate.errors || []).map((e) => `${e.instancePath || '/'} ${e.message}`).join('; ');
+    console.error('Pricing fetch failed: Schema validation failed:', errs);
+    process.exit(1);
+  }
+
   fs.writeFileSync(outPath, JSON.stringify(payload, null, 2) + '\n', 'utf8');
-  console.log('Wrote', OUT_FILE, `(${parsed.gemini.length} Gemini, ${parsed.openai.length} OpenAI, ${(parsed.anthropic || []).length} Anthropic, ${(parsed.mistral || []).length} Mistral)`);
+  console.log('Wrote', OUT_FILE, `(${validated.gemini.length} Gemini, ${validated.openai.length} OpenAI, ${(validated.anthropic || []).length} Anthropic, ${(validated.mistral || []).length} Mistral)`);
 }
 
 main().catch((e) => {
