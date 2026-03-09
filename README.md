@@ -43,6 +43,7 @@ In the repo: **Actions → Update pricing → Run workflow**.
 ## What’s in the app
 
 - **Pricing grid** — Gemini, OpenAI, Anthropic, Mistral (input/output/cached per 1M tokens).
+- **Model comparison table** — Single table on the Home tab: **Model | Provider | Input | Output | Context** (all models in one view; context = context window, e.g. 1M, 128k). See [Model comparison table](docs/UI.md#model-comparison-table).
 - **Calculators** — Prompt cost, context-window, production cost.
 - **Benchmarks** — MMLU, code, reasoning, arena-style.
 - **Find the right model** — Filter by use case and cost.
@@ -58,7 +59,7 @@ Front-end logic is split into ES modules under `src/` for clearer code and easie
 | **`src/api.js`** | Fetch layer: `getPricing()` (pricing.json with cache-busting `?t=<timestamp>` so the browser does not show old pricing), `fetchVizraPricing()`, `getPricingJsonUrl()`, `isGitHubPages()`, `fetchWithCors()` for doc search. |
 | **`src/pricingService.js`** | Load, cache, normalize: `loadPricing()`, `DEFAULT_PRICING`, `parseVizraResponse()`, `comparePrices()`, `dedupeModelsByName`, history (getHistory, saveToHistory, cleanupHistoryToDailyOnly), cache helpers. |
 | **`src/calculator.js`** | Pure logic: cost (`calcCost`, `calcCostOpenAI`, `calcCostForEntry`), context windows, benchmarks, model lists (`getUnifiedCalcModels`, `getAllModels`), recommendations (`getRecommendations`, `scoreModelForUseCase`), doc search helpers, `estimatePromptTokens`. |
-| **`src/render.js`** | UI: `renderTables()`, `renderBenchmarkDashboard()`, `renderHistoryList()`, `renderRecommendations()`, toasts, `setLastUpdated`, CSV/PDF export helpers, `formatHistoryDate`. |
+| **`src/render.js`** | UI: `renderTables()`, `renderModelComparisonTable()` (Model \| Provider \| Input \| Output \| Context), `renderBenchmarkDashboard()`, `renderHistoryList()`, `renderRecommendations()`, toasts, `setLastUpdated`, CSV/PDF export helpers, `formatHistoryDate`. |
 | **`src/app.js`** | App entry: state (gemini/openai/anthropic/mistral), `loadPricing`, `refreshFromWeb`, daily capture, history compare, calculator handlers, event wiring; imports the modules above. |
 
 `index.html` loads only `<script type="module" src="src/app.js"></script>`. No inline app logic.
@@ -69,5 +70,6 @@ Static only (HTML/CSS/JS). No server or database. See [HOSTING.md](HOSTING.md) f
 
 ## Docs
 
+- [docs/UI.md](docs/UI.md) — UI overview; **Model comparison table** (Model \| Provider \| Input \| Output \| Context).
 - [docs/PRICING_UPDATES.md](docs/PRICING_UPDATES.md) — Pricing update architecture and flow.
 - [docs/PRICING_SCENARIOS.md](docs/PRICING_SCENARIOS.md) — How pricing is loaded in each scenario (first load, refresh, GitHub vs local).

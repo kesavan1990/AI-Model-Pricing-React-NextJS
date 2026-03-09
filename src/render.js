@@ -92,7 +92,27 @@ export function renderTables(data) {
     const opts = unified.map((u) => `<option value="${u.key}">${u.label}</option>`).join('');
     calcCompareSel.innerHTML = '<option value="">— None —</option>' + opts;
   }
+  renderModelComparisonTable(data);
   renderBenchmarkDashboard(data);
+}
+
+/**
+ * Render the unified model comparison table: Model | Provider | Input | Output | Context.
+ */
+export function renderModelComparisonTable(data) {
+  const tbody = document.getElementById('model-comparison-tbody');
+  if (!tbody) return;
+  const all = getAllModels(data);
+  const fmt = (v) => (v === 0 ? 'Free' : '$' + Number(v).toFixed(2));
+  const rows = all
+    .map((m) => {
+      const inp = fmt(m.input);
+      const out = fmt(m.output);
+      const ctx = m.contextWindow || '—';
+      return `<tr><td class="model-name">${m.name}</td><td class="provider-name">${m.provider}</td><td class="price price-input">${inp}</td><td class="price price-output">${out}</td><td class="context-window">${ctx}</td></tr>`;
+    })
+    .join('');
+  tbody.innerHTML = rows;
 }
 
 export function renderBenchmarkDashboard(data) {
