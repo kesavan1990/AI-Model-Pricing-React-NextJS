@@ -599,23 +599,32 @@ function runProductionCostSim() {
   const list = [];
   data.gemini.forEach((m) => {
     const costPerRequest = calc.calcCost(promptTokens, outputTokens, m.input, m.output);
-    list.push({ name: m.name, daily: costPerRequest * totalRequestsPerDay, monthly: costPerRequest * totalRequestsPerDay * 30 });
+    const daily = costPerRequest * totalRequestsPerDay;
+    const monthly = daily * 30;
+    list.push({ name: m.name, perRequest: costPerRequest, daily, monthly, annum: monthly * 12 });
   });
   data.openai.forEach((m) => {
     if (/^text-embedding/i.test(m.name)) return;
     const costPerRequest = calc.calcCostOpenAI(promptTokens, 0, outputTokens, m.input, m.cachedInput, m.output);
-    list.push({ name: m.name, daily: costPerRequest * totalRequestsPerDay, monthly: costPerRequest * totalRequestsPerDay * 30 });
+    const daily = costPerRequest * totalRequestsPerDay;
+    const monthly = daily * 30;
+    list.push({ name: m.name, perRequest: costPerRequest, daily, monthly, annum: monthly * 12 });
   });
   data.anthropic.forEach((m) => {
     const costPerRequest = calc.calcCost(promptTokens, outputTokens, m.input, m.output);
-    list.push({ name: m.name, daily: costPerRequest * totalRequestsPerDay, monthly: costPerRequest * totalRequestsPerDay * 30 });
+    const daily = costPerRequest * totalRequestsPerDay;
+    const monthly = daily * 30;
+    list.push({ name: m.name, perRequest: costPerRequest, daily, monthly, annum: monthly * 12 });
   });
   data.mistral.forEach((m) => {
     const costPerRequest = calc.calcCost(promptTokens, outputTokens, m.input, m.output);
-    list.push({ name: m.name, daily: costPerRequest * totalRequestsPerDay, monthly: costPerRequest * totalRequestsPerDay * 30 });
+    const daily = costPerRequest * totalRequestsPerDay;
+    const monthly = daily * 30;
+    list.push({ name: m.name, perRequest: costPerRequest, daily, monthly, annum: monthly * 12 });
   });
-  const rows = list.map((m) => `<tr><td class="model-name">${m.name}</td><td class="cost-daily">$${m.daily.toFixed(2)}</td><td class="cost-monthly">$${m.monthly.toFixed(2)}</td></tr>`).join('');
-  resultEl.innerHTML = '<h4>Estimated costs (30-day month)</h4><table class="model-table"><thead><tr><th>Model</th><th>Daily cost</th><th>Monthly cost</th></tr></thead><tbody>' + rows + '</tbody></table>';
+  const fmtReq = (v) => (v < 0.0001 && v > 0 ? '$' + v.toExponential(2) : '$' + v.toFixed(4));
+  const rows = list.map((m) => `<tr><td class="model-name">${m.name}</td><td class="cost-per-request">${fmtReq(m.perRequest)}</td><td class="cost-daily">$${m.daily.toFixed(2)}</td><td class="cost-monthly">$${m.monthly.toFixed(2)}</td><td class="cost-annum">$${m.annum.toFixed(2)}</td></tr>`).join('');
+  resultEl.innerHTML = '<h4>Estimated costs</h4><table class="model-table"><thead><tr><th>Model</th><th>Per request</th><th>Daily cost</th><th>Monthly cost</th><th>Per annum</th></tr></thead><tbody>' + rows + '</tbody></table>';
   resultEl.style.display = 'block';
 }
 

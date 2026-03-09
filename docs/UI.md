@@ -26,6 +26,22 @@ OpenAI models can also use **Cached input tokens** (tokens served from cache at 
 
 ---
 
+## Production cost simulator
+
+In **Calculators → 🏭 Production cost**, the production cost simulator estimates API cost across all models for a given usage scenario.
+
+| | Description |
+|---|-------------|
+| **Input** | **Users per day** — number of daily active users. |
+| **Input** | **Requests per user** — number of API requests per user per day. |
+| **Input** | **Prompt tokens (per request)** — input tokens per request. |
+| **Input** | **Output tokens (per request)** — output tokens per request. |
+| **Output** | **Estimated costs** — a table with one row per model and columns: **Per request** (cost for one request), **Daily cost**, **Monthly cost**, **Per annum** (yearly cost). |
+
+Monthly cost is daily cost × 30; per annum is monthly × 12. Use **Simulate** to run the calculation and **Reset** to restore default inputs.
+
+---
+
 ## Model comparison table
 
 On the **Compare** tab (📋 Compare in the main nav, next to Home, Calculators, Benchmarks, Recommend), a single **Model comparison** table lists all models for quick scanning and comparison.

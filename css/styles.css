@@ -490,8 +490,10 @@ h1 {
 .production-cost-result .model-table { font-size: 0.9rem; }
 .production-cost-result .model-table thead th { position: sticky; top: 0; background: rgba(26, 26, 46, 0.98); z-index: 1; }
 .calc-result-capped { color: #a0a0a0; font-size: 0.85rem; margin-top: 8px; }
+.production-cost-result .cost-per-request,
 .production-cost-result .cost-daily { color: #8ab4f8; font-weight: 600; }
-.production-cost-result .cost-monthly { color: #4ade80; font-weight: 600; }
+.production-cost-result .cost-monthly,
+.production-cost-result .cost-annum { color: #4ade80; font-weight: 600; }
 
 .benchmark-dashboard-wrap { max-width: 900px; margin: 0 auto; overflow-x: auto; }
 .benchmark-dashboard-table { margin-bottom: 12px; }
@@ -900,6 +902,10 @@ h1 {
 [data-theme="light"] .prompt-cost-list li .model-label { color: var(--theme-text); }
 [data-theme="light"] .context-window-result h4,
 [data-theme="light"] .production-cost-result h4 { color: var(--theme-text); }
+[data-theme="light"] .production-cost-result .cost-per-request,
+[data-theme="light"] .production-cost-result .cost-daily,
+[data-theme="light"] .production-cost-result .cost-monthly,
+[data-theme="light"] .production-cost-result .cost-annum { color: #0f172a; }
 [data-theme="light"] .recommend-doc-snippet { color: #2563eb; background: rgba(37, 99, 235, 0.08); border-color: rgba(37, 99, 235, 0.3); }
 [data-theme="light"] .recommend-doc-note { color: var(--theme-text-muted); }
 [data-theme="light"] .history-empty { color: var(--theme-text-muted); }

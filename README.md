@@ -45,7 +45,7 @@ In the repo: **Actions → Update pricing → Run workflow**.
 - **Pricing grid** — Gemini, OpenAI, Anthropic, Mistral (input/output/cached per 1M tokens).
 - **Dark mode / light mode** — Toggle in the header (☀️/🌙). Preference is saved and respects system `prefers-color-scheme` on first visit. See [docs/UI.md](docs/UI.md#dark-mode-and-light-mode).
 - **Model comparison table** — On the **Compare** tab: single table **Model | Provider | Input | Output | Context** (all models in one view; context = context window, e.g. 1M, 128k). See [Model comparison table](docs/UI.md#model-comparison-table).
-- **Calculators** — **Cost calculator** (input: Prompt tokens, Output tokens, Model → output: Estimated cost; see [docs/UI.md](docs/UI.md#cost-calculator)), prompt cost from text, context-window check, production cost.
+- **Calculators** — **Cost calculator** (input: Prompt tokens, Output tokens, Model → output: Estimated cost; see [docs/UI.md](docs/UI.md#cost-calculator)), prompt cost from text, context-window check, **production cost simulator** (per request, daily, monthly, per annum; see [Production cost simulator](docs/UI.md#production-cost-simulator)).
 - **Benchmarks** — MMLU, code, reasoning, arena-style.
 - **Find the right model** — Filter by use case and cost.
 - **Pricing history** — Daily snapshots (12:00 AM IST), compare two dates, export CSV/PDF.
