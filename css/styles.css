@@ -487,14 +487,22 @@ h1 {
 .production-cost-inputs .calc-row input { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.25); color: #fff; }
 .production-cost-result { margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1); max-height: 380px; overflow-y: auto; overflow-x: auto; }
 .production-cost-result h4 { color: #e0e0e0; font-size: 0.95rem; margin: 0 0 10px 0; }
-.production-cost-result .model-table { font-size: 0.9rem; }
+.production-cost-result .model-table {
+  font-size: 0.9rem;
+  border-collapse: separate;
+  border-spacing: 0;
+}
 .production-cost-result .model-table thead th {
   position: sticky;
   top: 0;
   z-index: 2;
   background: #1a1a2e;
   border-bottom: 1px solid rgba(255,255,255,0.15);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 0 0 #1a1a2e;
+  padding: 12px 8px;
+}
+.production-cost-result .model-table thead tr th {
+  background: #1a1a2e;
 }
 .calc-result-capped { color: #a0a0a0; font-size: 0.85rem; margin-top: 8px; }
 .production-cost-result .cost-per-request,
@@ -883,7 +891,10 @@ h1 {
   background: #fff;
   color: var(--theme-text-muted);
   border-bottom: 1px solid rgba(0,0,0,0.12);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 0 0 #fff;
+}
+[data-theme="light"] .production-cost-result .model-table thead tr {
+  background: #fff;
 }
 [data-theme="light"] .context-window-result .model-table td,
 [data-theme="light"] .production-cost-result .model-table td,
