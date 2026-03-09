@@ -2062,7 +2062,7 @@
         async function loadPricing() {
             let lastUpdatedStr = null;
             try {
-                const res = await fetch('pricing.json');
+                const res = await fetch('pricing.json', { cache: 'no-store' });
                 if (res.ok) {
                     const data = await res.json();
                     geminiData = (data.gemini && data.gemini.length) ? data.gemini : DEFAULT_PRICING.gemini.slice();
