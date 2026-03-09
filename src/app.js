@@ -27,15 +27,28 @@ function setData(data) {
 
 // --- Load & refresh ---
 async function loadPricing() {
-  const result = await pricing.loadPricing(api.getPricing);
-  setData(result);
-  render.setLastUpdated(result.updated);
-  render.renderTables(getData());
-  pricing.cleanupHistoryToDailyOnly();
-  if (!api.isGitHubPages()) await fillMissingProvidersFromVizra();
-  maybeRunDailyCapture();
-  if (result.usedFallback === 'cache') render.showToast('Loaded pricing from local cache (file unavailable).', 'success');
-  if (result.usedFallback === 'default') render.showToast('Using embedded default pricing (no file or cache).', 'success');
+  try {
+    const result = await pricing.loadPricing(api.getPricing);
+    setData(result);
+    render.setLastUpdated(result.updated);
+    render.renderTables(getData());
+    pricing.cleanupHistoryToDailyOnly();
+    if (!api.isGitHubPages()) await fillMissingProvidersFromVizra();
+    maybeRunDailyCapture();
+    if (result.usedFallback === 'cache') render.showToast('Loaded pricing from local cache (file unavailable).', 'success');
+    if (result.usedFallback === 'default') render.showToast('Using embedded default pricing (no file or cache).', 'success');
+  } catch (err) {
+    console.error('loadPricing failed:', err);
+    setData({
+      gemini: pricing.DEFAULT_PRICING.gemini.slice(),
+      openai: pricing.DEFAULT_PRICING.openai.slice(),
+      anthropic: (pricing.DEFAULT_PRICING.anthropic || []).slice(),
+      mistral: (pricing.DEFAULT_PRICING.mistral || []).slice(),
+    });
+    render.setLastUpdated('embedded default');
+    render.renderTables(getData());
+    render.showToast('Using embedded default pricing.', 'success');
+  }
 }
 
 async function fillMissingProvidersFromVizra() {
@@ -798,79 +811,88 @@ window.resetContextWindowCheck = resetContextWindowCheck;
 window.runProductionCostSim = runProductionCostSim;
 window.resetProductionCostSim = resetProductionCostSim;
 
-// --- Init ---
-document.querySelectorAll('.calc-sub-link').forEach((link) => {
-  link.addEventListener('click', (e) => {
-    e.preventDefault();
-    switchCalcSub(link.getAttribute('data-calc-sub'));
+// --- Init: run after DOM is ready so elements and tab panels exist ---
+function init() {
+  if (typeof window.__appLoadFailed !== 'undefined') window.__appLoadFailed = false;
+  document.querySelectorAll('.calc-sub-link').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      switchCalcSub(link.getAttribute('data-calc-sub'));
+    });
   });
-});
-document.querySelectorAll('.tab-link').forEach((link) => {
-  link.addEventListener('click', (e) => {
-    e.preventDefault();
-    switchTab(link.getAttribute('data-tab'));
+  document.querySelectorAll('.tab-link').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      switchTab(link.getAttribute('data-tab'));
+    });
   });
-});
-const hash = (location.hash || '').replace(/^#/, '');
-if (hash.startsWith('calc-')) {
-  switchTab('calculators');
-  const sub = hash.replace('calc-', '');
-  if (['pricing', 'prompt', 'context', 'production'].includes(sub)) switchCalcSub(sub);
-} else if (['pricing', 'calculators', 'benchmarks', 'recommend'].includes(hash)) {
-  switchTab(hash);
-}
-window.addEventListener('hashchange', () => {
-  const h = (location.hash || '').replace(/^#/, '');
-  if (h.startsWith('calc-')) {
+  const hash = (location.hash || '').replace(/^#/, '');
+  if (hash.startsWith('calc-')) {
     switchTab('calculators');
-    const sub = h.replace('calc-', '');
+    const sub = hash.replace('calc-', '');
     if (['pricing', 'prompt', 'context', 'production'].includes(sub)) switchCalcSub(sub);
-  } else if (['pricing', 'calculators', 'benchmarks', 'recommend'].includes(h)) switchTab(h);
-});
-document.querySelector('.header-home-link')?.addEventListener('click', (e) => {
-  e.preventDefault();
-  switchTab('pricing');
-  window.scrollTo(0, 0);
-});
-document.getElementById('refreshWebBtn')?.addEventListener('click', refreshFromWeb);
-document.getElementById('getRecommendBtn')?.addEventListener('click', runRecommendation);
-['gemini', 'openai', 'anthropic', 'mistral'].forEach((p) => {
-  const el = document.getElementById(p + '-search');
-  if (el) el.addEventListener('input', () => render.filterPricingTable(p + '-tbody', el.value));
-});
-const promptInputEl = document.getElementById('prompt-input');
-if (promptInputEl) {
-  promptInputEl.addEventListener('input', function () {
-    const el = document.getElementById('prompt-token-count');
-    if (el) el.textContent = 'Prompt tokens: ' + calc.estimatePromptTokens(this.value);
+  } else if (['pricing', 'calculators', 'benchmarks', 'recommend'].includes(hash)) {
+    switchTab(hash);
+  }
+  window.addEventListener('hashchange', () => {
+    const h = (location.hash || '').replace(/^#/, '');
+    if (h.startsWith('calc-')) {
+      switchTab('calculators');
+      const sub = h.replace('calc-', '');
+      if (['pricing', 'prompt', 'context', 'production'].includes(sub)) switchCalcSub(sub);
+    } else if (['pricing', 'calculators', 'benchmarks', 'recommend'].includes(h)) switchTab(h);
   });
-}
-document.getElementById('promptImportBtn')?.addEventListener('click', () => document.getElementById('prompt-file-input')?.click());
-document.getElementById('prompt-file-input')?.addEventListener('change', function () {
-  const file = this.files?.[0];
-  if (file) handlePromptFileSelect(file);
-});
-document.getElementById('recommendResetBtn')?.addEventListener('click', () => {
-  const descEl = document.getElementById('useCaseDesc');
-  const btn = document.getElementById('getRecommendBtn');
-  const resultEl = document.getElementById('recommendResult');
-  if (descEl) descEl.value = '';
-  if (btn) {
-    btn.disabled = false;
-    btn.textContent = 'Get recommendation';
+  document.querySelector('.header-home-link')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    switchTab('pricing');
+    window.scrollTo(0, 0);
+  });
+  document.getElementById('refreshWebBtn')?.addEventListener('click', refreshFromWeb);
+  document.getElementById('getRecommendBtn')?.addEventListener('click', runRecommendation);
+  ['gemini', 'openai', 'anthropic', 'mistral'].forEach((p) => {
+    const el = document.getElementById(p + '-search');
+    if (el) el.addEventListener('input', () => render.filterPricingTable(p + '-tbody', el.value));
+  });
+  const promptInputEl = document.getElementById('prompt-input');
+  if (promptInputEl) {
+    promptInputEl.addEventListener('input', function () {
+      const el = document.getElementById('prompt-token-count');
+      if (el) el.textContent = 'Prompt tokens: ' + calc.estimatePromptTokens(this.value);
+    });
   }
-  if (resultEl) {
-    resultEl.classList.add('hidden');
-    document.getElementById('recommendList').innerHTML = '';
-  }
-});
-document.getElementById('historyBtn')?.addEventListener('click', (e) => {
-  e.preventDefault();
-  openHistoryModal();
-});
-document.getElementById('historyModalClose')?.addEventListener('click', render.closeHistoryModal);
-document.getElementById('historyModal')?.addEventListener('click', (e) => {
-  if (e.target.id === 'historyModal') render.closeHistoryModal();
-});
+  document.getElementById('promptImportBtn')?.addEventListener('click', () => document.getElementById('prompt-file-input')?.click());
+  document.getElementById('prompt-file-input')?.addEventListener('change', function () {
+    const file = this.files?.[0];
+    if (file) handlePromptFileSelect(file);
+  });
+  document.getElementById('recommendResetBtn')?.addEventListener('click', () => {
+    const descEl = document.getElementById('useCaseDesc');
+    const btn = document.getElementById('getRecommendBtn');
+    const resultEl = document.getElementById('recommendResult');
+    if (descEl) descEl.value = '';
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Get recommendation';
+    }
+    if (resultEl) {
+      resultEl.classList.add('hidden');
+      document.getElementById('recommendList').innerHTML = '';
+    }
+  });
+  document.getElementById('historyBtn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    openHistoryModal();
+  });
+  document.getElementById('historyModalClose')?.addEventListener('click', render.closeHistoryModal);
+  document.getElementById('historyModal')?.addEventListener('click', (e) => {
+    if (e.target.id === 'historyModal') render.closeHistoryModal();
+  });
 
-document.addEventListener('DOMContentLoaded', loadPricing);
+  loadPricing();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}

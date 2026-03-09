@@ -74,23 +74,4 @@ export async function fetchWithCors(url) {
   return '';
 }
 
-/**
- * Fetch URL with CORS fallback (for doc search from browser).
- * @param {string} url
- * @returns {Promise<string>} Response text or ''
- */
-export async function fetchWithCors(url) {
-  try {
-    const res = await fetch(url, { cache: 'no-store' });
-    if (res.ok) return await res.text();
-  } catch (_) {}
-  for (const proxy of CORS_PROXIES) {
-    try {
-      const res = await fetch(proxy(url), { cache: 'no-store' });
-      if (res.ok) return await res.text();
-    } catch (_) {}
-  }
-  return '';
-}
-
 export { VIZRA_PRICING_URL, CORS_PROXIES };

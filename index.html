@@ -1085,7 +1085,24 @@
         </div>
     </div>
 
+    <script>window.__appLoadFailed = true;</script>
     <script type="module" src="src/app.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+          if (window.__appLoadFailed === true) {
+            var el = document.getElementById('lastUpdated');
+            if (!el || !el.textContent || el.textContent === '—') {
+              var msg = document.createElement('p');
+              msg.id = 'app-load-error';
+              msg.style.cssText = 'padding:20px;margin:20px;background:#1a1a2e;color:#f87171;text-align:center;border:1px solid #f87171;border-radius:8px;';
+              msg.innerHTML = 'App could not load. Open the browser console (F12) for errors. If you opened this as a file (file://), run a local server: <code style="background:rgba(0,0,0,0.3);padding:4px 8px;">npx serve .</code> then open <code style="background:rgba(0,0,0,0.3);padding:4px 8px;">http://localhost:3000</code>.';
+              document.body.insertBefore(msg, document.body.firstChild);
+            }
+          }
+        }, 2500);
+      });
+    </script>
 </body>
 </html>
 
