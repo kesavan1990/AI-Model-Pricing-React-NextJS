@@ -780,7 +780,7 @@ function switchCalcSub(subId) {
 }
 
 function switchTab(tabId) {
-  const ids = ['pricing', 'calculators', 'benchmarks', 'recommend'];
+  const ids = ['pricing', 'comparison', 'calculators', 'benchmarks', 'recommend'];
   if (!ids.includes(tabId)) return;
   document.querySelectorAll('.tab-panel').forEach((p) => p.classList.remove('active'));
   document.querySelectorAll('.tab-link').forEach((l) => l.classList.remove('active'));
