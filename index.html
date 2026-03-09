@@ -1073,7 +1073,7 @@
             <div class="modal-header">
                 <div>
                     <h2>📜 Pricing History</h2>
-                    <p class="modal-subtitle">Daily snapshots (10:00 AM IST) are kept. One snapshot per day when you first open the app. All history is retained with no date limit.</p>
+                    <p class="modal-subtitle">Daily snapshots (12:00 AM IST) are kept. One snapshot per day when you first open the app. All history is retained with no date limit.</p>
                 </div>
                 <div class="modal-header-actions">
                     <button type="button" class="export-btn csv modal-export" onclick="exportHistoryCSV()" title="Export all history as CSV">📄 Export CSV</button>
@@ -1891,10 +1891,10 @@
             return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
         }
 
-        function getToday10AMIST() {
+        function getToday12AMIST() {
             const today = getTodayIST();
             const [y, m, d] = today.split('-').map(Number);
-            return new Date(Date.UTC(y, m - 1, d, 4, 30, 0, 0)).toISOString();
+            return new Date(Date.UTC(y, m - 1, d - 1, 18, 30, 0, 0)).toISOString();
         }
 
         async function runDailyCapture() {
@@ -1921,7 +1921,7 @@
                             }
                     } catch (_) {}
                 }
-                saveToHistory(g, o, { daily: true, date: getToday10AMIST(), anthropic: a, mistral: m });
+                saveToHistory(g, o, { daily: true, date: getToday12AMIST(), anthropic: a, mistral: m });
                 try { localStorage.setItem(LAST_DAILY_KEY, today); } catch (_) {}
                 geminiData = g;
                 openaiData = o;
@@ -1968,7 +1968,7 @@
                     <div id="historyCompareResult" class="history-compare-result" style="display: none;"></div>
                 </div>`;
             if (!list.length) {
-                body.innerHTML = compareSectionHtml + '<p class="history-empty">No daily history yet. A snapshot is saved automatically when you first open the app each day (10:00 AM IST). All history is kept with no date limit.</p>';
+                body.innerHTML = compareSectionHtml + '<p class="history-empty">No daily history yet. A snapshot is saved automatically when you first open the app each day (12:00 AM IST). All history is kept with no date limit.</p>';
                 document.getElementById('historyCompareFrom').disabled = true;
                 document.getElementById('historyCompareTo').disabled = true;
                 document.getElementById('historyCompareBtn').disabled = true;
@@ -2380,10 +2380,39 @@
                     anthropicData = (data.anthropic && Array.isArray(data.anthropic)) ? data.anthropic : anthropicData;
                     mistralData = (data.mistral && Array.isArray(data.mistral)) ? data.mistral : mistralData;
                     const payload = { gemini: geminiData, openai: openaiData, anthropic: anthropicData, mistral: mistralData, updated: (data.updated || new Date().toISOString().slice(0, 10)), cachedAt: Date.now() };
+                    const last = localStorage.getItem(STORAGE_KEY);
+                    let drops = [], increases = [];
+                    if (last) {
+                        try {
+                            const lastData = JSON.parse(last);
+                            const diff = comparePrices(lastData, payload);
+                            drops = diff.drops;
+                            increases = diff.increases;
+                        } catch (_) {}
+                    }
                     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); } catch (_) {}
                     setLastUpdated(formatTimestampWithTimezone(new Date()) + ' (from site)');
                     renderTables();
-                    showToast('Pricing reloaded from site.', 'success');
+                    const summaryEl = document.getElementById('priceChangesSummary');
+                    if (summaryEl) {
+                        if (drops.length || increases.length) {
+                            const fmt = (v) => v === 0 ? 'Free' : '$' + Number(v).toFixed(2);
+                            const dropRows = drops.slice(0, 10).map(d => `<tr class="change-drop"><td class="col-direction">\u2193</td><td class="col-provider">${d.provider}</td><td class="col-model">${d.name}</td><td class="col-field">${d.field}</td><td class="col-prices">${fmt(d.oldVal)} \u2192 ${fmt(d.newVal)}</td></tr>`).join('');
+                            const riseRows = increases.slice(0, 10).map(d => `<tr class="change-rise"><td class="col-direction">\u2191</td><td class="col-provider">${d.provider}</td><td class="col-model">${d.name}</td><td class="col-field">${d.field}</td><td class="col-prices">${fmt(d.oldVal)} \u2192 ${fmt(d.newVal)}</td></tr>`).join('');
+                            const moreD = drops.length > 10 ? `<tr><td colspan="5" class="change-more">\u2193 … and ${drops.length - 10} more drop(s)</td></tr>` : '';
+                            const moreI = increases.length > 10 ? `<tr><td colspan="5" class="change-more">\u2191 … and ${increases.length - 10} more increase(s)</td></tr>` : '';
+                            summaryEl.innerHTML = '<h4>Recent price changes</h4><p class="price-changes-hint">Which models dropped (\u2193) or increased (\u2191):</p><table class="change-table"><thead><tr><th class="col-direction"></th><th class="col-provider">Provider</th><th class="col-model">Model</th><th class="col-field">Field</th><th class="col-prices">Old \u2192 New</th></tr></thead><tbody>' + dropRows + riseRows + moreD + moreI + '</tbody></table>';
+                            summaryEl.classList.remove('hidden');
+                            summaryEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                            showToast('Pricing reloaded. See which models changed below.', 'success');
+                        } else {
+                            summaryEl.innerHTML = '';
+                            summaryEl.classList.add('hidden');
+                            showToast('Pricing reloaded from site.', 'success');
+                        }
+                    } else {
+                        showToast('Pricing reloaded from site.', 'success');
+                    }
                 } else {
                 const vizraData = await fetchVizraPricing();
                 if (!vizraData || typeof vizraData !== 'object') throw new Error('Vizra API unavailable');
