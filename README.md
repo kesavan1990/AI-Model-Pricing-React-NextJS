@@ -48,6 +48,20 @@ In the repo: **Actions → Update pricing → Run workflow**.
 - **Pricing history** — Daily snapshots (12:00 AM IST), compare two dates, export CSV/PDF.
 - **Refresh from web** — Reload pricing (from `pricing.json` on GitHub Pages, or from Vizra when run locally).
 
+## Code structure
+
+Front-end logic is split into ES modules under `src/` for clearer code and easier debugging:
+
+| File | Role |
+|------|------|
+| **`src/api.js`** | Fetch layer: `getPricing()` (pricing.json), `fetchVizraPricing()`, `getPricingJsonUrl()`, `isGitHubPages()`, `fetchWithCors()` for doc search. |
+| **`src/pricingService.js`** | Load, cache, normalize: `loadPricing()`, `DEFAULT_PRICING`, `parseVizraResponse()`, `comparePrices()`, `dedupeModelsByName`, history (getHistory, saveToHistory, cleanupHistoryToDailyOnly), cache helpers. |
+| **`src/calculator.js`** | Pure logic: cost (`calcCost`, `calcCostOpenAI`, `calcCostForEntry`), context windows, benchmarks, model lists (`getUnifiedCalcModels`, `getAllModels`), recommendations (`getRecommendations`, `scoreModelForUseCase`), doc search helpers, `estimatePromptTokens`. |
+| **`src/render.js`** | UI: `renderTables()`, `renderBenchmarkDashboard()`, `renderHistoryList()`, `renderRecommendations()`, toasts, `setLastUpdated`, CSV/PDF export helpers, `formatHistoryDate`. |
+| **`src/app.js`** | App entry: state (gemini/openai/anthropic/mistral), `loadPricing`, `refreshFromWeb`, daily capture, history compare, calculator handlers, event wiring; imports the modules above. |
+
+`index.html` loads only `<script type="module" src="src/app.js"></script>`. No inline app logic.
+
 ## Hosting
 
 Static only (HTML/CSS/JS). No server or database. See [HOSTING.md](HOSTING.md) for GitHub Pages, Netlify, Vercel, Cloudflare Pages, etc.
