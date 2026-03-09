@@ -2152,19 +2152,52 @@
         }
 
         const VIZRA_PRICING_URL = 'https://vizra.ai/api/v1/pricing/ai-models';
+        const PROVIDER_KEY_MAP = { google: 'gemini', openai: 'openai', anthropic: 'anthropic', mistral: 'mistral' };
+
+        function normalizePricing(models) {
+            if (!Array.isArray(models)) return [];
+            return models.map(m => {
+                const raw = m || {};
+                const input = Number(raw.input_price_per_1m ?? raw.input_price_per_million ?? 0) || 0;
+                const output = Number(raw.output_price_per_1m ?? raw.output_price_per_million ?? 0) || 0;
+                const cached = raw.cached_price_per_1m != null || raw.cached_price_per_million != null
+                    ? Number(raw.cached_price_per_1m ?? raw.cached_price_per_million ?? 0)
+                    : null;
+                return {
+                    name: raw.model || raw.name || '',
+                    provider: raw.provider || '',
+                    input,
+                    output,
+                    cachedInput: cached
+                };
+            }).filter(n => n.name && (n.input > 0 || n.output > 0));
+        }
+
         function parseVizraResponse(data) {
             const out = { gemini: [], openai: [], anthropic: [], mistral: [] };
-            const keyMap = { google: 'gemini', openai: 'openai', anthropic: 'anthropic', mistral: 'mistral' };
-            const models = data && data.data && data.data.models;
-            if (!models || typeof models !== 'object') return out;
-            for (const [modelId, m] of Object.entries(models)) {
-                const key = keyMap[(m && m.provider) || ''];
+            if (!data || typeof data !== 'object') return out;
+            let rawList = [];
+            if (Array.isArray(data)) {
+                rawList = data;
+            } else if (Array.isArray(data.data)) {
+                rawList = data.data;
+            } else if (data.data && typeof data.data.models === 'object' && !Array.isArray(data.data.models)) {
+                for (const [modelId, m] of Object.entries(data.data.models)) {
+                    rawList.push({ ...(m || {}), model: (m && m.model) || modelId });
+                }
+            } else if (Array.isArray(data.models)) {
+                rawList = data.models;
+            }
+            const normalized = normalizePricing(rawList);
+            for (const n of normalized) {
+                const key = PROVIDER_KEY_MAP[(n.provider || '').toLowerCase()];
                 if (!key) continue;
-                const input = typeof m.input_price_per_million === 'number' ? m.input_price_per_million : 0;
-                const output = typeof m.output_price_per_million === 'number' ? m.output_price_per_million : 0;
-                if (input <= 0 && output <= 0) continue;
-                const name = modelId.replace(/^gemini\//, '').replace(/^mistral\//, '').replace(/^deepseek\//, '');
-                out[key].push({ name, input, output, cachedInput: null });
+                out[key].push({
+                    name: n.name.replace(/^gemini\//, '').replace(/^mistral\//, '').replace(/^deepseek\//, ''),
+                    input: n.input,
+                    output: n.output,
+                    cachedInput: n.cachedInput
+                });
             }
             return out;
         }
