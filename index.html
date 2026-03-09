@@ -338,6 +338,7 @@
         .price-changes-summary { margin-top: 16px; padding: 20px; border-radius: 12px; background: rgba(255,255,255,0.05); font-size: 0.9rem; text-align: left; max-width: 720px; margin-left: auto; margin-right: auto; border: 1px solid rgba(255,255,255,0.08); }
         .price-changes-summary.hidden { display: none; }
         .price-changes-summary h4 { margin: 0 0 4px; color: #e0e0e0; font-size: 1rem; font-weight: 600; }
+        .price-changes-summary .price-changes-timestamp { margin: 0 0 12px; color: #707070; font-size: 0.8rem; }
         .price-changes-summary .price-changes-hint { margin: 0 0 14px; color: #888; font-size: 0.85rem; }
         .price-changes-summary .change-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
         .price-changes-summary .change-table th { text-align: left; padding: 10px 12px; color: #a0a0a0; font-weight: 500; border-bottom: 1px solid rgba(255,255,255,0.1); }
@@ -2414,11 +2415,13 @@
                 if (summaryEl) {
                     if (drops.length || increases.length) {
                         const fmt = (v) => v === 0 ? 'Free' : '$' + Number(v).toFixed(2);
+                        const updatedAt = new Date();
+                        const timestampStr = updatedAt.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'medium', timeZoneName: 'short' });
                         const dropRows = drops.slice(0, 10).map(d => `<tr class="change-drop"><td class="col-direction">\u2193</td><td class="col-provider">${d.provider}</td><td class="col-model">${d.name}</td><td class="col-field">${d.field}</td><td class="col-prices">${fmt(d.oldVal)} \u2192 ${fmt(d.newVal)}</td></tr>`).join('');
                         const riseRows = increases.slice(0, 10).map(d => `<tr class="change-rise"><td class="col-direction">\u2191</td><td class="col-provider">${d.provider}</td><td class="col-model">${d.name}</td><td class="col-field">${d.field}</td><td class="col-prices">${fmt(d.oldVal)} \u2192 ${fmt(d.newVal)}</td></tr>`).join('');
                         const moreD = drops.length > 10 ? `<tr><td colspan="5" class="change-more">\u2193 … and ${drops.length - 10} more drop(s)</td></tr>` : '';
                         const moreI = increases.length > 10 ? `<tr><td colspan="5" class="change-more">\u2191 … and ${increases.length - 10} more increase(s)</td></tr>` : '';
-                        summaryEl.innerHTML = '<h4>Recent price changes</h4><p class="price-changes-hint">Which models dropped (\u2193) or increased (\u2191):</p><table class="change-table"><thead><tr><th class="col-direction"></th><th class="col-provider">Provider</th><th class="col-model">Model</th><th class="col-field">Field</th><th class="col-prices">Old \u2192 New</th></tr></thead><tbody>' + dropRows + riseRows + moreD + moreI + '</tbody></table>';
+                        summaryEl.innerHTML = '<h4>Recent price changes</h4><p class="price-changes-timestamp">Updated: ' + timestampStr + '</p><p class="price-changes-hint">Which models dropped (\u2193) or increased (\u2191):</p><table class="change-table"><thead><tr><th class="col-direction"></th><th class="col-provider">Provider</th><th class="col-model">Model</th><th class="col-field">Field</th><th class="col-prices">Old \u2192 New</th></tr></thead><tbody>' + dropRows + riseRows + moreD + moreI + '</tbody></table>';
                         summaryEl.classList.remove('hidden');
                         summaryEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                         showToast('Pricing updated. See which models changed below.', 'success');
