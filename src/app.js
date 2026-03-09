@@ -595,10 +595,14 @@ function runProductionCostSim() {
     resultEl.style.display = 'none';
     return;
   }
+  // Per-request cost: (promptTokens/1e6)*inputPrice + (completionTokens/1e6)*outputPrice
+  const costPerRequestFromPrices = (promptToks, completionToks, inputPrice, outputPrice) =>
+    (promptToks / 1_000_000) * inputPrice + (completionToks / 1_000_000) * outputPrice;
+
   const data = getData();
   const list = [];
   data.gemini.forEach((m) => {
-    const costPerRequest = calc.calcCost(promptTokens, outputTokens, m.input, m.output);
+    const costPerRequest = costPerRequestFromPrices(promptTokens, outputTokens, m.input, m.output);
     const daily = costPerRequest * totalRequestsPerDay;
     const monthly = daily * 30;
     list.push({ name: m.name, perRequest: costPerRequest, daily, monthly, annum: monthly * 12 });
@@ -611,13 +615,13 @@ function runProductionCostSim() {
     list.push({ name: m.name, perRequest: costPerRequest, daily, monthly, annum: monthly * 12 });
   });
   data.anthropic.forEach((m) => {
-    const costPerRequest = calc.calcCost(promptTokens, outputTokens, m.input, m.output);
+    const costPerRequest = costPerRequestFromPrices(promptTokens, outputTokens, m.input, m.output);
     const daily = costPerRequest * totalRequestsPerDay;
     const monthly = daily * 30;
     list.push({ name: m.name, perRequest: costPerRequest, daily, monthly, annum: monthly * 12 });
   });
   data.mistral.forEach((m) => {
-    const costPerRequest = calc.calcCost(promptTokens, outputTokens, m.input, m.output);
+    const costPerRequest = costPerRequestFromPrices(promptTokens, outputTokens, m.input, m.output);
     const daily = costPerRequest * totalRequestsPerDay;
     const monthly = daily * 30;
     list.push({ name: m.name, perRequest: costPerRequest, daily, monthly, annum: monthly * 12 });

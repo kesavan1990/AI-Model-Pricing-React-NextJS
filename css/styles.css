@@ -488,7 +488,14 @@ h1 {
 .production-cost-result { margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1); max-height: 380px; overflow-y: auto; overflow-x: auto; }
 .production-cost-result h4 { color: #e0e0e0; font-size: 0.95rem; margin: 0 0 10px 0; }
 .production-cost-result .model-table { font-size: 0.9rem; }
-.production-cost-result .model-table thead th { position: sticky; top: 0; background: rgba(26, 26, 46, 0.98); z-index: 1; }
+.production-cost-result .model-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #1a1a2e;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
 .calc-result-capped { color: #a0a0a0; font-size: 0.85rem; margin-top: 8px; }
 .production-cost-result .cost-per-request,
 .production-cost-result .cost-daily { color: #8ab4f8; font-weight: 600; }
@@ -871,8 +878,13 @@ h1 {
 [data-theme="light"] .sticky thead th,
 [data-theme="light"] .pricing-table-scroll .model-table thead th,
 [data-theme="light"] .context-window-result .model-table thead th,
-[data-theme="light"] .production-cost-result .model-table thead th,
 [data-theme="light"] .benchmark-dashboard-table .model-table thead th { background: var(--theme-card); color: var(--theme-text-muted); }
+[data-theme="light"] .production-cost-result .model-table thead th {
+  background: #fff;
+  color: var(--theme-text-muted);
+  border-bottom: 1px solid rgba(0,0,0,0.12);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+}
 [data-theme="light"] .context-window-result .model-table td,
 [data-theme="light"] .production-cost-result .model-table td,
 [data-theme="light"] .benchmark-dashboard-table .model-table td { color: var(--theme-text); }

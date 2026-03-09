@@ -36,7 +36,12 @@ In **Calculators → 🏭 Production cost**, the production cost simulator estim
 | **Input** | **Requests per user** — number of API requests per user per day. |
 | **Input** | **Prompt tokens (per request)** — input tokens per request. |
 | **Input** | **Output tokens (per request)** — output tokens per request. |
-| **Output** | **Estimated costs** — a table with one row per model and columns: **Per request** (cost for one request), **Daily cost**, **Monthly cost**, **Per annum** (yearly cost). |
+| **Output** | **Estimated costs** — a table with one row per model and columns: **Per request** (cost for one request), **Daily cost**, **Monthly cost**, **Per annum** (yearly cost). The table header stays visible (sticky) when you scroll the results. |
+
+**Per-request cost formula:**  
+`costPerRequest = (promptTokens / 1_000_000) × inputPrice + (completionTokens / 1_000_000) × outputPrice`  
+
+Here *inputPrice* and *outputPrice* are the model’s per‑1M‑token prices; *promptTokens* and *completionTokens* are the tokens per request. For OpenAI models, cached input tokens use the cached rate where applicable.
 
 Monthly cost is daily cost × 30; per annum is monthly × 12. Use **Simulate** to run the calculation and **Reset** to restore default inputs.
 
