@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Model Pricing - Gemini & OpenAI</title>
+    <title>AI Model Pricing - Gemini, OpenAI, Anthropic, Mistral</title>
     <style>
         * {
             margin: 0;
@@ -145,6 +145,14 @@
 
         .provider-logo-openai-custom {
             background: linear-gradient(145deg, #0d9488 0%, #10b981 50%, #34d399 100%);
+            color: #fff;
+        }
+        .provider-logo-anthropic {
+            background: linear-gradient(145deg, #cc785c 0%, #d4a574 50%, #e8c9a0 100%);
+            color: #fff;
+        }
+        .provider-logo-mistral {
+            background: linear-gradient(145deg, #ff6b35 0%, #f7931e 50%, #ffc857 100%);
             color: #fff;
         }
 
@@ -580,6 +588,8 @@
         }
         .recommend-item .provider-tag.gemini { background: rgba(66,133,244,0.3); color: #8ab4f8; }
         .recommend-item .provider-tag.openai { background: rgba(16,163,127,0.3); color: #6ee7b7; }
+        .recommend-item .provider-tag.anthropic { background: rgba(204,120,92,0.35); color: #e8c9a0; }
+        .recommend-item .provider-tag.mistral { background: rgba(255,107,53,0.35); color: #ffc857; }
         .recommend-item .model-name-rec { color: #fff; font-weight: 600; margin-bottom: 4px; }
         .recommend-item .model-reason { color: #a0a0a0; font-size: 0.9rem; line-height: 1.4; }
         .recommend-doc-snippet { color: #8ab4f8; font-size: 0.85rem; line-height: 1.35; margin-top: 8px; padding: 8px 10px; background: rgba(0,0,0,0.2); border-radius: 8px; border-left: 3px solid rgba(102, 126, 234, 0.6); }
@@ -762,7 +772,7 @@
         <!-- 1. Current pricing table -->
         <section class="page-section" id="section-pricing">
             <h2 class="section-title">📊 Current pricing</h2>
-            <p class="section-subtitle">API pricing per 1M tokens from <a href="https://ai.google.dev/gemini-api/docs/pricing" target="_blank" rel="noopener" class="source-link">Gemini</a> and <a href="https://developers.openai.com/api/docs/pricing" target="_blank" rel="noopener" class="source-link">OpenAI</a> docs. OpenAI list shows <strong>text tokens</strong> and <strong>embeddings</strong> only. Use Export to download CSV or PDF.</p>
+            <p class="section-subtitle">API pricing per 1M tokens from <a href="https://vizra.ai/api/v1/pricing/ai-models" target="_blank" rel="noopener" class="source-link">Vizra</a> (Gemini, OpenAI, Anthropic, Mistral). Use Export to download CSV or PDF.</p>
             <div class="pricing-section-header">
                 <span class="section-label">Gemini & OpenAI</span>
                 <div class="export-toolbar">
@@ -824,6 +834,40 @@
                         </div>
                     </div>
                 </div>
+                <div class="provider-card" id="anthropic-card">
+                    <div class="provider-header">
+                        <div class="provider-logo-badge provider-logo-anthropic" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+                        </div>
+                        <h2 class="provider-name">Anthropic</h2>
+                    </div>
+                    <div class="pricing-table-wrap">
+                        <input type="text" class="pricing-search" id="anthropic-search" placeholder="Search Anthropic models…" aria-label="Search Anthropic models">
+                        <div class="pricing-table-scroll">
+                            <table class="model-table">
+                                <thead><tr><th>Model</th><th>Input / 1M tokens</th><th>Output / 1M tokens</th></tr></thead>
+                                <tbody id="anthropic-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="provider-card" id="mistral-card">
+                    <div class="provider-header">
+                        <div class="provider-logo-badge provider-logo-mistral" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg>
+                        </div>
+                        <h2 class="provider-name">Mistral</h2>
+                    </div>
+                    <div class="pricing-table-wrap">
+                        <input type="text" class="pricing-search" id="mistral-search" placeholder="Search Mistral models…" aria-label="Search Mistral models">
+                        <div class="pricing-table-scroll">
+                            <table class="model-table">
+                                <thead><tr><th>Model</th><th>Input / 1M tokens</th><th>Output / 1M tokens</th></tr></thead>
+                                <tbody id="mistral-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
         </div>
@@ -838,10 +882,10 @@
         <div id="calc-sub-pricing" class="calc-sub-panel active" role="tabpanel">
         <section class="page-section" id="section-calculator">
             <h2 class="section-title">💰 Pricing Calculator</h2>
-            <p class="section-subtitle">Enter token usage to estimate API cost. Compare any two models across Gemini and OpenAI.</p>
+            <p class="section-subtitle">Enter token usage to estimate API cost. Compare any two models across Gemini, OpenAI, Anthropic, and Mistral.</p>
             <div class="calculator-single">
                 <div class="calculator-card calculator-card-wide">
-                    <h3>Gemini &amp; OpenAI</h3>
+                    <h3>All providers</h3>
                     <div class="calc-row">
                         <label for="calc-model">Model</label>
                         <select id="calc-model"></select>
@@ -874,7 +918,7 @@
         <div id="calc-sub-prompt" class="calc-sub-panel" role="tabpanel">
         <section class="page-section" id="section-prompt-cost">
             <h2 class="section-title">📝 Estimate cost from prompt</h2>
-            <p class="section-subtitle">Paste your prompt to get a token count (using <strong>gpt-tokenizer</strong> / cl100k_base when available, else ≈4 chars/token) and cost across Gemini and OpenAI models. Embedding-only models are excluded.</p>
+            <p class="section-subtitle">Paste your prompt to get a token count (using <strong>gpt-tokenizer</strong> / cl100k_base when available, else ≈4 chars/token) and cost across Gemini, OpenAI, Anthropic, and Mistral. Embedding-only models are excluded.</p>
             <div class="prompt-estimator-card">
                 <div class="calc-row">
                     <label for="prompt-input">Paste your prompt or import a file</label>
@@ -1063,11 +1107,15 @@
                 { name: 'text-embedding-3-small', input: 0.02, output: 0 },
                 { name: 'text-embedding-3-large', input: 0.13, output: 0 },
                 { name: 'text-embedding-ada-002', input: 0.10, output: 0 }
-            ]
+            ],
+            anthropic: [],
+            mistral: []
         };
 
         let geminiData = [];
         let openaiData = [];
+        let anthropicData = [];
+        let mistralData = [];
 
         function formatContextLabel(tokens) {
             if (tokens >= 1e6) return (tokens / 1e6) + 'M';
@@ -1087,6 +1135,14 @@
                 if (/o1|o3|o4/i.test(n)) return { tokens: 200000, label: '200k' };
                 if (/gpt-5|gpt-5\./i.test(n)) return { tokens: 256000, label: '256k' };
                 return { tokens: 128000, label: '128k' };
+            }
+            if (providerKey === 'anthropic') {
+                if (/claude-4|claude-sonnet-4|claude-opus-4|claude-haiku-4/i.test(n)) return { tokens: 200000, label: '200k' };
+                return { tokens: 200000, label: '200k' };
+            }
+            if (providerKey === 'mistral') {
+                if (/mistral-large|magistral|mixtral-8x22b/i.test(n)) return { tokens: 128000, label: '128k' };
+                return { tokens: 32768, label: '32k' };
             }
             return null;
         }
@@ -1112,6 +1168,17 @@
                 if (/gpt-4\.1|gpt-4o/i.test(n)) return { mmlu: 88, code: 90, reasoning: 92, arena: 93 };
                 if (/gpt-4\.1-mini|gpt-4o-mini/i.test(n)) return { mmlu: 84, code: 86, reasoning: 88, arena: 89 };
                 return { mmlu: 85, code: 87, reasoning: 88, arena: 89 };
+            }
+            if (providerKey === 'anthropic') {
+                if (/opus|claude-4-opus|claude-opus-4/i.test(n)) return { mmlu: 89, code: 91, reasoning: 93, arena: 95 };
+                if (/sonnet|claude-4-sonnet|claude-sonnet-4/i.test(n)) return { mmlu: 87, code: 89, reasoning: 90, arena: 92 };
+                if (/haiku|claude-3\.5-haiku|claude-haiku/i.test(n)) return { mmlu: 84, code: 86, reasoning: 87, arena: 88 };
+                return { mmlu: 85, code: 87, reasoning: 88, arena: 89 };
+            }
+            if (providerKey === 'mistral') {
+                if (/mistral-large|magistral|pixtral-large/i.test(n)) return { mmlu: 86, code: 88, reasoning: 89, arena: 90 };
+                if (/mistral-medium|devstral|codestral/i.test(n)) return { mmlu: 83, code: 86, reasoning: 85, arena: 87 };
+                return { mmlu: 80, code: 82, reasoning: 83, arena: 84 };
             }
             return { mmlu: 75, code: 78, reasoning: 80, arena: 82 };
         }
@@ -1161,10 +1228,21 @@
                 const out = isEmbed ? '—' : (m.output === 0 ? 'Free' : '$' + Number(m.output).toFixed(2));
                 return `<tr><td class="model-name">${m.name}${badge}</td><td class="price price-input">${inp}</td><td class="price price-cached">${cached}</td><td class="price price-output">${out}</td></tr>`;
             };
+            const simpleRow = (m) => {
+                const inp = m.input === 0 ? 'Free' : '$' + Number(m.input).toFixed(2);
+                const out = m.output === 0 ? 'Free' : '$' + Number(m.output).toFixed(2);
+                return `<tr><td class="model-name">${m.name}</td><td class="price price-input">${inp}</td><td class="price price-output">${out}</td></tr>`;
+            };
             document.getElementById('gemini-tbody').innerHTML = geminiData.map(geminiRow).join('');
             document.getElementById('openai-tbody').innerHTML = openaiData.map(openaiRow).join('');
+            const anthropicTbody = document.getElementById('anthropic-tbody');
+            const mistralTbody = document.getElementById('mistral-tbody');
+            if (anthropicTbody) anthropicTbody.innerHTML = anthropicData.map(simpleRow).join('');
+            if (mistralTbody) mistralTbody.innerHTML = mistralData.map(simpleRow).join('');
             filterPricingTable('gemini-tbody', document.getElementById('gemini-search') && document.getElementById('gemini-search').value);
             filterPricingTable('openai-tbody', document.getElementById('openai-search') && document.getElementById('openai-search').value);
+            filterPricingTable('anthropic-tbody', document.getElementById('anthropic-search') && document.getElementById('anthropic-search').value);
+            filterPricingTable('mistral-tbody', document.getElementById('mistral-search') && document.getElementById('mistral-search').value);
             const unified = getUnifiedCalcModels();
             const calcModelSel = document.getElementById('calc-model');
             const calcCompareSel = document.getElementById('calc-compare');
@@ -1197,6 +1275,8 @@
             const list = [];
             geminiData.forEach((m, i) => list.push({ key: 'gemini:' + i, provider: 'gemini', label: 'Google Gemini — ' + m.name, model: m }));
             openaiData.forEach((m, i) => list.push({ key: 'openai:' + i, provider: 'openai', label: 'OpenAI — ' + m.name, model: m }));
+            anthropicData.forEach((m, i) => list.push({ key: 'anthropic:' + i, provider: 'anthropic', label: 'Anthropic — ' + m.name, model: m }));
+            mistralData.forEach((m, i) => list.push({ key: 'mistral:' + i, provider: 'mistral', label: 'Mistral — ' + m.name, model: m }));
             return list;
         }
 
@@ -1206,6 +1286,8 @@
             const i = parseInt(idx, 10);
             if (provider === 'gemini' && i >= 0 && i < geminiData.length) return { provider: 'gemini', name: geminiData[i].name, model: geminiData[i] };
             if (provider === 'openai' && i >= 0 && i < openaiData.length) return { provider: 'openai', name: openaiData[i].name, model: openaiData[i] };
+            if (provider === 'anthropic' && i >= 0 && i < anthropicData.length) return { provider: 'anthropic', name: anthropicData[i].name, model: anthropicData[i] };
+            if (provider === 'mistral' && i >= 0 && i < mistralData.length) return { provider: 'mistral', name: mistralData[i].name, model: mistralData[i] };
             return null;
         }
 
@@ -1213,7 +1295,7 @@
             if (!entry) return 0;
             const inT = inputTokens || 0;
             const outT = outputTokens || 0;
-            if (entry.provider === 'gemini')
+            if (entry.provider === 'gemini' || entry.provider === 'anthropic' || entry.provider === 'mistral')
                 return calcCost(inT, outT, entry.model.input, entry.model.output);
             return calcCostOpenAI(inT, cachedTokens || 0, outT, entry.model.input, entry.model.cachedInput, entry.model.output);
         }
@@ -1240,6 +1322,20 @@
                 const tier = blended >= 8 ? 'pro' : blended < 1 ? 'budget' : 'mid';
                 const ctx = getContextWindow('openai', m.name);
                 list.push({ provider: 'OpenAI', providerKey: 'openai', name: m.name, input, output, cachedInput: m.cachedInput != null ? cached : null, blended, tier, hasCached: m.cachedInput != null, contextWindow: ctx ? ctx.label : null, contextTokens: ctx ? ctx.tokens : 0 });
+            });
+            anthropicData.forEach(m => {
+                const input = Number(m.input) || 0, output = Number(m.output) || 0;
+                const blended = input * INPUT_WEIGHT + output * OUTPUT_WEIGHT;
+                const tier = blended >= 8 ? 'pro' : blended < 1 ? 'budget' : 'mid';
+                const ctx = getContextWindow('anthropic', m.name);
+                list.push({ provider: 'Anthropic', providerKey: 'anthropic', name: m.name, input, output, cachedInput: null, blended, tier, hasCached: false, contextWindow: ctx ? ctx.label : null, contextTokens: ctx ? ctx.tokens : 0 });
+            });
+            mistralData.forEach(m => {
+                const input = Number(m.input) || 0, output = Number(m.output) || 0;
+                const blended = input * INPUT_WEIGHT + output * OUTPUT_WEIGHT;
+                const tier = blended >= 8 ? 'pro' : blended < 1 ? 'budget' : 'mid';
+                const ctx = getContextWindow('mistral', m.name);
+                list.push({ provider: 'Mistral', providerKey: 'mistral', name: m.name, input, output, cachedInput: null, blended, tier, hasCached: false, contextWindow: ctx ? ctx.label : null, contextTokens: ctx ? ctx.tokens : 0 });
             });
             return list;
         }
@@ -1353,7 +1449,6 @@
             'https://platform.openai.com/docs/models'
         ];
         const OPENAI_PRICING_URL = 'https://developers.openai.com/api/docs/pricing';
-        const OPENAI_PRICING_FALLBACK_URL = 'https://openai.com/api/pricing/';
         const GEMINI_PRICING_URL = 'https://ai.google.dev/gemini-api/docs/pricing';
 
         async function fetchDocsAndSearch(description) {
@@ -1512,6 +1607,12 @@
             openaiData.forEach(m => {
                 rows.push(['OpenAI', m.name, m.input, m.output, m.cachedInput != null ? m.cachedInput : ''].map(escapeCsvCell).join(','));
             });
+            anthropicData.forEach(m => {
+                rows.push(['Anthropic', m.name, m.input, m.output, ''].map(escapeCsvCell).join(','));
+            });
+            mistralData.forEach(m => {
+                rows.push(['Mistral', m.name, m.input, m.output, ''].map(escapeCsvCell).join(','));
+            });
             const csv = '\uFEFF' + rows.join('\r\n');
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
             const a = document.createElement('a');
@@ -1591,6 +1692,12 @@
             openaiData.forEach(m => {
                 rows.push(['OpenAI', m.name, m.input === 0 ? 'Free' : '$' + Number(m.input).toFixed(2), m.output === 0 ? 'Free' : '$' + Number(m.output).toFixed(2), m.cachedInput != null ? '$' + Number(m.cachedInput).toFixed(2) : '—']);
             });
+            anthropicData.forEach(m => {
+                rows.push(['Anthropic', m.name, m.input === 0 ? 'Free' : '$' + Number(m.input).toFixed(2), m.output === 0 ? 'Free' : '$' + Number(m.output).toFixed(2), '—']);
+            });
+            mistralData.forEach(m => {
+                rows.push(['Mistral', m.name, m.input === 0 ? 'Free' : '$' + Number(m.input).toFixed(2), m.output === 0 ? 'Free' : '$' + Number(m.output).toFixed(2), '—']);
+            });
             drawPdfBorderedTable(doc, 32, headers, rows, colWidths);
             doc.save('ai-pricing-' + new Date().toISOString().slice(0, 10) + '.pdf');
         }
@@ -1617,6 +1724,12 @@
                 });
                 (entry.openai || []).forEach(m => {
                     rows.push([dateStr, 'OpenAI', m.name, m.input, m.output, m.cachedInput != null ? m.cachedInput : ''].map(escapeCsvCell).join(','));
+                });
+                (entry.anthropic || []).forEach(m => {
+                    rows.push([dateStr, 'Anthropic', m.name, m.input, m.output, ''].map(escapeCsvCell).join(','));
+                });
+                (entry.mistral || []).forEach(m => {
+                    rows.push([dateStr, 'Mistral', m.name, m.input, m.output, ''].map(escapeCsvCell).join(','));
                 });
             });
             const csv = '\uFEFF' + rows.join('\r\n');
@@ -1656,6 +1769,12 @@
                 (entry.openai || []).forEach(m => {
                     rows.push([dateStr, 'OpenAI', m.name, m.input === 0 ? 'Free' : '$' + Number(m.input).toFixed(2), m.output === 0 ? 'Free' : '$' + Number(m.output).toFixed(2), m.cachedInput != null ? '$' + Number(m.cachedInput).toFixed(2) : '—']);
                 });
+                (entry.anthropic || []).forEach(m => {
+                    rows.push([dateStr, 'Anthropic', m.name, m.input === 0 ? 'Free' : '$' + Number(m.input).toFixed(2), m.output === 0 ? 'Free' : '$' + Number(m.output).toFixed(2), '—']);
+                });
+                (entry.mistral || []).forEach(m => {
+                    rows.push([dateStr, 'Mistral', m.name, m.input === 0 ? 'Free' : '$' + Number(m.input).toFixed(2), m.output === 0 ? 'Free' : '$' + Number(m.output).toFixed(2), '—']);
+                });
             });
             drawPdfBorderedTable(doc, 22, headers, rows, colWidths);
             doc.save('ai-pricing-history-' + new Date().toISOString().slice(0, 10) + '.pdf');
@@ -1669,30 +1788,6 @@
             } catch (_) { return []; }
         }
 
-        function mergeGeminiWithCurrent(current, parsed) {
-            if (!parsed || parsed.length === 0) return current.slice();
-            const byName = new Map();
-            current.forEach(m => byName.set((m.name || '').trim().toLowerCase(), { ...m }));
-            parsed.forEach(m => {
-                const key = (m.name || '').trim().toLowerCase();
-                if (!key) return;
-                byName.set(key, { name: m.name, input: m.input, output: m.output, badge: (byName.get(key) || {}).badge });
-            });
-            return Array.from(byName.values());
-        }
-
-        function mergeOpenAIWithCurrent(current, parsed) {
-            if (!parsed || parsed.length === 0) return current.slice();
-            const byName = new Map();
-            current.forEach(m => byName.set((m.name || '').trim().toLowerCase(), { ...m }));
-            parsed.forEach(m => {
-                const key = (m.name || '').trim().toLowerCase();
-                if (!key) return;
-                byName.set(key, { name: m.name, input: m.input, output: m.output, cachedInput: m.cachedInput, badge: (byName.get(key) || {}).badge });
-            });
-            return Array.from(byName.values());
-        }
-
         function cleanupHistoryToDailyOnly() {
             const list = getHistory().filter(e => e.daily === true || e.weekly === true);
             try { localStorage.setItem(HISTORY_KEY, JSON.stringify(list)); } catch (_) {}
@@ -1704,6 +1799,8 @@
                 date: (opts && opts.date) ? opts.date : new Date().toISOString(),
                 gemini: JSON.parse(JSON.stringify(gemini || [])),
                 openai: JSON.parse(JSON.stringify(openai || [])),
+                anthropic: JSON.parse(JSON.stringify((opts && opts.anthropic) || anthropicData || [])),
+                mistral: JSON.parse(JSON.stringify((opts && opts.mistral) || mistralData || [])),
                 weekly: !!(opts && opts.weekly),
                 daily: !!(opts && opts.daily)
             };
@@ -1724,34 +1821,27 @@
         async function runDailyCapture() {
             const today = getTodayIST();
             try {
-                const [geminiRes, openaiRes] = await Promise.all([
-                    fetch(CORS_PROXY + encodeURIComponent(GEMINI_PRICING_URL)).then(r => r.ok ? r.text() : ''),
-                    fetch(CORS_PROXY + encodeURIComponent(OPENAI_PRICING_URL)).then(r => r.ok ? r.text() : '')
-                ]);
-                let g = geminiData.slice();
-                let o = openaiData.slice();
-                if (openaiRes) {
-                    let parsed = parseOpenAIPricing(openaiRes);
-                    if (!parsed || parsed.length < 8) {
-                        try {
-                            const fallbackRes = await fetch(CORS_PROXY + encodeURIComponent(OPENAI_PRICING_FALLBACK_URL)).then(r => r.ok ? r.text() : '');
-                            if (fallbackRes) {
-                                const fb = parseOpenAIPricing(fallbackRes);
-                                if (fb && fb.length > (parsed ? parsed.length : 0)) parsed = fb;
-                            }
-                        } catch (_) {}
+                let g = geminiData.slice(), o = openaiData.slice(), a = anthropicData.slice(), m = mistralData.slice();
+                try {
+                    const vizraRes = await fetch(VIZRA_PRICING_URL);
+                    if (vizraRes.ok) {
+                        const vizraData = await vizraRes.json();
+                        const parsed = parseVizraResponse(vizraData);
+                        if (parsed.gemini.length > 0 || parsed.openai.length > 0) {
+                            g = parsed.gemini.length ? parsed.gemini : g;
+                            o = parsed.openai.length ? parsed.openai : o;
+                            a = parsed.anthropic.length ? parsed.anthropic : a;
+                            m = parsed.mistral.length ? parsed.mistral : m;
+                        }
                     }
-                    if (parsed && parsed.length > 0) o = mergeOpenAIWithCurrent(openaiData, parsed);
-                }
-                if (geminiRes) {
-                    const parsed = parseGeminiPricing(geminiRes);
-                    if (parsed && parsed.length > 0) g = mergeGeminiWithCurrent(geminiData, parsed);
-                }
-                saveToHistory(g, o, { daily: true, date: getToday10AMIST() });
+                } catch (_) {}
+                saveToHistory(g, o, { daily: true, date: getToday10AMIST(), anthropic: a, mistral: m });
                 try { localStorage.setItem(LAST_DAILY_KEY, today); } catch (_) {}
                 geminiData = g;
                 openaiData = o;
-                const payload = { gemini: geminiData, openai: openaiData, updated: new Date().toISOString().slice(0, 10) };
+                anthropicData = a;
+                mistralData = m;
+                const payload = { gemini: geminiData, openai: openaiData, anthropic: anthropicData, mistral: mistralData, updated: new Date().toISOString().slice(0, 10) };
                 try { localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); } catch (_) {}
                 setLastUpdated(payload.updated + ' (from web)');
                 renderTables();
@@ -1807,19 +1897,30 @@
                 const scheduleBadge = entry.daily ? ' <span class="history-daily-badge">Daily</span>' : (entry.weekly ? ' <span class="history-daily-badge">Weekly</span>' : '');
                 const gCount = (entry.gemini || []).length;
                 const oCount = (entry.openai || []).length;
+                const aCount = (entry.anthropic || []).length;
+                const mCount = (entry.mistral || []).length;
                 const geminiRows = (entry.gemini || []).map(historyGeminiRow).join('');
                 const openaiRows = (entry.openai || []).map(historyOpenaiRow).join('');
+                const anthropicRows = (entry.anthropic || []).map(historyGeminiRow).join('');
+                const mistralRows = (entry.mistral || []).map(historyGeminiRow).join('');
+                const summaryParts = [];
+                if (gCount) summaryParts.push(gCount + ' Gemini');
+                if (oCount) summaryParts.push(oCount + ' OpenAI');
+                if (aCount) summaryParts.push(aCount + ' Anthropic');
+                if (mCount) summaryParts.push(mCount + ' Mistral');
                 return `
                     <div class="history-entry" data-idx="${idx}">
                         <div class="history-entry-header">
                             <span class="history-entry-date">${dateStr}${scheduleBadge}</span>
-                            <span class="history-entry-summary">${gCount} Gemini · ${oCount} OpenAI</span>
+                            <span class="history-entry-summary">${summaryParts.length ? summaryParts.join(' · ') : 'No models'}</span>
                         </div>
                         <div class="history-entry-body">
                             <h4>Google Gemini</h4>
                             <table class="model-table"><thead><tr><th>Model</th><th>Input / 1M</th><th>Output / 1M</th></tr></thead><tbody>${geminiRows}</tbody></table>
                             <h4>OpenAI</h4>
                             <table class="model-table"><thead><tr><th>Model</th><th>Input / 1M</th><th>Cached / 1M</th><th>Output / 1M</th></tr></thead><tbody>${openaiRows}</tbody></table>
+                            ${aCount ? '<h4>Anthropic</h4><table class="model-table"><thead><tr><th>Model</th><th>Input / 1M</th><th>Output / 1M</th></tr></thead><tbody>' + anthropicRows + '</tbody></table>' : ''}
+                            ${mCount ? '<h4>Mistral</h4><table class="model-table"><thead><tr><th>Model</th><th>Input / 1M</th><th>Output / 1M</th></tr></thead><tbody>' + mistralRows + '</tbody></table>' : ''}
                         </div>
                     </div>`;
             }).join('');
@@ -1865,8 +1966,14 @@
             const gTo = (toEntry.gemini || []).reduce((acc, m) => { acc[m.name] = m; return acc; }, {});
             const oFrom = (fromEntry.openai || []).reduce((acc, m) => { acc[m.name] = m; return acc; }, {});
             const oTo = (toEntry.openai || []).reduce((acc, m) => { acc[m.name] = m; return acc; }, {});
+            const aFrom = (fromEntry.anthropic || []).reduce((acc, m) => { acc[m.name] = m; return acc; }, {});
+            const aTo = (toEntry.anthropic || []).reduce((acc, m) => { acc[m.name] = m; return acc; }, {});
+            const mFrom = (fromEntry.mistral || []).reduce((acc, m) => { acc[m.name] = m; return acc; }, {});
+            const mTo = (toEntry.mistral || []).reduce((acc, m) => { acc[m.name] = m; return acc; }, {});
             const allGeminiNames = [...new Set([...Object.keys(gFrom), ...Object.keys(gTo)])].sort();
             const allOpenaiNames = [...new Set([...Object.keys(oFrom), ...Object.keys(oTo)])].sort();
+            const allAnthropicNames = [...new Set([...Object.keys(aFrom), ...Object.keys(aTo)])].sort();
+            const allMistralNames = [...new Set([...Object.keys(mFrom), ...Object.keys(mTo)])].sort();
             const fmt = (v) => v === 0 ? 'Free' : '$' + Number(v).toFixed(2);
             const geminiRows = allGeminiNames.map(name => {
                 const a = gFrom[name];
@@ -1898,6 +2005,28 @@
                 else change = '<span class="price-same">Same</span>';
                 return `<tr><td class="model-name">${name}</td><td>${in1}</td><td>${c1}</td><td>${out1}</td><td>${in2}</td><td>${c2}</td><td>${out2}</td><td>${change}</td></tr>`;
             }).join('');
+            const anthropicRows = allAnthropicNames.map(name => {
+                const a = aFrom[name], b = aTo[name];
+                const in1 = a ? fmt(a.input) : '—', out1 = a ? fmt(a.output) : '—';
+                const in2 = b ? fmt(b.input) : '—', out2 = b ? fmt(b.output) : '—';
+                let change = '';
+                if (!a) change = '<span class="model-added">Added</span>';
+                else if (!b) change = '<span class="model-removed">Removed</span>';
+                else if (a.input !== b.input || a.output !== b.output) change = '<span class="price-changed">Changed</span>';
+                else change = '<span class="price-same">Same</span>';
+                return `<tr><td class="model-name">${name}</td><td>${in1}</td><td>${out1}</td><td>${in2}</td><td>${out2}</td><td>${change}</td></tr>`;
+            }).join('');
+            const mistralRows = allMistralNames.map(name => {
+                const a = mFrom[name], b = mTo[name];
+                const in1 = a ? fmt(a.input) : '—', out1 = a ? fmt(a.output) : '—';
+                const in2 = b ? fmt(b.input) : '—', out2 = b ? fmt(b.output) : '—';
+                let change = '';
+                if (!a) change = '<span class="model-added">Added</span>';
+                else if (!b) change = '<span class="model-removed">Removed</span>';
+                else if (a.input !== b.input || a.output !== b.output) change = '<span class="price-changed">Changed</span>';
+                else change = '<span class="price-same">Same</span>';
+                return `<tr><td class="model-name">${name}</td><td>${in1}</td><td>${out1}</td><td>${in2}</td><td>${out2}</td><td>${change}</td></tr>`;
+            }).join('');
             resultEl.innerHTML = `
                 <h4>Google Gemini</h4>
                 <table class="model-table">
@@ -1908,6 +2037,16 @@
                 <table class="model-table">
                     <thead><tr><th>Model</th><th>Input (${fromDateStr})</th><th>Cached</th><th>Output</th><th>Input (${toDateStr})</th><th>Cached</th><th>Output</th><th>Change</th></tr></thead>
                     <tbody>${openaiRows}</tbody>
+                </table>
+                <h4>Anthropic</h4>
+                <table class="model-table">
+                    <thead><tr><th>Model</th><th>Input (${fromDateStr})</th><th>Output (${fromDateStr})</th><th>Input (${toDateStr})</th><th>Output (${toDateStr})</th><th>Change</th></tr></thead>
+                    <tbody>${anthropicRows}</tbody>
+                </table>
+                <h4>Mistral</h4>
+                <table class="model-table">
+                    <thead><tr><th>Model</th><th>Input (${fromDateStr})</th><th>Output (${fromDateStr})</th><th>Input (${toDateStr})</th><th>Output (${toDateStr})</th><th>Change</th></tr></thead>
+                    <tbody>${mistralRows}</tbody>
                 </table>`;
             resultEl.style.display = 'block';
         }
@@ -1928,6 +2067,8 @@
                     const data = await res.json();
                     geminiData = (data.gemini && data.gemini.length) ? data.gemini : DEFAULT_PRICING.gemini.slice();
                     openaiData = (data.openai && data.openai.length) ? data.openai : DEFAULT_PRICING.openai.slice();
+                    anthropicData = (data.anthropic && Array.isArray(data.anthropic)) ? data.anthropic : (DEFAULT_PRICING.anthropic || []).slice();
+                    mistralData = (data.mistral && Array.isArray(data.mistral)) ? data.mistral : (DEFAULT_PRICING.mistral || []).slice();
                     lastUpdatedStr = data.updated || 'from pricing.json';
                     setLastUpdated(lastUpdatedStr);
                 } else throw new Error('Not found');
@@ -1938,12 +2079,16 @@
                         const data = JSON.parse(cached);
                         geminiData = (data.gemini && data.gemini.length) ? data.gemini : DEFAULT_PRICING.gemini.slice();
                         openaiData = (data.openai && data.openai.length) ? data.openai : DEFAULT_PRICING.openai.slice();
+                        anthropicData = (data.anthropic && Array.isArray(data.anthropic)) ? data.anthropic : (DEFAULT_PRICING.anthropic || []).slice();
+                        mistralData = (data.mistral && Array.isArray(data.mistral)) ? data.mistral : (DEFAULT_PRICING.mistral || []).slice();
                         lastUpdatedStr = (data.updated || 'cached') + ' (from web)';
                         setLastUpdated(lastUpdatedStr);
                     } else throw new Error('No cache');
                 } catch (_) {
                     geminiData = DEFAULT_PRICING.gemini.slice();
                     openaiData = DEFAULT_PRICING.openai.slice();
+                    anthropicData = (DEFAULT_PRICING.anthropic || []).slice();
+                    mistralData = (DEFAULT_PRICING.mistral || []).slice();
                     setLastUpdated('embedded default');
                 }
             }
@@ -1952,136 +2097,22 @@
             maybeRunDailyCapture();
         }
 
-        function parsePrice(str) {
-            const m = str.replace(/,/g, '').match(/\$?([\d.]+)/);
-            return m ? parseFloat(m[1]) : 0;
-        }
-
-        function isOpenAITextOrEmbeddingOnly(name) {
-            const n = (name || '').toLowerCase();
-            if (/^text-embedding-/.test(n)) return true;
-            if (/gpt-image|chatgpt-image|gpt-realtime|gpt-audio|gpt-4o-realtime|gpt-4o-mini-realtime|gpt-4o-audio|computer-use|sora/i.test(n)) return false;
-            return /^(gpt-|GPT|o\d|davinci|babbage|gpt-3\.5|text-embedding)/i.test(n);
-        }
-
-        function parseOpenAIPricing(html) {
-            const byName = new Map();
-            function addOrPrefer(name, input, output, cachedInput) {
-                if (!name || name.length < 2 || !isOpenAITextOrEmbeddingOnly(name)) return;
-                const key = name.toLowerCase().trim();
-                const existing = byName.get(key);
-                const hasCached = cachedInput != null && cachedInput > 0;
-                const shouldOverwrite = !existing ||
-                    (hasCached && (existing.cachedInput == null || existing.cachedInput === 0)) ||
-                    (output > (existing.output || 0));
-                if (shouldOverwrite && (input > 0 || output > 0)) {
-                    byName.set(key, { name, input: input || 0, output: output || 0, cachedInput: hasCached ? cachedInput : null });
-                }
+        const VIZRA_PRICING_URL = 'https://vizra.ai/api/v1/pricing/ai-models';
+        function parseVizraResponse(data) {
+            const out = { gemini: [], openai: [], anthropic: [], mistral: [] };
+            const keyMap = { google: 'gemini', openai: 'openai', anthropic: 'anthropic', mistral: 'mistral' };
+            const models = data && data.data && data.data.models;
+            if (!models || typeof models !== 'object') return out;
+            for (const [modelId, m] of Object.entries(models)) {
+                const key = keyMap[(m && m.provider) || ''];
+                if (!key) continue;
+                const input = typeof m.input_price_per_million === 'number' ? m.input_price_per_million : 0;
+                const output = typeof m.output_price_per_million === 'number' ? m.output_price_per_million : 0;
+                if (input <= 0 && output <= 0) continue;
+                const name = modelId.replace(/^gemini\//, '').replace(/^mistral\//, '').replace(/^deepseek\//, '');
+                out[key].push({ name, input, output, cachedInput: null });
             }
-            const text = html.replace(/<[^>]+>/g, '\n').replace(/\s+/g, ' ');
-            const blocks = text.split(/(?:##|###|<\/h[2-4]>)\s*/i);
-            const modelNameRegex = /(?:^|\s)(gpt-[\w.-]+|GPT[- ]?[\d.o]+(?:[- ]?(?:mini|nano|pro))?|o\d+(?:[- ]?mini)?|text-embedding-[\w.-]+)\b/gi;
-            for (const block of blocks) {
-                const nameMatch = block.match(modelNameRegex);
-                if (!nameMatch) continue;
-                let name = nameMatch[0].replace(/\s+/g, ' ').trim();
-                if (name.length < 4 || !isOpenAITextOrEmbeddingOnly(name)) continue;
-                const inputMatch = block.match(/Input[:\s]*\$?([\d.,]+)/i);
-                const cachedMatch = block.match(/Cached input[:\s]*\$?([\d.,]+)/i);
-                const outputMatch = block.match(/Output[:\s]*\$?([\d.,]+)/i);
-                let input = inputMatch ? parsePrice(inputMatch[1]) : 0;
-                const cachedInput = cachedMatch ? parsePrice(cachedMatch[1]) : null;
-                let output = outputMatch ? parsePrice(outputMatch[1]) : 0;
-                if (input <= 0 && output <= 0) {
-                    const perM = block.match(/\$?([\d.,]+)\s*\/\s*1\s*M/i);
-                    const costMatch = block.match(/Cost[:\s]*\$?([\d.,]+)/i);
-                    if (perM) input = parsePrice(perM[1]);
-                    else if (costMatch) input = parsePrice(costMatch[1]);
-                }
-                addOrPrefer(name, input, output, cachedInput);
-            }
-            const tableRows = html.match(/<tr[^>]*>[\s\S]*?<\/tr>/gi) || [];
-            for (const row of tableRows) {
-                const cells = row.match(/<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/gi);
-                if (!cells || cells.length < 2) continue;
-                const cellText = cells.map(c => c.replace(/<[^>]+>/g, '').trim());
-                const first = (cellText[0] || '').replace(/\s+/g, ' ').trim();
-                const isEmbedding = /^text-embedding-/i.test(first);
-                const isTextToken = /^(gpt-|GPT|o\d|davinci|babbage|gpt-3)/i.test(first);
-                if (!isTextToken && !isEmbedding) continue;
-                if (!isOpenAITextOrEmbeddingOnly(first)) continue;
-                const name = first;
-                if (name.length < 2) continue;
-                let input = 0, output = 0, cachedInput = null;
-                if (isEmbedding && cellText.length >= 2) {
-                    input = parsePrice(cellText[1]);
-                } else if (cellText.length >= 4) {
-                    input = parsePrice(cellText[1]);
-                    const cachedVal = cellText[2];
-                    if (cachedVal && cachedVal !== '-' && cachedVal !== '–') cachedInput = parsePrice(cachedVal);
-                    output = parsePrice(cellText[3]);
-                } else {
-                    for (let i = 1; i < cellText.length; i++) {
-                        const p = parsePrice(cellText[i]);
-                        if (p > 0) { if (input === 0) input = p; else if (output === 0) output = p; else cachedInput = p; }
-                    }
-                    if (output === 0 && cellText.length >= 3) output = parsePrice(cellText[cellText.length - 1]);
-                }
-                addOrPrefer(name, input, output, cachedInput);
-            }
-            const models = Array.from(byName.values());
-            return models.length ? models : null;
-        }
-
-        function parseGeminiPricing(html) {
-            const models = [];
-            const seen = new Set();
-            const text = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
-            const nameRegex = /Gemini\s*[\d.]+(?:\s*(?:Pro|Flash(?:-Lite|-8B)?|Flash-Lite))?(?=\s|$|\.|,)/gi;
-            let nameMatch;
-            while ((nameMatch = nameRegex.exec(text)) !== null) {
-                const name = nameMatch[0].replace(/\s+/g, ' ').trim();
-                if (seen.has(name)) continue;
-                const chunk = text.slice(nameMatch.index, nameMatch.index + 400);
-                const priceMatches = chunk.match(/\$?([\d.]+)\s*(?:\/|\s)*1\s*M?\s*(?:token)?s?/gi);
-                const prices = priceMatches ? priceMatches.map(m => parseFloat((m.match(/([\d.]+)/) || [])[1]) || 0) : [];
-                const input = prices[0] || 0;
-                const output = prices[1] || 0;
-                if (input > 0 || output > 0) {
-                    seen.add(name);
-                    models.push({ name, input, output });
-                }
-            }
-            const tables = html.match(/<table[^>]*>[\s\S]*?<\/table>/gi) || [];
-            for (const table of tables) {
-                const rows = table.match(/<tr[^>]*>[\s\S]*?<\/tr>/gi) || [];
-                for (const row of rows.slice(1)) {
-                    const cells = row.match(/<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/gi);
-                    if (!cells || cells.length < 3) continue;
-                    const name = cells[0].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
-                    if (!/Gemini\s*[\d.]/i.test(name)) continue;
-                    const input = parsePrice(cells[1]);
-                    const output = parsePrice(cells.length > 2 ? cells[2] : cells[1]);
-                    if (name && (input > 0 || output > 0) && !seen.has(name)) {
-                        seen.add(name);
-                        models.push({ name, input, output });
-                    }
-                }
-            }
-            const blockRegex = /Gemini\s*[\d.]+(?:\s*(?:Pro|Flash(?:-Lite|-8B)?|Flash-Lite))?[^$]*?\$?([\d.]+)[^$]*?\$?([\d.]+)/gi;
-            let blockMatch;
-            while ((blockMatch = blockRegex.exec(text)) !== null) {
-                const nameMatch = text.slice(Math.max(0, blockMatch.index - 60), blockMatch.index + 80).match(/Gemini\s*[\d.]+(?:\s*(?:Pro|Flash(?:-Lite|-8B)?|Flash-Lite))?/i);
-                const name = nameMatch ? nameMatch[0].replace(/\s+/g, ' ').trim() : '';
-                if (!name || seen.has(name)) continue;
-                const input = parseFloat(blockMatch[1]) || 0;
-                const output = parseFloat(blockMatch[2]) || 0;
-                if (input > 0 || output > 0) {
-                    seen.add(name);
-                    models.push({ name, input, output });
-                }
-            }
-            return models.length ? models : null;
+            return out;
         }
 
         async function refreshFromWeb() {
@@ -2090,34 +2121,23 @@
             btn.disabled = true;
             icon.classList.add('spinning');
             try {
-                const [geminiRes, openaiRes] = await Promise.all([
-                    fetch(CORS_PROXY + encodeURIComponent(GEMINI_PRICING_URL)).then(r => r.ok ? r.text() : ''),
-                    fetch(CORS_PROXY + encodeURIComponent(OPENAI_PRICING_URL)).then(r => r.ok ? r.text() : '')
-                ]);
-                if (openaiRes) {
-                    let parsed = parseOpenAIPricing(openaiRes);
-                    if (!parsed || parsed.length < 8) {
-                        try {
-                            const fallbackRes = await fetch(CORS_PROXY + encodeURIComponent(OPENAI_PRICING_FALLBACK_URL)).then(r => r.ok ? r.text() : '');
-                            if (fallbackRes) {
-                                const fallbackParsed = parseOpenAIPricing(fallbackRes);
-                                if (fallbackParsed && fallbackParsed.length > (parsed ? parsed.length : 0)) parsed = fallbackParsed;
-                            }
-                        } catch (_) {}
-                    }
-                    if (parsed && parsed.length > 0) openaiData = mergeOpenAIWithCurrent(openaiData, parsed);
+                const vizraRes = await fetch(VIZRA_PRICING_URL);
+                if (!vizraRes.ok) throw new Error('Vizra API ' + vizraRes.status);
+                const vizraData = await vizraRes.json();
+                const parsed = parseVizraResponse(vizraData);
+                if (parsed.gemini.length > 0 || parsed.openai.length > 0) {
+                    geminiData = parsed.gemini.length ? parsed.gemini : geminiData;
+                    openaiData = parsed.openai.length ? parsed.openai : openaiData;
+                    anthropicData = parsed.anthropic.length ? parsed.anthropic : anthropicData;
+                    mistralData = parsed.mistral.length ? parsed.mistral : mistralData;
                 }
-                if (geminiRes) {
-                    const parsed = parseGeminiPricing(geminiRes);
-                    if (parsed && parsed.length > 0) geminiData = mergeGeminiWithCurrent(geminiData, parsed);
-                }
-                const payload = { gemini: geminiData, openai: openaiData, updated: new Date().toISOString().slice(0, 10) };
+                const payload = { gemini: geminiData, openai: openaiData, anthropic: anthropicData, mistral: mistralData, updated: new Date().toISOString().slice(0, 10) };
                 try { localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); } catch (_) {}
-                setLastUpdated(payload.updated + ' (from web)');
+                setLastUpdated(payload.updated + ' (Vizra)');
                 renderTables();
-                showToast('Pricing updated from official sources.', 'success');
+                showToast('Pricing updated from Vizra API.', 'success');
             } catch (e) {
-                showToast('Refresh failed: ' + (e.message || 'network error'), 'error');
+                showToast('Refresh failed: ' + (e.message || 'network error') + '. Try again or use cached data.', 'error');
             } finally {
                 btn.disabled = false;
                 icon.classList.remove('spinning');
@@ -2164,6 +2184,14 @@
                 if (/^text-embedding/i.test(m.name)) return;
                 const cost = calcCostOpenAI(promptTokens, 0, outputTokens, m.input, m.cachedInput, m.output);
                 list.push({ provider: 'OpenAI', name: m.name, cost });
+            });
+            anthropicData.forEach(m => {
+                const cost = calcCost(promptTokens, outputTokens, m.input, m.output);
+                list.push({ provider: 'Anthropic', name: m.name, cost });
+            });
+            mistralData.forEach(m => {
+                const cost = calcCost(promptTokens, outputTokens, m.input, m.output);
+                list.push({ provider: 'Mistral', name: m.name, cost });
             });
             list.sort((a, b) => a.cost - b.cost);
             const rows = list.map(m => `<li><span class="model-label">${m.name}</span> <span class="model-cost">$${m.cost.toFixed(5)}</span></li>`).join('');
@@ -2255,35 +2283,34 @@
             const total = promptTokens + outputTokens;
             const rows = [];
             const NEAR_THRESHOLD = 0.9;
-            geminiData.forEach(m => {
-                const ctx = getContextWindow('gemini', m.name);
-                if (!ctx) return;
-                let resultClass = 'result-fits';
-                let resultText = 'Fits';
-                if (total > ctx.tokens) {
-                    resultClass = 'result-exceeds';
-                    resultText = 'Exceeds';
-                } else if (total >= ctx.tokens * NEAR_THRESHOLD) {
-                    resultClass = 'result-near';
-                    resultText = 'Near limit';
-                }
-                rows.push(`<tr><td class="model-name">${m.name}</td><td>${ctx.label}</td><td class="${resultClass}">${resultText}</td></tr>`);
-            });
+            function addContextRows(providerKey, data) {
+                (data || []).forEach(m => {
+                    const ctx = getContextWindow(providerKey, m.name);
+                    if (!ctx) return;
+                    let resultClass = 'result-fits';
+                    let resultText = 'Fits';
+                    if (total > ctx.tokens) {
+                        resultClass = 'result-exceeds';
+                        resultText = 'Exceeds';
+                    } else if (total >= ctx.tokens * NEAR_THRESHOLD) {
+                        resultClass = 'result-near';
+                        resultText = 'Near limit';
+                    }
+                    rows.push(`<tr><td class="model-name">${m.name}</td><td>${ctx.label}</td><td class="${resultClass}">${resultText}</td></tr>`);
+                });
+            }
+            addContextRows('gemini', geminiData);
             openaiData.forEach(m => {
                 if (/^text-embedding/i.test(m.name)) return;
                 const ctx = getContextWindow('openai', m.name);
                 if (!ctx) return;
-                let resultClass = 'result-fits';
-                let resultText = 'Fits';
-                if (total > ctx.tokens) {
-                    resultClass = 'result-exceeds';
-                    resultText = 'Exceeds';
-                } else if (total >= ctx.tokens * NEAR_THRESHOLD) {
-                    resultClass = 'result-near';
-                    resultText = 'Near limit';
-                }
+                let resultClass = 'result-fits', resultText = 'Fits';
+                if (total > ctx.tokens) { resultClass = 'result-exceeds'; resultText = 'Exceeds'; }
+                else if (total >= ctx.tokens * NEAR_THRESHOLD) { resultClass = 'result-near'; resultText = 'Near limit'; }
                 rows.push(`<tr><td class="model-name">${m.name}</td><td>${ctx.label}</td><td class="${resultClass}">${resultText}</td></tr>`);
             });
+            addContextRows('anthropic', anthropicData);
+            addContextRows('mistral', mistralData);
             resultEl.innerHTML = '<h4>Results</h4><table class="model-table"><thead><tr><th>Model</th><th>Context window</th><th>Result</th></tr></thead><tbody>' + rows.join('') + '</tbody></table>';
             resultEl.style.display = 'block';
         }
@@ -2318,6 +2345,18 @@
             openaiData.forEach(m => {
                 if (/^text-embedding/i.test(m.name)) return;
                 const costPerRequest = calcCostOpenAI(promptTokens, 0, outputTokens, m.input, m.cachedInput, m.output);
+                const daily = costPerRequest * totalRequestsPerDay;
+                const monthly = daily * 30;
+                list.push({ name: m.name, daily, monthly });
+            });
+            anthropicData.forEach(m => {
+                const costPerRequest = calcCost(promptTokens, outputTokens, m.input, m.output);
+                const daily = costPerRequest * totalRequestsPerDay;
+                const monthly = daily * 30;
+                list.push({ name: m.name, daily, monthly });
+            });
+            mistralData.forEach(m => {
+                const costPerRequest = calcCost(promptTokens, outputTokens, m.input, m.output);
                 const daily = costPerRequest * totalRequestsPerDay;
                 const monthly = daily * 30;
                 list.push({ name: m.name, daily, monthly });
@@ -2485,8 +2524,12 @@
         document.getElementById('getRecommendBtn').addEventListener('click', runRecommendation);
         const geminiSearchEl = document.getElementById('gemini-search');
         const openaiSearchEl = document.getElementById('openai-search');
+        const anthropicSearchEl = document.getElementById('anthropic-search');
+        const mistralSearchEl = document.getElementById('mistral-search');
         if (geminiSearchEl) geminiSearchEl.addEventListener('input', () => filterPricingTable('gemini-tbody', geminiSearchEl.value));
         if (openaiSearchEl) openaiSearchEl.addEventListener('input', () => filterPricingTable('openai-tbody', openaiSearchEl.value));
+        if (anthropicSearchEl) anthropicSearchEl.addEventListener('input', () => filterPricingTable('anthropic-tbody', anthropicSearchEl.value));
+        if (mistralSearchEl) mistralSearchEl.addEventListener('input', () => filterPricingTable('mistral-tbody', mistralSearchEl.value));
         const promptInputEl = document.getElementById('prompt-input');
         if (promptInputEl) promptInputEl.addEventListener('input', function () {
             const el = document.getElementById('prompt-token-count');

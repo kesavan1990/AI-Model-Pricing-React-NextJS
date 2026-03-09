@@ -24,7 +24,7 @@ This app is **static** (HTML, CSS, JavaScript only). You can host it on any stat
 2. In the repo: **Settings → Pages → Source**: choose **main** branch, root folder.
 3. Your site will be at: `https://YOUR_USERNAME.github.io/YOUR_REPO/`
 
-**Automatic pricing updates (GitHub only):** The repo includes a GitHub Action (`.github/workflows/update-pricing.yml`) that runs **daily** in the cloud. Flow: AI pricing docs → scraper script → GitHub Action → update `pricing.json` → commit to repo → frontend loads updated data. See [PRICING_UPDATES.md](PRICING_UPDATES.md) for details. You can also run it manually from **Actions → Update pricing → Run workflow**.
+**Pricing source:** The app uses the [Vizra API](https://vizra.ai/api/v1/pricing/ai-models) only. "Refresh from web" fetches it from the browser. **GitHub Actions is optional**: the workflow (`.github/workflows/update-pricing.yml`) can run daily to update `pricing.json` in the repo so the first visit has fresh data; you can remove it and rely on "Refresh from web". See [PRICING_UPDATES.md](PRICING_UPDATES.md).
 
 ### 2. **Netlify** (drag-and-drop)
 
@@ -59,7 +59,7 @@ surge
 ## Notes
 
 - **Pricing on GitHub Pages**: If you use GitHub Pages and keep `.github/workflows/update-pricing.yml` and `scripts/update-pricing.mjs`, pricing is updated automatically every day in the cloud; visitors get fresh `pricing.json` without running anything locally.
-- **Refresh from web**: Uses a public CORS proxy (`corsproxy.io`) from the browser when the user clicks the button. It works when the app is hosted online; no backend needed.
+- **Refresh from web**: Fetches the Vizra API from the browser to update pricing. No backend needed. (A CORS proxy is still used only for the "Find the right model" documentation search.)
 - **History & cache**: Stored in the browser's `localStorage`. Each user's data stays on their device and is not shared across devices or browsers.
 - **HTTPS**: All options above serve over HTTPS, which is required for many browser features.
 

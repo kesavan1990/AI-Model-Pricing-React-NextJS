@@ -1,6 +1,5 @@
-# Price update flow: AI pricing docs → Scraper script → this workflow (daily) →
-# Update pricing.json → Commit to repo → Frontend loads updated data.
-# See repo root PRICING_UPDATES.md for full flow.
+# Optional: runs scripts/update-pricing.mjs (Vizra API) and commits pricing.json.
+# See PRICING_UPDATES.md — GitHub Actions is optional; app can use "Refresh from web" only.
 name: Update pricing
 
 on:
@@ -36,6 +35,6 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to pricing.json"
           else
-            git commit -m "chore: update pricing from official docs [automated]"
+            git commit -m "chore: update pricing from Vizra API [automated]"
             git push
           fi
