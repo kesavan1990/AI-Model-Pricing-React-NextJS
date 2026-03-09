@@ -1,56 +1,34 @@
 # Price update flow
 
-How pricing data is kept up to date without a backend or manual edits.
+Pricing is fetched **directly from the Vizra API** in the browser. No GitHub Actions or backend.
 
 ## Flow
 
 ```
 Vizra API (https://vizra.ai/api/v1/pricing/ai-models)
-  → All LLM pricing (Gemini, OpenAI, Anthropic, Mistral, and more)
+  → Frontend fetches on load (pricing.json) or "Refresh from web" or auto-fill when Anthropic/Mistral missing
         ↓
-Scraper script (scripts/update-pricing.mjs)
-        ↓
-GitHub Action (daily)
-        ↓
-Update pricing.json (gemini, openai, anthropic, mistral)
-        ↓
-Commit to repo
-        ↓
-Frontend loads updated data
+App shows Gemini, OpenAI, Anthropic, Mistral
 ```
 
-## Steps
+## How the app gets data
 
-1. **Pricing source: Vizra API**  
-   The script fetches [Vizra’s pricing API](https://vizra.ai/api/v1/pricing/ai-models) (`GET https://vizra.ai/api/v1/pricing/ai-models`). It returns 284+ models from 9 providers. We map **Google** → `gemini`, **OpenAI** → `openai`, **Anthropic** → `anthropic`, **Mistral** → `mistral` and write those four arrays to `pricing.json`.
+1. **Initial load**: Tries to load `pricing.json` from the host (or cache). If Anthropic or Mistral are empty, the app fetches from the Vizra API once and fills them in.
 
-2. **Scraper script**  
-   `scripts/update-pricing.mjs` fetches the Vizra API once, normalizes to per-1M token costs (input/output), and writes `pricing.json` with keys: `updated`, `gemini`, `openai`, `anthropic`, `mistral`.
+2. **"Refresh from web"**: Fetches the Vizra API and updates all four providers. Saves to localStorage.
 
-3. **GitHub Action (daily)**  
-   `.github/workflows/update-pricing.yml` runs on a schedule and on manual trigger. It runs the script, then commits and pushes `pricing.json` only if it changed.
+3. **pricing.json** in the repo is optional. It’s used when the app is first opened so there’s something to show before any Vizra request. You can update it manually by running the script (see below).
 
-4. **Frontend**  
-   The app loads `pricing.json` and uses all four provider arrays in the pricing grid, calculators (pricing, prompt cost, context window, production cost), benchmarks, and “Find the right model” recommendation. “Refresh from web” fetches the Vizra API only—no other pricing sources.
+## Running the script locally (optional)
 
-## Do we need GitHub Actions?
-
-**No.** Pricing comes only from the Vizra API. The app works without it: initial load uses `pricing.json` (or cache/default); "Refresh from web" fetches Vizra from the browser. **Optional:** Keep the workflow to update `pricing.json` daily (fresh data on first visit, fallback if Vizra is down). You can delete `.github/workflows/update-pricing.yml` and rely on "Refresh from web", or run the script locally to refresh the file.
-
-## Running locally (optional)
-
-From the repo root:
+To refresh the `pricing.json` file in the repo (e.g. for a better first-load experience):
 
 ```bash
 node scripts/update-pricing.mjs
 ```
 
-This updates `pricing.json` locally. Commit and push yourself, or rely on the GitHub Action to do it on schedule.
-
-## Manual run
-
-In your GitHub repo: **Actions** → **Update pricing** → **Run workflow**.
+Then commit and push `pricing.json` if you want.
 
 ## Vizra API
 
-[Vizra.ai](https://vizra.ai/ai-llm-model-pricing) provides a free API with real-time pricing for 284+ AI models. Data is updated daily. The frontend and the update script both use `https://vizra.ai/api/v1/pricing/ai-models`; the script runs in GitHub Actions, and “Refresh from web” calls it from the browser when possible.
+[Vizra.ai](https://vizra.ai/ai-llm-model-pricing) provides a free API with pricing for 284+ AI models. The app uses `https://vizra.ai/api/v1/pricing/ai-models` from the browser.
