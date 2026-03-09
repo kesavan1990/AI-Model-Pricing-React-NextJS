@@ -866,7 +866,41 @@ h1 {
 [data-theme="light"] .pricing-table-scroll .model-table thead th,
 [data-theme="light"] .context-window-result .model-table thead th,
 [data-theme="light"] .production-cost-result .model-table thead th,
-[data-theme="light"] .benchmark-dashboard-table .model-table thead th { background: var(--theme-card); }
+[data-theme="light"] .benchmark-dashboard-table .model-table thead th { background: var(--theme-card); color: var(--theme-text-muted); }
+[data-theme="light"] .context-window-result .model-table td,
+[data-theme="light"] .production-cost-result .model-table td,
+[data-theme="light"] .benchmark-dashboard-table .model-table td { color: var(--theme-text); }
+[data-theme="light"] .calc-result-table th,
+[data-theme="light"] .calc-result-table td { color: var(--theme-text); }
+[data-theme="light"] .calc-result-table th { color: var(--theme-text-muted); }
+[data-theme="light"] .calc-result.single,
+[data-theme="light"] .compare-summary { color: var(--theme-text); }
+[data-theme="light"] .calc-hint,
+[data-theme="light"] .price-changes-summary .price-changes-hint,
+[data-theme="light"] .price-changes-summary .change-table th,
+[data-theme="light"] .price-changes-summary .change-more,
+[data-theme="light"] .pricing-section-header .section-label,
+[data-theme="light"] .export-toolbar .export-label { color: var(--theme-text-muted); }
+[data-theme="light"] .price-changes-summary .change-table .col-provider,
+[data-theme="light"] .price-changes-summary .change-table .col-model,
+[data-theme="light"] .price-changes-summary .change-table .col-field { color: var(--theme-text); }
+[data-theme="light"] .price-changes-summary .change-table .col-prices { color: var(--theme-text); }
+[data-theme="light"] .calc-result-capped { color: var(--theme-text-muted); }
+[data-theme="light"] .prompt-estimator-card .calc-row label,
+[data-theme="light"] .prompt-import-row .prompt-import-btn,
+[data-theme="light"] .prompt-import-hint,
+[data-theme="light"] .prompt-import-loading { color: var(--theme-text-muted); }
+[data-theme="light"] .prompt-token-count { color: #2563eb; }
+[data-theme="light"] .prompt-cost-list li .model-label { color: var(--theme-text); }
+[data-theme="light"] .context-window-result h4,
+[data-theme="light"] .production-cost-result h4 { color: var(--theme-text); }
+[data-theme="light"] .recommend-doc-snippet { color: #2563eb; background: rgba(37, 99, 235, 0.08); border-color: rgba(37, 99, 235, 0.3); }
+[data-theme="light"] .recommend-doc-note { color: var(--theme-text-muted); }
+[data-theme="light"] .history-empty { color: var(--theme-text-muted); }
+[data-theme="light"] .history-no-data { color: var(--theme-text-muted); }
+[data-theme="light"] .history-compare-section h3 { color: var(--theme-text); }
+[data-theme="light"] .model-name span { color: var(--theme-text-muted); background: rgba(0,0,0,0.08); }
+[data-theme="light"] .last-updated { color: var(--theme-text-muted); }
 
 @media (max-width: 768px) {
     .pricing-grid {
