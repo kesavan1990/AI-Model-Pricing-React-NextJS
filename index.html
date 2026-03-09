@@ -1781,9 +1781,11 @@
             doc.save('ai-pricing-' + new Date().toISOString().slice(0, 10) + '.pdf');
         }
 
-        function formatHistoryDate(isoStr) {
+        function formatHistoryDate(isoStr, isScheduled) {
             try {
                 const d = new Date(isoStr);
+                if (isScheduled)
+                    return d.toLocaleString('en-IN', { dateStyle: 'medium', timeZone: 'Asia/Kolkata' }) + ', 12:00 am IST';
                 return d.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' }) + ' IST';
             } catch (_) { return isoStr || ''; }
         }
@@ -1797,7 +1799,7 @@
             const rows = [];
             rows.push('Date,Provider,Model,Input per 1M tokens,Output per 1M tokens,Cached input per 1M tokens');
             list.forEach(entry => {
-                const dateStr = formatHistoryDate(entry.date);
+                const dateStr = formatHistoryDate(entry.date, entry.daily || entry.weekly);
                 (entry.gemini || []).forEach(m => {
                     rows.push([dateStr, 'Google Gemini', m.name, m.input, m.output, ''].map(escapeCsvCell).join(','));
                 });
@@ -1841,7 +1843,7 @@
             const colWidths = [42, 28, 48, 22, 22, 22];
             const rows = [];
             list.forEach(entry => {
-                const dateStr = formatHistoryDate(entry.date);
+                const dateStr = formatHistoryDate(entry.date, entry.daily || entry.weekly);
                 (entry.gemini || []).forEach(m => {
                     rows.push([dateStr, 'Google Gemini', m.name, m.input === 0 ? 'Free' : '$' + Number(m.input).toFixed(2), m.output === 0 ? 'Free' : '$' + Number(m.output).toFixed(2), '—']);
                 });
@@ -1978,7 +1980,7 @@
                 const d = new Date(entry.date);
                 const isScheduled = entry.daily || entry.weekly;
                 const dateStr = isScheduled
-                    ? d.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' }) + ' IST'
+                    ? d.toLocaleString('en-IN', { dateStyle: 'medium', timeZone: 'Asia/Kolkata' }) + ', 12:00 am IST'
                     : d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
                 const scheduleBadge = entry.daily ? ' <span class="history-daily-badge">Daily</span>' : (entry.weekly ? ' <span class="history-daily-badge">Weekly</span>' : '');
                 const gCount = (entry.gemini || []).length;
@@ -2021,7 +2023,7 @@
                 const d = new Date(entry.date);
                 const isScheduled = entry.daily || entry.weekly;
                 const dateStr = isScheduled
-                    ? d.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' }) + ' IST'
+                    ? d.toLocaleString('en-IN', { dateStyle: 'medium', timeZone: 'Asia/Kolkata' }) + ', 12:00 am IST'
                     : d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
                 fromSel.appendChild(new Option(dateStr, String(idx)));
                 toSel.appendChild(new Option(dateStr, String(idx)));
