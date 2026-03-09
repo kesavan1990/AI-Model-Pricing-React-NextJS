@@ -52,6 +52,17 @@ function normalizePricing(models) {
     .filter((n) => n.name && (n.input > 0 || n.output > 0));
 }
 
+function dedupeModelsByName(arr) {
+  if (!Array.isArray(arr) || arr.length === 0) return arr;
+  const seen = new Map();
+  for (const m of arr) {
+    const key = (m && m.name != null ? String(m.name) : '').toLowerCase().trim();
+    if (!key) continue;
+    if (!seen.has(key)) seen.set(key, m);
+  }
+  return Array.from(seen.values());
+}
+
 function parseVizraResponse(data) {
   const out = { gemini: [], openai: [], anthropic: [], mistral: [] };
   if (!data || typeof data !== 'object') return out;
@@ -78,6 +89,10 @@ function parseVizraResponse(data) {
       cachedInput: n.cachedInput,
     });
   }
+  out.gemini = dedupeModelsByName(out.gemini);
+  out.openai = dedupeModelsByName(out.openai);
+  out.anthropic = dedupeModelsByName(out.anthropic);
+  out.mistral = dedupeModelsByName(out.mistral);
   return out;
 }
 

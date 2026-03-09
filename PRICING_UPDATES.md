@@ -1,34 +1,39 @@
 # Price update flow
 
-Pricing is fetched **directly from the Vizra API** in the browser. No GitHub Actions or backend.
+Pricing is **automated**: a GitHub Action runs daily (and on manual trigger), fetches the latest from the Vizra API, and updates `pricing.json` in the repo. The frontend then loads that file so pricing stays up to date without manual edits.
 
 ## Flow
 
 ```
-Vizra API (https://vizra.ai/api/v1/pricing/ai-models)
-  → Frontend fetches on load (pricing.json) or "Refresh from web" or auto-fill when Anthropic/Mistral missing
-        ↓
-App shows Gemini, OpenAI, Anthropic, Mistral
+GitHub Action (daily 06:00 UTC / manual)
+     ↓
+scripts/update-pricing.js fetches Vizra API
+     ↓
+Writes pricing.json (normalized, deduped)
+     ↓
+Commit and push if changed
+     ↓
+App loads pricing.json on open (or cache / embedded default)
 ```
 
 ## How the app gets data
 
-1. **Initial load**: Tries to load `pricing.json` from the host (or cache). If Anthropic or Mistral are empty, the app fetches from the Vizra API once and fills them in.
+1. **Initial load**: Loads `pricing.json` from the host first, then falls back to localStorage cache, then embedded defaults. On non-GitHub hosts, the app may also call the Vizra API once to fill Anthropic/Mistral if missing.
 
-2. **"Refresh from web"**: Fetches the Vizra API and updates all four providers. Saves to localStorage.
+2. **"Refresh from web"**: On GitHub Pages, reloads `pricing.json`. Elsewhere, fetches the Vizra API and updates all providers.
 
-3. **pricing.json** in the repo is optional. It’s used when the app is first opened so there’s something to show before any Vizra request. You can update it manually by running the script (see below).
+3. **pricing.json** is updated automatically by the workflow. You can also run the script locally (see below).
 
-## Running the script locally (optional)
+## Running the script locally
 
-To refresh the `pricing.json` file in the repo (e.g. for a better first-load experience):
+To refresh `pricing.json` yourself:
 
 ```bash
-node scripts/update-pricing.mjs
+node scripts/update-pricing.js
 ```
 
-Then commit and push `pricing.json` if you want.
+Then commit and push `pricing.json` if needed. Or use **Actions → Update pricing → Run workflow** in GitHub.
 
 ## Vizra API
 
-[Vizra.ai](https://vizra.ai/ai-llm-model-pricing) provides a free API with pricing for 284+ AI models. The app uses `https://vizra.ai/api/v1/pricing/ai-models` from the browser.
+[Vizra.ai](https://vizra.ai/ai-llm-model-pricing) provides a free API with pricing for 284+ AI models. The app uses `https://vizra.ai/api/v1/pricing/ai-models`. Full architecture: [docs/PRICING_UPDATES.md](docs/PRICING_UPDATES.md).

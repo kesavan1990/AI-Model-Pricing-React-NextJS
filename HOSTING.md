@@ -24,7 +24,7 @@ This app is **static** (HTML, CSS, JavaScript only). You can host it on any stat
 2. In the repo: **Settings → Pages → Source**: choose **main** branch, root folder.
 3. Your site will be at: `https://YOUR_USERNAME.github.io/YOUR_REPO/`
 
-**Pricing:** The app fetches the [Vizra API](https://vizra.ai/api/v1/pricing/ai-models) from the browser ("Refresh from web" or auto-fill). No GitHub Actions. See [PRICING_UPDATES.md](PRICING_UPDATES.md).
+**Pricing:** The app loads `pricing.json`, which is updated automatically by a [GitHub Action](.github/workflows/update-pricing.yml) (daily or manual). "Refresh from web" reloads that file on GitHub Pages. See [PRICING_UPDATES.md](PRICING_UPDATES.md) and [docs/PRICING_UPDATES.md](docs/PRICING_UPDATES.md).
 
 ### 2. **Netlify** (drag-and-drop)
 
@@ -58,7 +58,7 @@ surge
 
 ## Notes
 
-- **Pricing**: Fetched from the Vizra API in the browser ("Refresh from web" or auto-fill when needed). No backend or GitHub Actions.
+- **Pricing**: Kept up to date by a GitHub Action that fetches the Vizra API and updates `pricing.json`. The app loads that file (or cache/default). "Refresh from web" reloads pricing.
 - **Refresh from web**: Fetches the Vizra API to update pricing. (A CORS proxy is used only for the "Find the right model" documentation search.)
 - **History & cache**: Stored in the browser's `localStorage`. Each user's data stays on their device and is not shared across devices or browsers.
 - **HTTPS**: All options above serve over HTTPS, which is required for many browser features.
