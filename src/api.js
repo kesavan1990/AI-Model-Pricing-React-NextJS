@@ -9,11 +9,17 @@ const CORS_PROXIES = [
   (url) => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
 ];
 
+/**
+ * URL for pricing.json with cache-busting query (?t=timestamp) so the browser
+ * does not serve stale cached pricing.
+ */
 export function getPricingJsonUrl() {
   try {
-    return new URL('pricing.json', window.location.href).href;
+    const u = new URL('pricing.json', window.location.href);
+    u.searchParams.set('t', Date.now());
+    return u.href;
   } catch (_) {
-    return 'pricing.json';
+    return `pricing.json?t=${Date.now()}`;
   }
 }
 

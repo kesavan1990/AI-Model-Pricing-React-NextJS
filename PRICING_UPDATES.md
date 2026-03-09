@@ -18,7 +18,7 @@ App loads pricing.json on open (or cache / embedded default)
 
 ## How the app gets data
 
-1. **Initial load**: Loads `pricing.json` from the host first, then falls back to localStorage cache, then embedded defaults. On non-GitHub hosts, the app may also call the Vizra API once to fill Anthropic/Mistral if missing.
+1. **Initial load**: Loads `pricing.json` from the host first (with a cache-busting query `?t=<timestamp>` so the browser does not use stale cached pricing), then falls back to localStorage cache, then embedded defaults. On non-GitHub hosts, the app may also call the Vizra API once to fill Anthropic/Mistral if missing.
 
 2. **"Refresh from web"**: On GitHub Pages, reloads `pricing.json`. Elsewhere, fetches the Vizra API and updates all providers.
 

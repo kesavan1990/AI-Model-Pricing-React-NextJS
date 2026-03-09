@@ -19,6 +19,7 @@ Frontend loads pricing.json (no direct Vizra call on page load)
 - **`.github/workflows/update-pricing.yml`** runs daily (06:00 UTC) and on manual trigger. It runs `node scripts/update-pricing.js`, which fetches from Vizra, normalizes provider names and units (same logic as the frontend), and writes `pricing.json` at the repo root.
 - **Commit only if changed:** The workflow commits and pushes only when `pricing.json` has actually changed. It uses `git add pricing.json` then `git diff --staged --quiet -- pricing.json`; if there is no diff (same content as HEAD), it skips commit and push and logs "No pricing changes". This avoids empty commits on every run.
 - **Frontend** (`src/app.js` → `src/pricingService.js`, `src/api.js`) loads `pricing.json` first, then falls back to localStorage cache, then embedded defaults. Optional "Refresh from web" still calls Vizra once per click (user-initiated). See [README](../README.md#code-structure) for the `src/` module layout.
+- **Cache-busting:** The app fetches `pricing.json` with a query parameter (`?t=<timestamp>`) so the browser does not serve stale cached pricing. Implemented in `getPricingJsonUrl()` in `src/api.js`; each load requests e.g. `pricing.json?t=1699123456789`.
 
 ## API failure handling
 
