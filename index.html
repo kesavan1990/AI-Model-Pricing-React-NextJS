@@ -342,6 +342,11 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         .prompt-estimator-card .calc-row label { display: block; color: #a0a0a0; font-size: 0.9rem; margin-bottom: 6px; }
+        .prompt-import-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 12px; margin-top: 10px; margin-bottom: 14px; }
+        .prompt-import-row .prompt-import-btn { padding: 8px 16px; border-radius: 8px; background: rgba(102, 126, 234, 0.35); color: #e0e0e0; border: 1px solid rgba(102, 126, 234, 0.5); cursor: pointer; font-size: 0.9rem; }
+        .prompt-import-row .prompt-import-btn:hover { background: rgba(102, 126, 234, 0.5); color: #fff; }
+        .prompt-import-hint { color: #888; font-size: 0.85rem; }
+        .prompt-import-loading { color: #8ab4f8; font-size: 0.85rem; margin-left: 8px; }
         .prompt-estimator-card textarea {
             width: 100%;
             min-height: 120px;
@@ -869,11 +874,17 @@
         <div id="calc-sub-prompt" class="calc-sub-panel" role="tabpanel">
         <section class="page-section" id="section-prompt-cost">
             <h2 class="section-title">📝 Estimate cost from prompt</h2>
-            <p class="section-subtitle">Paste your prompt to get an approximate token count (≈4 chars/token) and cost across Gemini and OpenAI models. Embedding-only models are excluded.</p>
+            <p class="section-subtitle">Paste your prompt to get a token count (using <strong>gpt-tokenizer</strong> / cl100k_base when available, else ≈4 chars/token) and cost across Gemini and OpenAI models. Embedding-only models are excluded.</p>
             <div class="prompt-estimator-card">
                 <div class="calc-row">
-                    <label for="prompt-input">Paste your prompt</label>
+                    <label for="prompt-input">Paste your prompt or import a file</label>
                     <textarea id="prompt-input" rows="5" placeholder="Paste your prompt here…"></textarea>
+                </div>
+                <div class="prompt-import-row">
+                    <input type="file" id="prompt-file-input" accept=".txt,.csv,.pdf,.md,.json,.log,.xml,text/plain,text/csv,application/pdf,text/markdown,application/json" aria-label="Import file" style="position:absolute;width:0.1px;height:0.1px;opacity:0;overflow:hidden;">
+                    <button type="button" class="prompt-import-btn" id="promptImportBtn">📁 Import file</button>
+                    <span class="prompt-import-hint" id="promptImportHint">TXT, CSV, PDF, MD, JSON</span>
+                    <span class="prompt-import-loading" id="promptImportLoading" style="display: none;">Loading…</span>
                 </div>
                 <div class="prompt-estimator-meta">
                     <div class="calc-row prompt-estimator-tokens">
@@ -986,11 +997,13 @@
         </div>
 
         <footer class="page-footer">
-            <p class="last-updated">Last updated: <span id="lastUpdated">—</span>. Prices may vary. Check official docs for latest pricing.</p>
+            <p class="last-updated">Last updated: <span id="lastUpdated">—</span>. Prices may vary. Check official docs for latest. On GitHub, <code>pricing.json</code> is updated daily by GitHub Actions; or click &quot;Refresh from web&quot; to fetch live.</p>
         </footer>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/gpt-tokenizer/dist/cl100k_base.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js" crossorigin="anonymous"></script>
 
     <div class="modal-overlay" id="historyModal" role="dialog" aria-label="Pricing history">
         <div class="modal-panel">
@@ -1053,8 +1066,8 @@
             ]
         };
 
-        let geminiData = DEFAULT_PRICING.gemini.slice();
-        let openaiData = DEFAULT_PRICING.openai.slice();
+        let geminiData = [];
+        let openaiData = [];
 
         function formatContextLabel(tokens) {
             if (tokens >= 1e6) return (tokens / 1e6) + 'M';
@@ -1908,26 +1921,29 @@
         }
 
         async function loadPricing() {
-            const minGemini = DEFAULT_PRICING.gemini.length;
-            const minOpenai = DEFAULT_PRICING.openai.length;
+            let lastUpdatedStr = null;
             try {
                 const res = await fetch('pricing.json');
                 if (res.ok) {
                     const data = await res.json();
-                    if (data.gemini && data.gemini.length >= minGemini) geminiData = data.gemini;
-                    if (data.openai && data.openai.length >= minOpenai) openaiData = data.openai;
-                    setLastUpdated(data.updated || 'from pricing.json');
+                    geminiData = (data.gemini && data.gemini.length) ? data.gemini : DEFAULT_PRICING.gemini.slice();
+                    openaiData = (data.openai && data.openai.length) ? data.openai : DEFAULT_PRICING.openai.slice();
+                    lastUpdatedStr = data.updated || 'from pricing.json';
+                    setLastUpdated(lastUpdatedStr);
                 } else throw new Error('Not found');
             } catch (_) {
                 try {
                     const cached = localStorage.getItem(STORAGE_KEY);
                     if (cached) {
                         const data = JSON.parse(cached);
-                        if (data.gemini && data.gemini.length >= minGemini) geminiData = data.gemini;
-                        if (data.openai && data.openai.length >= minOpenai) openaiData = data.openai;
-                        setLastUpdated((data.updated || 'cached') + ' (from web)');
+                        geminiData = (data.gemini && data.gemini.length) ? data.gemini : DEFAULT_PRICING.gemini.slice();
+                        openaiData = (data.openai && data.openai.length) ? data.openai : DEFAULT_PRICING.openai.slice();
+                        lastUpdatedStr = (data.updated || 'cached') + ' (from web)';
+                        setLastUpdated(lastUpdatedStr);
                     } else throw new Error('No cache');
                 } catch (_) {
+                    geminiData = DEFAULT_PRICING.gemini.slice();
+                    openaiData = DEFAULT_PRICING.openai.slice();
                     setLastUpdated('embedded default');
                 }
             }
@@ -2078,7 +2094,6 @@
                     fetch(CORS_PROXY + encodeURIComponent(GEMINI_PRICING_URL)).then(r => r.ok ? r.text() : ''),
                     fetch(CORS_PROXY + encodeURIComponent(OPENAI_PRICING_URL)).then(r => r.ok ? r.text() : '')
                 ]);
-                let updated = false;
                 if (openaiRes) {
                     let parsed = parseOpenAIPricing(openaiRes);
                     if (!parsed || parsed.length < 8) {
@@ -2086,32 +2101,21 @@
                             const fallbackRes = await fetch(CORS_PROXY + encodeURIComponent(OPENAI_PRICING_FALLBACK_URL)).then(r => r.ok ? r.text() : '');
                             if (fallbackRes) {
                                 const fallbackParsed = parseOpenAIPricing(fallbackRes);
-                                if (fallbackParsed && fallbackParsed.length > (parsed ? parsed.length : 0))
-                                    parsed = fallbackParsed;
+                                if (fallbackParsed && fallbackParsed.length > (parsed ? parsed.length : 0)) parsed = fallbackParsed;
                             }
                         } catch (_) {}
                     }
-                    if (parsed && parsed.length > 0) {
-                        openaiData = mergeOpenAIWithCurrent(openaiData, parsed);
-                        updated = true;
-                    }
+                    if (parsed && parsed.length > 0) openaiData = mergeOpenAIWithCurrent(openaiData, parsed);
                 }
                 if (geminiRes) {
                     const parsed = parseGeminiPricing(geminiRes);
-                    if (parsed && parsed.length > 0) {
-                        geminiData = mergeGeminiWithCurrent(geminiData, parsed);
-                        updated = true;
-                    }
+                    if (parsed && parsed.length > 0) geminiData = mergeGeminiWithCurrent(geminiData, parsed);
                 }
-                if (updated) {
-                    const payload = { gemini: geminiData, openai: openaiData, updated: new Date().toISOString().slice(0, 10) };
-                    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); } catch (_) {}
-                    setLastUpdated(payload.updated + ' (from web)');
-                    renderTables();
-                    showToast('Pricing updated from official sources.', 'success');
-                } else {
-                    showToast('Could not parse new data; keeping current pricing.', 'error');
-                }
+                const payload = { gemini: geminiData, openai: openaiData, updated: new Date().toISOString().slice(0, 10) };
+                try { localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); } catch (_) {}
+                setLastUpdated(payload.updated + ' (from web)');
+                renderTables();
+                showToast('Pricing updated from official sources.', 'success');
             } catch (e) {
                 showToast('Refresh failed: ' + (e.message || 'network error'), 'error');
             } finally {
@@ -2128,6 +2132,13 @@
             if (!text || typeof text !== 'string') return 0;
             const t = text.trim();
             if (t.length === 0) return 0;
+            try {
+                const tok = typeof GPTTokenizer_cl100k_base !== 'undefined' && GPTTokenizer_cl100k_base;
+                if (tok && typeof tok.encode === 'function') {
+                    const tokens = tok.encode(t);
+                    return Array.isArray(tokens) ? tokens.length : Math.ceil(t.length / 4);
+                }
+            } catch (e) { /* fallback */ }
             return Math.ceil(t.length / 4);
         }
 
@@ -2170,6 +2181,70 @@
             if (tokenCountEl) tokenCountEl.textContent = 'Prompt tokens: —';
             if (resultEl) { resultEl.style.display = 'none'; resultEl.innerHTML = ''; }
         }
+
+        function setPromptFromText(text) {
+            const textarea = document.getElementById('prompt-input');
+            const tokenCountEl = document.getElementById('prompt-token-count');
+            if (textarea) {
+                textarea.value = text || '';
+                textarea.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            if (tokenCountEl) tokenCountEl.textContent = 'Prompt tokens: ' + estimatePromptTokens(text || '');
+        }
+
+        async function handlePromptFileSelect(file) {
+            if (!file) return;
+            const loadingEl = document.getElementById('promptImportLoading');
+            const hintEl = document.getElementById('promptImportHint');
+            const name = file.name || '';
+            const ext = name.split('.').pop().toLowerCase();
+            const isPdf = ext === 'pdf' || file.type === 'application/pdf';
+            if (loadingEl) loadingEl.style.display = 'inline';
+            if (hintEl) hintEl.textContent = 'Importing ' + name + '…';
+            try {
+                if (isPdf) {
+                    if (typeof pdfjsLib === 'undefined') {
+                        if (hintEl) hintEl.textContent = 'PDF library not loaded. Use TXT/CSV or refresh.';
+                        return;
+                    }
+                    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+                    const arrayBuffer = await file.arrayBuffer();
+                    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                    let fullText = '';
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const content = await page.getTextContent();
+                        fullText += content.items.map(function (item) { return item.str; }).join(' ') + '\n';
+                    }
+                    setPromptFromText(fullText.trim());
+                } else {
+                    const reader = new FileReader();
+                    reader.onload = function () {
+                        setPromptFromText(reader.result || '');
+                        if (hintEl) hintEl.textContent = 'TXT, CSV, PDF, MD, JSON';
+                        if (loadingEl) loadingEl.style.display = 'none';
+                        document.getElementById('prompt-file-input').value = '';
+                    };
+                    reader.onerror = function () {
+                        if (hintEl) hintEl.textContent = 'Could not read file.';
+                        if (loadingEl) loadingEl.style.display = 'none';
+                    };
+                    reader.readAsText(file, 'UTF-8');
+                    return;
+                }
+            } catch (e) {
+                if (hintEl) hintEl.textContent = 'Import failed: ' + (e.message || 'unknown');
+            }
+            if (hintEl) hintEl.textContent = 'TXT, CSV, PDF, MD, JSON';
+            if (loadingEl) loadingEl.style.display = 'none';
+            document.getElementById('prompt-file-input').value = '';
+        }
+
+        document.getElementById('promptImportBtn').addEventListener('click', function () { document.getElementById('prompt-file-input').click(); });
+        document.getElementById('prompt-file-input').addEventListener('change', function () {
+            const file = this.files && this.files[0];
+            if (file) handlePromptFileSelect(file);
+        });
 
         function runContextWindowCheck() {
             const promptEl = document.getElementById('context-prompt-tokens');
