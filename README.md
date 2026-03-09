@@ -20,8 +20,8 @@ Commits and pushes if changed
 Deployed site (e.g. GitHub Pages) serves updated pricing on next load
 ```
 
-- **Workflow:** [`.github/workflows/update-pricing.yml`](.github/workflows/update-pricing.yml) — runs the script, then commits and pushes only when `pricing.json` has changed (`git diff --staged --quiet`), so no empty commits on every run.
-- **Script:** [`scripts/update-pricing.js`](scripts/update-pricing.js) — fetches [Vizra API](https://vizra.ai/api/v1/pricing/ai-models), normalizes and deduplicates, validates each model (required fields, no NaN/negatives), then **validates the payload against [`schemas/pricing.schema.json`](schemas/pricing.schema.json)** before writing. This prevents corrupted datasets (wrong shape, extra keys, invalid types). On API failure, validation failure, or schema failure it exits with code 1. See [PRICING_UPDATES.md](PRICING_UPDATES.md#api-failure-handling), [validation](PRICING_UPDATES.md#validation-before-writing), and [JSON schema](PRICING_UPDATES.md#json-schema-validation).
+- **Workflow:** [`.github/workflows/update-pricing.yml`](.github/workflows/update-pricing.yml) — **(1) Commit only if pricing changed:** `if git diff --staged --quiet -- pricing.json; then echo "No pricing changes"; else git commit ... git push; fi` so daily runs keep history clean.
+- **Script:** [`scripts/update-pricing.js`](scripts/update-pricing.js) — **(2) API failure protection:** on timeout, rate limit, empty/malformed response, or no valid data → exits with code 1 and does not write (no bad commits). **(3) Data validation before writing:** missing input/output price, NaN, negative prices → invalid models skipped; then payload validated against [`schemas/pricing.schema.json`](schemas/pricing.schema.json). See [PRICING_UPDATES.md](PRICING_UPDATES.md) and [docs/PRICING_UPDATES.md](docs/PRICING_UPDATES.md).
 
 ### Run the update locally
 
@@ -56,7 +56,7 @@ Front-end logic is split into ES modules under `src/` for clearer code and easie
 
 | File | Role |
 |------|------|
-| **`src/api.js`** | Fetch layer: `getPricing()` (pricing.json with cache-busting `?t=<timestamp>` so the browser does not show old pricing), `fetchVizraPricing()`, `getPricingJsonUrl()`, `isGitHubPages()`, `fetchWithCors()` for doc search. |
+| **`src/api.js`** | Fetch layer: `getPricing()` uses `getPricingJsonUrl()` which returns `pricing.json?t=${Date.now()}` so the browser does not cache stale pricing (see [Cache-busting](docs/PRICING_UPDATES.md#cache-busting-in-frontend)); `fetchVizraPricing()`, `getPricingJsonUrl()`, `isGitHubPages()`, `fetchWithCors()` for doc search. |
 | **`src/pricingService.js`** | Load, cache, normalize: `loadPricing()`, `DEFAULT_PRICING`, `parseVizraResponse()`, `comparePrices()`, `dedupeModelsByName`, history (getHistory, saveToHistory, cleanupHistoryToDailyOnly), cache helpers. |
 | **`src/calculator.js`** | Pure logic: cost (`calcCost`, `calcCostOpenAI`, `calcCostForEntry`), context windows, benchmarks, model lists (`getUnifiedCalcModels`, `getAllModels`), recommendations (`getRecommendations`, `scoreModelForUseCase`), doc search helpers, `estimatePromptTokens`. |
 | **`src/render.js`** | UI: `renderTables()`, `renderModelComparisonTable()` (Model \| Provider \| Input \| Output \| Context), `renderBenchmarkDashboard()`, `renderHistoryList()`, `renderRecommendations()`, toasts, `setLastUpdated`, CSV/PDF export helpers, `formatHistoryDate`. |

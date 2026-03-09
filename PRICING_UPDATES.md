@@ -2,6 +2,14 @@
 
 Pricing is **automated**: a GitHub Action runs daily (and on manual trigger), fetches the latest from the Vizra API, and updates `pricing.json` in the repo. The frontend then loads that file so pricing stays up to date without manual edits.
 
+## Safeguards (all implemented)
+
+- **1. Commit only if pricing changed** — Workflow uses `git diff --staged --quiet -- pricing.json`; if no diff, it logs "No pricing changes" and does not commit. Keeps history clean on daily runs.
+- **2. API failure protection** — If the pricing API fails (timeout, rate limit, empty/invalid response), the script logs an error and exits with code 1. No file is written, so bad data is never committed.
+- **3. Data validation before writing JSON** — Missing input/output price, NaN, and negative prices are rejected (invalid models skipped). Payload is also validated against `schemas/pricing.schema.json`. Only valid data is written.
+
+Details: [docs/PRICING_UPDATES.md](docs/PRICING_UPDATES.md) (including the exact workflow pattern and validation rules).
+
 ## Flow
 
 ```
@@ -18,7 +26,7 @@ App loads pricing.json on open (or cache / embedded default)
 
 ## How the app gets data
 
-1. **Initial load**: Loads `pricing.json` from the host first (with a cache-busting query `?t=<timestamp>` so the browser does not use stale cached pricing), then falls back to localStorage cache, then embedded defaults. On non-GitHub hosts, the app may also call the Vizra API once to fill Anthropic/Mistral if missing.
+1. **Initial load**: Loads `pricing.json` from the host first using a cache-busting URL (`pricing.json?t=${Date.now()}`) so the browser does not serve stale cached pricing; then falls back to localStorage cache, then embedded defaults. On non-GitHub hosts, the app may also call the Vizra API once to fill Anthropic/Mistral if missing.
 
 2. **"Refresh from web"**: On GitHub Pages, reloads `pricing.json`. Elsewhere, fetches the Vizra API and updates all providers.
 
