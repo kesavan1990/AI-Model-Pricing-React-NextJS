@@ -94,6 +94,32 @@ export function renderTables(data) {
   }
   renderModelComparisonTable(data);
   renderBenchmarkDashboard(data);
+  updateKPIs(data);
+}
+
+/**
+ * Update KPI cards: total models, provider count, cheapest input, cheapest output.
+ */
+export function updateKPIs(data) {
+  const all = getAllModels(data);
+  const modelCountEl = document.getElementById('kpiModelCount');
+  const providerCountEl = document.getElementById('kpiProviderCount');
+  const cheapestInputEl = document.getElementById('kpiCheapestInput');
+  const cheapestInputPriceEl = document.getElementById('kpiCheapestInputPrice');
+  const cheapestOutputEl = document.getElementById('kpiCheapestOutput');
+  const cheapestOutputPriceEl = document.getElementById('kpiCheapestOutputPrice');
+  if (modelCountEl) modelCountEl.textContent = String(all.length);
+  const providerCount = new Set(all.map((m) => m.provider)).size;
+  if (providerCountEl) providerCountEl.textContent = `Providers: ${providerCount}`;
+
+  const withInput = all.filter((m) => m.input > 0).sort((a, b) => a.input - b.input);
+  const withOutput = all.filter((m) => m.output > 0).sort((a, b) => a.output - b.output);
+  const cheapestIn = withInput[0];
+  const cheapestOut = withOutput[0];
+  if (cheapestInputEl) cheapestInputEl.textContent = cheapestIn ? cheapestIn.name : '—';
+  if (cheapestInputPriceEl) cheapestInputPriceEl.textContent = cheapestIn ? `$${Number(cheapestIn.input).toFixed(2)} / 1M` : '— / 1M';
+  if (cheapestOutputEl) cheapestOutputEl.textContent = cheapestOut ? cheapestOut.name : '—';
+  if (cheapestOutputPriceEl) cheapestOutputPriceEl.textContent = cheapestOut ? `$${Number(cheapestOut.output).toFixed(2)} / 1M` : '— / 1M';
 }
 
 /**

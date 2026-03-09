@@ -11,6 +11,20 @@ The app supports **dark mode** (default) and **light mode**. You can switch betw
 
 ---
 
+## KPI summary cards
+
+On the **Home** tab, at the top of the page (above the pricing grid), three **KPI cards** give quick insights:
+
+| Card | Content |
+|------|---------|
+| **Total Models** | Total number of models across all providers. Subtitle: **Providers: N** (e.g. 4 for Gemini, OpenAI, Anthropic, Mistral). |
+| **Cheapest Input** | Model name with the lowest input price per 1M tokens (among models that have a non-zero input price). Subtitle: **$X.XX / 1M**. |
+| **Cheapest Output** | Model name with the lowest output price per 1M tokens (among models that have a non-zero output price). Subtitle: **$X.XX / 1M**. |
+
+The cards use the same data as the pricing tables and update whenever pricing is loaded or refreshed (e.g. after **Refresh from web** or when applying a history snapshot). Implementation: `updateKPIs(data)` in `src/render.js` is called from `renderTables(data)`; markup is in `index.html` (`.kpi-container`, `.kpi-card`); styles in `css/styles.css` (including `[data-theme="light"]` overrides).
+
+---
+
 ## Cost calculator
 
 In **Calculators → 💰 Pricing**, the cost calculator estimates API cost for a chosen model (and optionally compares two models).

@@ -42,6 +42,7 @@ In the repo: **Actions → Update pricing → Run workflow**.
 
 ## What’s in the app
 
+- **KPI summary cards** — On Home: total models, provider count, cheapest input model, cheapest output model. See [KPI summary cards](docs/UI.md#kpi-summary-cards).
 - **Pricing grid** — Gemini, OpenAI, Anthropic, Mistral (input/output/cached per 1M tokens).
 - **Dark mode / light mode** — Toggle in the header (☀️/🌙). Preference is saved and respects system `prefers-color-scheme` on first visit. See [docs/UI.md](docs/UI.md#dark-mode-and-light-mode).
 - **Model comparison table** — On the **Compare** tab: single table **Model | Provider | Input | Output | Context** (all models in one view; context = context window, e.g. 1M, 128k). See [Model comparison table](docs/UI.md#model-comparison-table).
@@ -60,7 +61,7 @@ Front-end logic is split into ES modules under `src/` for clearer code and easie
 | **`src/api.js`** | Fetch layer: `getPricing()` uses `getPricingJsonUrl()` which returns `pricing.json?t=${Date.now()}` so the browser does not cache stale pricing (see [Cache-busting](docs/PRICING_UPDATES.md#cache-busting-in-frontend)); `fetchVizraPricing()`, `getPricingJsonUrl()`, `isGitHubPages()`, `fetchWithCors()` for doc search. |
 | **`src/pricingService.js`** | Load, cache, normalize: `loadPricing()`, `DEFAULT_PRICING`, `parseVizraResponse()`, `comparePrices()`, `dedupeModelsByName`, history (getHistory, saveToHistory, cleanupHistoryToDailyOnly), cache helpers. |
 | **`src/calculator.js`** | Pure logic: cost (`calcCost`, `calcCostOpenAI`, `calcCostForEntry`), context windows, benchmarks, model lists (`getUnifiedCalcModels`, `getAllModels`), recommendations (`getRecommendations`, `scoreModelForUseCase`), doc search helpers, `estimatePromptTokens`. |
-| **`src/render.js`** | UI: `renderTables()`, `renderModelComparisonTable()` (Model \| Provider \| Input \| Output \| Context), `renderBenchmarkDashboard()`, `renderHistoryList()`, `renderRecommendations()`, toasts, `setLastUpdated`, CSV/PDF export helpers, `formatHistoryDate`. |
+| **`src/render.js`** | UI: `renderTables()`, `updateKPIs()` (KPI cards on Home), `renderModelComparisonTable()` (Model \| Provider \| Input \| Output \| Context), `renderBenchmarkDashboard()`, `renderHistoryList()`, `renderRecommendations()`, toasts, `setLastUpdated`, CSV/PDF export helpers, `formatHistoryDate`. |
 | **`src/app.js`** | App entry: state (gemini/openai/anthropic/mistral), `loadPricing`, `refreshFromWeb`, daily capture, history compare, calculator handlers, event wiring; imports the modules above. |
 
 `index.html` contains markup only: it links to **`css/styles.css`** for all styles and to **`src/app.js`** as the app entry (`<script type="module" src="src/app.js"></script>`). No inline CSS or app logic.
