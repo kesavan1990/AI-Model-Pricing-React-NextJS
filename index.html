@@ -15,34 +15,36 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <div class="container">
-        <header class="main-header">
-            <div class="header-left">
-                <h1><a href="#pricing" class="header-home-link" title="Go to overview">🤖</a> AI Model Pricing Dashboard</h1>
-                <p class="subtitle">Compare pricing for Gemini and OpenAI models — updates automatically from official sources</p>
-            </div>
-            <div class="header-right-actions">
+    <div class="dashboard-layout">
+        <header class="dashboard-header">
+            <h1 class="dashboard-title"><a href="#overview" class="header-home-link" title="Go to overview">🤖</a> AI Model Pricing Intelligence Dashboard</h1>
+            <div class="header-actions">
                 <button type="button" class="theme-toggle-btn" id="themeToggleBtn" title="Toggle dark/light mode" aria-label="Toggle dark/light mode">
                     <span id="themeIcon">🌙</span>
                 </button>
-                <button type="button" class="refresh-btn" id="refreshWebBtn" title="Fetch latest pricing from Google & OpenAI">
+                <button type="button" class="refresh-btn" id="refreshWebBtn" title="Fetch latest pricing from Vizra">
                     <span class="refresh-icon" id="refreshIcon">🔄</span>
-                    <span id="refreshText">Refresh from web</span>
+                    <span id="refreshText">Refresh</span>
                 </button>
                 <a href="#" class="history-btn" id="historyBtn" title="View pricing history">📜 History</a>
             </div>
         </header>
-        <nav class="tab-nav top-nav" aria-label="Main navigation" role="navigation">
-            <a href="#pricing" class="tab-link active" data-tab="pricing" role="tab" id="tab-btn-pricing" title="Overview with KPI cards and pricing grid">Overview</a>
-            <a href="#comparison" class="tab-link" data-tab="comparison" role="tab" id="tab-btn-comparison" title="Compare all models in one table">Model Comparison</a>
-            <a href="#calc-pricing" class="tab-link" data-tab="calculators" data-calc-sub="pricing" role="tab" id="tab-btn-calculators" title="Pricing calculator, prompt cost, context window, production cost">Calculators</a>
-            <a href="#benchmarks" class="tab-link" data-tab="benchmarks" role="tab" id="tab-btn-benchmarks" title="Benchmark scores">Benchmarks</a>
-            <a href="#recommend" class="tab-link" data-tab="recommend" role="tab" id="tab-btn-recommend" title="Find the right model">Recommend</a>
-        </nav>
-        <div id="toast" class="toast hidden"></div>
 
-        <div class="tab-panels">
-        <div id="tab-pricing" class="tab-panel active" role="tabpanel">
+        <div class="dashboard-body">
+        <aside class="dashboard-sidebar" aria-label="Dashboard navigation">
+            <nav class="sidebar-nav">
+                <a href="#overview" class="sidebar-link active" data-section="overview">Overview</a>
+                <a href="#models" class="sidebar-link" data-section="models">Models</a>
+                <a href="#value-analysis" class="sidebar-link" data-section="value-analysis">Value Analysis</a>
+                <a href="#calculators" class="sidebar-link" data-section="calculators">Calculators</a>
+                <a href="#benchmarks" class="sidebar-link" data-section="benchmarks">Benchmarks</a>
+                <a href="#" class="sidebar-link sidebar-link-modal" data-action="history" title="Open pricing history modal">Pricing History</a>
+            </nav>
+        </aside>
+
+        <main class="dashboard-main">
+        <div id="toast" class="toast hidden"></div>
+        <section id="overview" class="dashboard-section">
         <div class="kpi-container" aria-label="Pricing summary">
             <div class="kpi-card">
                 <h3 class="kpi-title">Total Models</h3>
@@ -165,9 +167,63 @@
                 </div>
             </div>
         </section>
-        </div>
+        </section>
 
-        <div id="tab-comparison" class="tab-panel" role="tabpanel">
+        <section id="value-analysis" class="dashboard-section">
+        <section class="page-section value-chart-section" id="section-value-chart">
+            <h2 class="section-title">📈 Cost vs Performance</h2>
+            <p class="section-subtitle">Value analysis: cost per request using a <strong>fixed baseline</strong> (1,000 prompt + 500 output tokens)—unchanged by calculator or simulator. Grey = all models; colored points = frontier (best value at each cost level) <span class="calc-tooltip-icon" title="Frontier = best performance at each cost; no cheaper model scores higher. Calculated by: sort models by cost (low to high), then keep only those with strictly better performance than every cheaper model." aria-hidden="true">(?)</span> Hover for details.</p>
+            <div class="value-chart-controls">
+                <div class="value-chart-control-group">
+                    <label for="value-chart-metric" class="value-chart-label">Performance metric:</label>
+                    <select id="value-chart-metric" class="value-chart-select" aria-label="Performance metric for Y axis">
+                        <option value="arena">Arena</option>
+                        <option value="mmlu">MMLU</option>
+                        <option value="code">Code</option>
+                    </select>
+                </div>
+                <div class="value-chart-control-group">
+                    <span class="value-chart-label">Filter by provider:</span>
+                    <div class="value-chart-provider-btns" role="group" aria-label="Chart provider filter">
+                        <button type="button" class="value-chart-provider-btn active" data-value-provider="all" aria-pressed="true">All</button>
+                        <button type="button" class="value-chart-provider-btn" data-value-provider="gemini" aria-pressed="false">Google</button>
+                        <button type="button" class="value-chart-provider-btn" data-value-provider="openai" aria-pressed="false">OpenAI</button>
+                        <button type="button" class="value-chart-provider-btn" data-value-provider="anthropic" aria-pressed="false">Anthropic</button>
+                        <button type="button" class="value-chart-provider-btn" data-value-provider="mistral" aria-pressed="false">Mistral</button>
+                    </div>
+                </div>
+            </div>
+            <p class="value-chart-legend-hint">Colored points = <strong>Frontier (best value)</strong> <span class="value-chart-frontier-tooltip" title="What: Models with best performance at their cost—no cheaper model scores higher. How: sort by cost (low to high), then keep only models with strictly better performance than every cheaper model. Hover a colored point for details." aria-label="What is Frontier and how is it calculated?">(?)</span></p>
+            <div class="value-chart-wrap">
+                <canvas id="value-chart-canvas" aria-label="Cost vs Performance scatter chart"></canvas>
+            </div>
+        </section>
+        </section>
+
+        <section id="recommend-section" class="dashboard-section">
+        <section class="page-section recommend-section" id="section-recommend">
+            <h2 class="section-title">🎯 Recommended models</h2>
+            <p class="section-subtitle">Describe your use case — we recommend models by <strong>cost</strong>, <strong>reasoning ability</strong>, <strong>context length</strong>, and <strong>performance</strong>.</p>
+            <div class="recommend-card">
+                <div class="recommend-form">
+                    <div class="calc-row">
+                        <label for="useCaseDesc">Describe your use case</label>
+                        <textarea id="useCaseDesc" rows="3" placeholder="e.g. I need a cheap model for summarizing PDFs"></textarea>
+                    </div>
+                    <div class="recommend-actions">
+                        <button type="button" class="calc-btn recommend-btn" id="getRecommendBtn">Get recommendation</button>
+                        <button type="button" class="calc-btn reset" id="recommendResetBtn">Reset</button>
+                    </div>
+                </div>
+                <div id="recommendResult" class="recommend-result hidden">
+                    <h3 class="recommend-result-title">Suggested models</h3>
+                    <div id="recommendList" class="recommend-list"></div>
+                </div>
+            </div>
+        </section>
+        </section>
+
+        <section id="models" class="dashboard-section">
         <section class="page-section" id="section-comparison">
             <h2 class="section-title">📋 Model comparison</h2>
             <p class="section-subtitle">All models in one table: Model, Provider, Input and Output per 1M tokens, Context window.</p>
@@ -210,37 +266,9 @@
                 </table>
             </div>
         </section>
-        <section class="page-section value-chart-section" id="section-value-chart">
-            <h2 class="section-title">📈 Cost vs Performance</h2>
-            <p class="section-subtitle">Value analysis: cost per request using a <strong>fixed baseline</strong> (1,000 prompt + 500 output tokens)—unchanged by calculator or simulator. Grey = all models; colored points = frontier (best value at each cost level) <span class="calc-tooltip-icon" title="Frontier = best performance at each cost; no cheaper model scores higher. Calculated by: sort models by cost (low to high), then keep only those with strictly better performance than every cheaper model." aria-hidden="true">(?)</span> Hover for details.</p>
-            <div class="value-chart-controls">
-                <div class="value-chart-control-group">
-                    <label for="value-chart-metric" class="value-chart-label">Performance metric:</label>
-                    <select id="value-chart-metric" class="value-chart-select" aria-label="Performance metric for Y axis">
-                        <option value="arena">Arena</option>
-                        <option value="mmlu">MMLU</option>
-                        <option value="code">Code</option>
-                    </select>
-                </div>
-                <div class="value-chart-control-group">
-                    <span class="value-chart-label">Filter by provider:</span>
-                    <div class="value-chart-provider-btns" role="group" aria-label="Chart provider filter">
-                        <button type="button" class="value-chart-provider-btn active" data-value-provider="all" aria-pressed="true">All</button>
-                        <button type="button" class="value-chart-provider-btn" data-value-provider="gemini" aria-pressed="false">Google</button>
-                        <button type="button" class="value-chart-provider-btn" data-value-provider="openai" aria-pressed="false">OpenAI</button>
-                        <button type="button" class="value-chart-provider-btn" data-value-provider="anthropic" aria-pressed="false">Anthropic</button>
-                        <button type="button" class="value-chart-provider-btn" data-value-provider="mistral" aria-pressed="false">Mistral</button>
-                    </div>
-                </div>
-            </div>
-            <p class="value-chart-legend-hint">Colored points = <strong>Frontier (best value)</strong> <span class="value-chart-frontier-tooltip" title="What: Models with best performance at their cost—no cheaper model scores higher. How: sort by cost (low to high), then keep only models with strictly better performance than every cheaper model. Hover a colored point for details." aria-label="What is Frontier and how is it calculated?">(?)</span></p>
-            <div class="value-chart-wrap">
-                <canvas id="value-chart-canvas" aria-label="Cost vs Performance scatter chart"></canvas>
-            </div>
         </section>
-        </div>
 
-        <div id="tab-calculators" class="tab-panel" role="tabpanel">
+        <section id="calculators" class="dashboard-section">
         <nav class="calc-sub-nav" aria-label="Calculator tools">
             <a href="#calc-pricing" class="calc-sub-link active" data-calc-sub="pricing" role="tab">💰 Pricing</a>
             <a href="#calc-prompt" class="calc-sub-link" data-calc-sub="prompt" role="tab">📝 Prompt cost</a>
@@ -373,9 +401,9 @@
             </div>
         </section>
         </div>
-        </div>
+        </section>
 
-        <div id="tab-benchmarks" class="tab-panel" role="tabpanel">
+        <section id="benchmarks" class="dashboard-section">
         <!-- 6. Model benchmark dashboard -->
         <section class="page-section" id="section-benchmark">
             <h2 class="section-title">📈 Model benchmark dashboard</h2>
@@ -391,32 +419,9 @@
                 <p class="benchmark-legend"><strong>Cost tier</strong> (blended $/1M tokens: 70% input + 30% output): <span class="cost-legend">$</span> = free or very low (≤$0) · <span class="cost-legend">$$</span> = budget (&lt;$2) · <span class="cost-legend">$$$</span> = premium (≥$2).</p>
             </div>
         </section>
-        </div>
-
-        <div id="tab-recommend" class="tab-panel" role="tabpanel">
-        <!-- 7. Model recommendation engine -->
-        <section class="page-section recommend-section" id="section-recommend">
-            <h2 class="section-title">🎯 Model recommendation engine</h2>
-            <p class="section-subtitle">Describe your use case — we recommend models by <strong>cost</strong>, <strong>reasoning ability</strong>, <strong>context length</strong>, and <strong>performance</strong>.</p>
-            <div class="recommend-card">
-                <div class="recommend-form">
-                    <div class="calc-row">
-                        <label for="useCaseDesc">Describe your use case</label>
-                        <textarea id="useCaseDesc" rows="3" placeholder="e.g. I need a cheap model for summarizing PDFs"></textarea>
-                    </div>
-                    <div class="recommend-actions">
-                        <button type="button" class="calc-btn recommend-btn" id="getRecommendBtn">Get recommendation</button>
-                        <button type="button" class="calc-btn reset" id="recommendResetBtn">Reset</button>
-                    </div>
-                </div>
-                <div id="recommendResult" class="recommend-result hidden">
-                    <h3 class="recommend-result-title">Suggested models</h3>
-                    <div id="recommendList" class="recommend-list"></div>
-                </div>
-            </div>
         </section>
-        </div>
 
+        </main>
         </div>
 
         <footer class="page-footer">

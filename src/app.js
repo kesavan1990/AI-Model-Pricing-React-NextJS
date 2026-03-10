@@ -48,10 +48,7 @@ function getValueChartOptions() {
 }
 
 function updateValueChartIfVisible() {
-  const panel = document.getElementById('tab-comparison');
-  if (panel && panel.classList.contains('active')) {
-    valueChart.updateValueChart(getData(), getBenchmarksData(), getValueChartOptions());
-  }
+  valueChart.updateValueChart(getData(), getBenchmarksData(), getValueChartOptions());
 }
 
 // --- Load & refresh ---
@@ -1028,28 +1025,34 @@ function switchCalcSub(subId) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function switchTab(tabId) {
-  const ids = ['pricing', 'comparison', 'calculators', 'benchmarks', 'recommend'];
-  if (!ids.includes(tabId)) return;
-  const hash = (location.hash || '#pricing').replace(/^#/, '') || 'pricing';
-  document.querySelectorAll('.tab-panel').forEach((p) => p.classList.remove('active'));
-  document.querySelectorAll('.tab-link').forEach((l) => l.classList.remove('active'));
-  const panel = document.getElementById('tab-' + tabId);
-  let link = null;
-  if (tabId === 'calculators') {
-    link = document.querySelector('.tab-link[href="#' + hash + '"]') || document.querySelector('.tab-link[data-tab="calculators"]');
-  } else {
-    link = document.querySelector('.tab-link[data-tab="' + tabId + '"]:not([data-calc-sub])');
+const SECTION_IDS = ['overview', 'value-analysis', 'recommend-section', 'models', 'calculators', 'benchmarks'];
+
+function scrollToSection(sectionId) {
+  const el = document.getElementById(sectionId);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function setActiveSidebarLink(sectionId) {
+  document.querySelectorAll('.sidebar-link:not(.sidebar-link-modal)').forEach((l) => {
+    l.classList.toggle('active', l.getAttribute('data-section') === sectionId);
+  });
+}
+
+function syncSidebarFromScroll() {
+  const main = document.querySelector('.dashboard-main');
+  if (!main) return;
+  const scrollTop = main.scrollTop;
+  let active = SECTION_IDS[0];
+  for (let i = SECTION_IDS.length - 1; i >= 0; i--) {
+    const el = document.getElementById(SECTION_IDS[i]);
+    if (!el) continue;
+    const top = el.offsetTop;
+    if (scrollTop + 100 >= top) {
+      active = SECTION_IDS[i];
+      break;
+    }
   }
-  if (panel) panel.classList.add('active');
-  if (link) link.classList.add('active');
-  if (tabId === 'calculators') {
-    const calcSub = hash.startsWith('calc-') ? hash.replace('calc-', '') : 'pricing';
-    switchCalcSub(['pricing', 'prompt', 'context', 'production'].includes(calcSub) ? calcSub : 'pricing');
-  }
-  if (history.replaceState && tabId !== 'calculators') history.replaceState(null, '', '#' + tabId);
-  window.scrollTo(0, 0);
-  if (tabId === 'comparison') setTimeout(updateValueChartIfVisible, 0);
+  setActiveSidebarLink(active);
 }
 
 // --- Expose for inline onclick (index.html) ---
@@ -1105,17 +1108,34 @@ function init() {
   document.querySelectorAll('.calc-sub-link').forEach((link) => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
-      switchCalcSub(link.getAttribute('data-calc-sub'));
+      const sub = link.getAttribute('data-calc-sub');
+      switchCalcSub(sub);
+      scrollToSection('calculators');
+      setActiveSidebarLink('calculators');
     });
   });
-  document.querySelectorAll('.tab-link').forEach((link) => {
+  document.querySelectorAll('.sidebar-link').forEach((link) => {
     link.addEventListener('click', (e) => {
-      e.preventDefault();
+      const action = link.getAttribute('data-action');
+      if (action === 'history') {
+        e.preventDefault();
+        openHistoryModal();
+        return;
+      }
+      const sectionId = link.getAttribute('data-section');
       const href = link.getAttribute('href');
-      if (href && href.startsWith('#')) location.hash = href.slice(1);
-      const tabId = link.getAttribute('data-tab');
-      if (tabId) switchTab(tabId);
+      if (sectionId && href?.startsWith('#')) {
+        e.preventDefault();
+        const targetId = href.slice(1);
+        scrollToSection(targetId);
+        setActiveSidebarLink(sectionId);
+        if (history.replaceState) history.replaceState(null, '', '#' + targetId);
+      }
     });
+  });
+  document.querySelector('.dashboard-main')?.addEventListener('scroll', () => {
+    if (window._scrollSyncTm) clearTimeout(window._scrollSyncTm);
+    window._scrollSyncTm = setTimeout(syncSidebarFromScroll, 100);
   });
   document.querySelector('.provider-filter-btns')?.addEventListener('click', (e) => {
     const btn = e.target.closest('.provider-filter-btn');
@@ -1150,25 +1170,39 @@ function init() {
     updateValueChartIfVisible();
   });
   const hash = (location.hash || '').replace(/^#/, '');
-  if (hash.startsWith('calc-')) {
-    switchTab('calculators');
-    const sub = hash.replace('calc-', '');
-    if (['pricing', 'prompt', 'context', 'production'].includes(sub)) switchCalcSub(sub);
-  } else if (['pricing', 'comparison', 'calculators', 'benchmarks', 'recommend'].includes(hash)) {
-    switchTab(hash);
+  const sectionFromHash = (h) => {
+    if (h === 'overview' || h === 'pricing') return 'overview';
+    if (h === 'comparison' || h === 'models') return 'models';
+    if (h === 'value-analysis') return 'value-analysis';
+    if (h === 'recommend') return 'recommend-section';
+    if (h === 'calculators' || h.startsWith('calc-')) return 'calculators';
+    if (h === 'benchmarks') return 'benchmarks';
+    return 'overview';
+  };
+  if (hash) {
+    const sectionId = sectionFromHash(hash);
+    scrollToSection(sectionId);
+    setActiveSidebarLink(sectionId);
+    if (hash.startsWith('calc-')) {
+      const sub = hash.replace('calc-', '');
+      if (['pricing', 'prompt', 'context', 'production'].includes(sub)) switchCalcSub(sub);
+    }
   }
   window.addEventListener('hashchange', () => {
     const h = (location.hash || '').replace(/^#/, '');
+    const sectionId = sectionFromHash(h);
+    scrollToSection(sectionId);
+    setActiveSidebarLink(sectionId);
     if (h.startsWith('calc-')) {
-      switchTab('calculators');
       const sub = h.replace('calc-', '');
       if (['pricing', 'prompt', 'context', 'production'].includes(sub)) switchCalcSub(sub);
-    } else if (['pricing', 'comparison', 'calculators', 'benchmarks', 'recommend'].includes(h)) switchTab(h);
+    }
   });
   document.querySelector('.header-home-link')?.addEventListener('click', (e) => {
     e.preventDefault();
-    switchTab('pricing');
-    window.scrollTo(0, 0);
+    scrollToSection('overview');
+    setActiveSidebarLink('overview');
+    if (history.replaceState) history.replaceState(null, '', '#overview');
   });
   document.getElementById('refreshWebBtn')?.addEventListener('click', refreshFromWeb);
   document.getElementById('getRecommendBtn')?.addEventListener('click', runRecommendation);

@@ -1,20 +1,21 @@
 # UI overview
 
-## Top navigation bar
+## Dashboard layout and sidebar navigation
 
-Below the header (**AI Model Pricing Dashboard**), a single **top navigation bar** lets users jump between main sections without scrolling. This makes the tool easier to understand and use.
+The app uses a **structured dashboard layout** (similar to Vercel, Datadog, and AI analytics dashboards): a header, a **sidebar navigation**, and a scrollable main area. All sections are visible in one page; the sidebar lets you jump to each section. The header shows **AI Model Pricing Intelligence Dashboard** with theme toggle, Refresh, and Pricing History.
 
 | Link | Destination |
 |------|-------------|
 | **Overview** | KPI cards and current pricing grid (all providers). |
-| **Model Comparison** | Compare tab: filterable/sortable table of all models and Cost vs Performance scatter chart. |
-| **Calculators** | Calculators tab (Pricing, Prompt cost, Context window, **Production cost**). Use the sub-nav inside the tab to open the Production cost simulator or other tools. |
-| **Benchmarks** | Benchmarks tab: MMLU, code, reasoning, arena scores. |
-| **Recommend** | Find the right model by use case. |
+| **Models** | Filterable/sortable comparison table of all models. |
+| **Value Analysis** | Cost vs Performance scatter chart. |
+| **Calculators** | Pricing, Prompt cost, Context window, Production cost (sub-nav). |
+| **Benchmarks** | MMLU, code, reasoning, arena scores. |
+| **Pricing History** | Opens the history modal. |
 
-Clicking a link updates the URL hash (e.g. `#pricing`, `#comparison`, `#calc-pricing`, `#benchmarks`, `#recommend`) and shows the corresponding panel. The active link is highlighted. The **Production cost simulator** is not a separate top-level link; it is available inside **Calculators** via the “Production cost” sub-tab. Markup: `<nav class="tab-nav top-nav">` in `index.html`; behavior in `src/app.js` (`switchTab`, `switchCalcSub`, hashchange listener).
+Clicking a sidebar link scrolls to that section and updates the URL hash (`#overview`, `#models`, `#value-analysis`, `#calculators`, `#benchmarks`). The active sidebar link highlights based on scroll position. **Pricing History** opens the modal. Main area order: Overview, Value Analysis, Recommended Models, Models, Calculators, Benchmarks. Markup: `.dashboard-sidebar`, `.sidebar-nav`, `.sidebar-link`; behavior: `scrollToSection`, `setActiveSidebarLink`, `syncSidebarFromScroll`. The Production cost simulator is in the Calculators section via the Production cost sub-tab.
 
-**Tab panel visibility** — Only one tab panel is shown at a time. Panels use `.tab-panel { display: none }` and `.tab-panel.active { display: block }` in `css/styles.css`. The **Calculators** panel needs a flex layout for its export toolbar alignment; to avoid that layout overriding visibility, the rule is scoped to the active state: `#tab-calculators.tab-panel.active { display: flex; flex-direction: column }`. Otherwise the Calculators panel would stay visible (due to ID specificity) and **Benchmarks** / **Recommend** would not show correctly.
+**Responsive** — At viewport ≤ 900px the sidebar moves to the top and becomes a horizontal nav; links wrap on small screens.
 
 ---
 
@@ -31,7 +32,7 @@ The app supports **dark mode** (default) and **light mode**. You can switch betw
 
 ## KPI summary cards
 
-On the **Home** tab, at the top of the page (above the pricing grid), four **KPI cards** give quick insights across all service providers:
+In the **Overview** section, at the top of the main area (above the pricing grid), four **KPI cards** give quick insights across all service providers:
 
 | Card | Content |
 |------|---------|
@@ -50,10 +51,11 @@ The cards use the same data as the pricing tables and update whenever pricing is
 
 Many users open the dashboard on phones. The app uses **responsive CSS** so all main sections work on small screens (e.g. ≤ 768px).
 
-| Area | Mobile behavior (≤ 768px) |
+| Area | Mobile behavior |
 |------|---------------------------|
-| **KPI cards** | Single column (`grid-template-columns: 1fr`); cards stack vertically. |
-| **Top navigation** | Vertical stack (`flex-direction: column`); full-width links for easier tap targets. |
+| **Sidebar** | At ≤ 900px: moves to top, horizontal nav; links wrap. |
+| **KPI cards** | At ≤ 768px: single column; cards stack vertically. |
+| **Top navigation** | (Legacy; now sidebar) Sidebar becomes horizontal at ≤ 900px. |
 | **Pricing grid** | One provider card per row. |
 | **Calculators** | Calculator cards and calc sub-nav stack; full-width controls. |
 | **Model comparison** | Provider filter and Sort by controls stack; table scrolls horizontally if needed. |
@@ -66,9 +68,9 @@ All of this is implemented in a single `@media (max-width: 768px)` block in `css
 
 ## Current pricing section
 
-On the **Home** tab, the **Current pricing** section shows API pricing per 1M tokens from Vizra for all four providers. The section header label lists **Gemini · OpenAI · Anthropic · Mistral** so users see that all providers are included. Below the label and Export (CSV/PDF) toolbar, the **pricing grid** displays four provider cards: Google Gemini, OpenAI, Anthropic, and Mistral, each with a searchable model table. Markup: `.pricing-section-header` with `.section-label` and `.pricing-grid` in `index.html`.
+In the **Overview** section, the **Current pricing** block shows API pricing per 1M tokens from Vizra for all four providers. The section header label lists **Gemini · OpenAI · Anthropic · Mistral** so users see that all providers are included. Below the label and Export (CSV/PDF) toolbar, the **pricing grid** displays four provider cards: Google Gemini, OpenAI, Anthropic, and Mistral, each with a searchable model table. Markup: `.pricing-section-header` with `.section-label` and `.pricing-grid` in `index.html`.
 
-**Export toolbar alignment** — All export (CSV/PDF) toolbars in the app are **right-aligned** for consistency: **Current pricing** (Home), **Model comparison**, **Calculators**, and **Benchmarks**. Implementation: Home uses `justify-content: space-between` on `.pricing-section-header`; Model comparison uses `margin-left: auto` on `.comparison-export-toolbar` inside the sort row; Calculators and Benchmarks use `margin-left: auto` on `.calculators-export-toolbar` and `.benchmark-export-toolbar` with their parent containers (`#tab-calculators`, `#section-benchmark`) set to `display: flex; flex-direction: column` in `css/styles.css`.
+**Export toolbar alignment** — All export (CSV/PDF) toolbars in the app are **right-aligned** for consistency: **Current pricing** (Overview), **Model comparison** (Models section), **Calculators**, and **Benchmarks**. Implementation: Overview uses `justify-content: space-between` on `.pricing-section-header`; Model comparison uses `margin-left: auto` on `.comparison-export-toolbar`; Calculators and Benchmarks use `margin-left: auto` on `.calculators-export-toolbar` and `.benchmark-export-toolbar` with parent `#calculators` and `#section-benchmark` set to `display: flex; flex-direction: column` in `css/styles.css`.
 
 ---
 
@@ -140,7 +142,7 @@ Monthly cost is daily cost × 30; per annum is monthly × 12. Use **Simulate** t
 
 ## Model comparison table
 
-On the **Compare** tab (📋 Compare in the main nav, next to Home, Calculators, Benchmarks, Recommend), a single **Model comparison** table lists all models for quick scanning and comparison.
+In the **Models** section (via sidebar → Models), a single **Model comparison** table lists all models for quick scanning and comparison.
 
 | Column    | Description |
 |-----------|-------------|
@@ -175,7 +177,7 @@ The table is filled by `renderModelComparisonTable(data)` in `src/render.js`, us
 
 ## Cost vs Performance quadrant chart
 
-On the **Compare** tab, below the Model comparison table, a **Cost vs Performance** scatter chart helps you see value at a glance: cost per request (X) vs a chosen performance metric (Y). All models appear as grey dots; **frontier** models (best performance at each cost level) are colored by provider. Hover any point for model name, cost per request, and performance score.
+In the **Value Analysis** section, a **Cost vs Performance** scatter chart helps you see value at a glance: cost per request (X) vs a chosen performance metric (Y). All models appear as grey dots; **frontier** models (best performance at each cost level) are colored by provider. Hover any point for model name, cost per request, and performance score.
 
 **Data** — The chart uses the same merged dataset as the rest of the app: **pricing** (input/output per 1M tokens) and **benchmarks** (Arena, MMLU, Code). Cost per request is computed with a **fixed baseline**: **1,000 prompt tokens** and **500 output tokens**. This baseline is not affected by the calculator or production-cost simulator; the chart stays consistent regardless of token values entered elsewhere.
 
@@ -183,7 +185,7 @@ On the **Compare** tab, below the Model comparison table, a **Cost vs Performanc
 
 **Controls** — **Performance metric** dropdown: **Arena**, **MMLU**, or **Code** (Y axis). **Filter by provider**: All, Google, OpenAI, Anthropic, Mistral (same idea as the table filter but independent for the chart).
 
-**Frontier tooltips** — Three places explain what “frontier” means and **how it is calculated**. (1) **Section subtitle:** A **(?)** with a `title` that states what frontier is and the calculation: sort models by cost (low to high), then keep only those with strictly better performance than every cheaper model. (2) **Legend hint above the chart:** The line “Colored points = **Frontier (best value)** (?)” uses a **custom CSS hover tooltip** (no delay): on hover, a card-style box shows a **generic message** with **What** (models with best performance at their cost; no cheaper model scores higher on the selected metric) and **How we calculate it** (sort all models by cost low to high, then keep only models that have strictly better performance than every cheaper model). Uses `data-tooltip` and `::after` in CSS. Markup: `<p class="value-chart-legend-hint">` and `<span class="value-chart-frontier-tooltip" data-tooltip="...">(?)</span>` in `index.html`; styles in `css/styles.css`. (3) **Chart point tooltip:** Hovering a frontier point shows model name, provider, cost, performance, and “✓ Frontier — best value at this cost (no cheaper model has higher performance).” Implementation: tooltip callback in `renderQuadrantChart()` in `src/valueChart.js` adds the frontier explanation when `onFrontier` is true.
+**Frontier tooltips** — Three places explain what “frontier” means and **how it is calculated**. (1) **Section subtitle:** A **(?)** with a `title` that states what frontier is and the calculation: sort models by cost (low to high), then keep only those with strictly better performance than every cheaper model. (2) **Legend hint above the chart:** The line “Colored points = **Frontier (best value)** (?)” uses the **native browser `title` tooltip** with What (models with best performance at their cost) and How (sort by cost low to high, then keep models with strictly better performance than every cheaper model). Markup: `<span class="value-chart-frontier-tooltip" title="...">(?)</span>`. (3) **Chart point tooltip:** Hovering a frontier point shows model name, provider, cost, performance, and “✓ Frontier — best value at this cost (no cheaper model has higher performance).” Implementation: tooltip callback in `renderQuadrantChart()` in `src/valueChart.js` adds the frontier explanation when `onFrontier` is true.
 
 **Mobile and responsive behavior** — The chart section uses a responsive container: `max-width: 100%`, `overflow-x: auto`, and `min-width: 0` on the chart wrap so the scatter does not overflow on small screens. At viewport ≤ 768px the chart height is 320px and the wrap uses `max-width: 100%`; at ≤ 480px height is 280px. This keeps the chart usable on phones without horizontal page overflow.
 
@@ -191,7 +193,7 @@ On the **Compare** tab, below the Model comparison table, a **Cost vs Performanc
 
 **Chart colors (light and dark theme)** — The chart uses theme-aware colors so it stays readable in both modes. **Dark theme:** axis and legend text `#e2e8f0`; grid `rgba(255,255,255,0.12)`; “All models” dots medium light grey (fill/border) so they remain visible on dark background; frontier points colored by provider (blue / emerald / orange / violet) at 0.95 opacity. **Light theme:** axis and legend text `#334155`; grid `rgba(0,0,0,0.1)`; “All models” dots medium grey; same provider colors. When you toggle the app theme, the chart is redrawn with the matching palette (see `setTheme()` → `updateValueChartIfVisible()` in `src/app.js`).
 
-**Implementation** — `src/valueChart.js`: `mergeModels()` builds cost + performance per model from `getAllModels(data)` and `getBenchmarkForModelMerged()`; `computeCostPerRequest()` uses (prompt/1e6)×input + (output/1e6)×output with the fixed baseline (1k prompt, 500 output); `computeFrontier()` sorts by cost then performance (same-cost edge case); `renderQuadrantChart()` uses **Chart.js** (scatter: all models + frontier points). The chart is rendered or updated when the Compare tab is active and when data or filters change; theme (dark/light) is respected. Markup: `#section-value-chart`, `#value-chart-canvas`, `.value-chart-controls`, `.value-chart-legend-hint`, `.value-chart-frontier-tooltip` in `index.html`; styles in `css/styles.css` (`.value-chart-section` with overflow-x and max-width, `.value-chart-wrap` with fixed height and responsive overrides at 768px and 480px).
+**Implementation** — `src/valueChart.js`: `mergeModels()` builds cost + performance per model from `getAllModels(data)` and `getBenchmarkForModelMerged()`; `computeCostPerRequest()` uses (prompt/1e6)×input + (output/1e6)×output with the fixed baseline (1k prompt, 500 output); `computeFrontier()` sorts by cost then performance (same-cost edge case); `renderQuadrantChart()` uses **Chart.js** (scatter: all models + frontier points). The chart is rendered or updated when data or filters change (chart is in the Value Analysis section); theme (dark/light) is respected. Markup: `#section-value-chart`, `#value-chart-canvas`, `.value-chart-controls`, `.value-chart-legend-hint`, `.value-chart-frontier-tooltip` in `index.html`; styles in `css/styles.css` (`.value-chart-section` with overflow-x and max-width, `.value-chart-wrap` with fixed height and responsive overrides at 768px and 480px).
 
 ---
 
