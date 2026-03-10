@@ -986,8 +986,7 @@ async function runRecommendation() {
     }
     return r;
   });
-  const hasDocSnippet = results.some((r) => r.docSnippet);
-  if (hasDocSnippet && docResults) results.sort((a, b) => (b.docSnippet ? 1 : 0) - (a.docSnippet ? 1 : 0));
+  // Keep diversified order (up to 2 per provider); do not re-sort by docSnippet so we don't end up with only one provider
   const hasAnyDoc = docResults && (docResults.gemini?.length || docResults.openai?.length || docResults.anthropic?.length || docResults.mistral?.length);
   render.renderRecommendations(results, !!hasAnyDoc);
 }

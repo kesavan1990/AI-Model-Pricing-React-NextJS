@@ -386,6 +386,9 @@ export function getFallbackReason(m) {
   return `${provider} — $${(m.blended || 0).toFixed(2)}/1M blended. Solid choice for most tasks.`;
 }
 
+/** Max recommendations per provider so results are diverse across Gemini, OpenAI, Anthropic, Mistral. */
+const MAX_PER_PROVIDER = 2;
+
 export function getRecommendations(data, useCaseType, description) {
   const all = getAllModels(data);
   const scored = all.map((m) => {
@@ -393,7 +396,18 @@ export function getRecommendations(data, useCaseType, description) {
     return { ...m, _score: score, _dimensions: dimensions };
   });
   scored.sort((a, b) => (b._score || 0) - (a._score || 0));
-  const top = scored.slice(0, 6);
+  // Ensure diversity: take up to MAX_PER_PROVIDER per provider, then top 6 by score
+  const byProvider = new Map();
+  for (const m of scored) {
+    const key = m.providerKey || m.provider || 'other';
+    if (!byProvider.has(key)) byProvider.set(key, []);
+    const arr = byProvider.get(key);
+    if (arr.length < MAX_PER_PROVIDER) arr.push(m);
+  }
+  const diversified = [];
+  byProvider.forEach((arr) => diversified.push(...arr));
+  diversified.sort((a, b) => (b._score || 0) - (a._score || 0));
+  const top = diversified.slice(0, 6);
   return top.map((m) => {
     const dims = m._dimensions && m._dimensions.length ? m._dimensions.join(' · ') : '';
     let reason = dims ? dims + ' — ' : '';

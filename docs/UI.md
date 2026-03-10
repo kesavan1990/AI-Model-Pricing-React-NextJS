@@ -175,7 +175,9 @@ On the **Benchmarks** tab, the **Model benchmark dashboard** shows one table wit
 
 The **Recommend** tab helps users find a suitable model by describing their use case (e.g. “cheap summarization”, “best quality for code”, “long documents”). It considers **all four service providers**: **Google Gemini**, **OpenAI**, **Anthropic**, and **Mistral**.
 
-**Model pool** — Recommendations are built from every model in the current pricing data. `getAllModels(data)` in `src/calculator.js` aggregates models from `data.gemini`, `data.openai`, `data.anthropic`, and `data.mistral`, so no provider is excluded. Each model is scored (cost, reasoning, context, performance) and the top results are shown.
+**Model pool** — Recommendations are built from every model in the current pricing data. `getAllModels(data)` in `src/calculator.js` aggregates models from `data.gemini`, `data.openai`, `data.anthropic`, and `data.mistral`, so no provider is excluded. Each model is scored (cost, reasoning, context, performance).
+
+**Provider diversity** — So that results are not dominated by a single provider (e.g. only Gemini), the top list is **diversified**: at most **2 models per provider** are considered, then the combined list is sorted by score and the **top 6** are returned. So you typically see models from two or more providers (Gemini, OpenAI, Anthropic, Mistral). The doc-snippet pass does not re-sort by “has snippet,” so this diversity is preserved.
 
 **Documentation search** — When the user clicks **Get recommendation**, the app also fetches official documentation pages and searches them for the user’s keywords. Doc search runs for **all four providers**:
 
