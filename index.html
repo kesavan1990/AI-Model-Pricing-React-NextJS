@@ -188,6 +188,11 @@
                     <option value="output">Output price (low → high)</option>
                     <option value="context">Context (largest first)</option>
                 </select>
+                <div class="comparison-export-toolbar">
+                    <span class="export-label">Export:</span>
+                    <button type="button" class="export-btn csv" onclick="exportComparisonCSV()" title="Download comparison as CSV">📄 CSV</button>
+                    <button type="button" class="export-btn pdf" onclick="exportComparisonPDF()" title="Download comparison as PDF">📕 PDF</button>
+                </div>
             </div>
             <div class="pricing-table-scroll">
                 <table class="model-table model-comparison-table" aria-label="Model comparison">
@@ -213,6 +218,11 @@
             <a href="#calc-context" class="calc-sub-link" data-calc-sub="context" role="tab">📐 Context window</a>
             <a href="#calc-production" class="calc-sub-link" data-calc-sub="production" role="tab">🏭 Production cost</a>
         </nav>
+        <div class="calculators-export-toolbar">
+            <span class="export-label">Export current result:</span>
+            <button type="button" class="export-btn csv" onclick="exportCalculatorsCSV()" title="Download current calculator result as CSV">📄 CSV</button>
+            <button type="button" class="export-btn pdf" onclick="exportCalculatorsPDF()" title="Download current calculator result as PDF">📕 PDF</button>
+        </div>
         <div id="calc-sub-pricing" class="calc-sub-panel active" role="tabpanel">
         <section class="page-section" id="section-calculator">
             <h2 class="section-title">💰 Pricing Calculator</h2>
@@ -340,6 +350,11 @@
         <section class="page-section" id="section-benchmark">
             <h2 class="section-title">📈 Model benchmark dashboard</h2>
             <p class="section-subtitle">Compare models by capability. <strong>MMLU</strong> (knowledge), <strong>Code</strong> (HumanEval), <strong>Reasoning</strong> (GSM8K), <strong>Arena</strong> (leaderboard-style). Cost tier from current pricing.</p>
+            <div class="benchmark-export-toolbar">
+                <span class="export-label">Export:</span>
+                <button type="button" class="export-btn csv" onclick="exportBenchmarksCSV()" title="Download benchmarks as CSV">📄 CSV</button>
+                <button type="button" class="export-btn pdf" onclick="exportBenchmarksPDF()" title="Download benchmarks as PDF">📕 PDF</button>
+            </div>
             <div class="benchmark-dashboard-wrap">
                 <div id="benchmark-dashboard-table" class="benchmark-dashboard-table"></div>
                 <p class="benchmark-note">Benchmark scores are indicative from published results; Arena is illustrative. Check official sources for latest benchmarks.</p>

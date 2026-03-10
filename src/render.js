@@ -183,6 +183,22 @@ export function renderModelComparisonTable(data, providerFilter, sortByArg) {
   tbody.innerHTML = rows;
 }
 
+/**
+ * Return the current comparison table list (filtered and sorted) for export.
+ */
+export function getComparisonList(data) {
+  const filter = comparisonProviderFilter ?? 'all';
+  const sortBy = comparisonSortBy ?? 'default';
+  let list = getAllModels(data);
+  if (filter && filter !== 'all') list = list.filter((m) => m.providerKey === filter);
+  const providerIndex = (m) => PROVIDER_ORDER.indexOf(m.providerKey);
+  if (sortBy === 'input') list = [...list].sort((a, b) => (a.input ?? 0) - (b.input ?? 0));
+  else if (sortBy === 'output') list = [...list].sort((a, b) => (a.output ?? 0) - (b.output ?? 0));
+  else if (sortBy === 'context') list = [...list].sort((a, b) => (b.contextTokens ?? 0) - (a.contextTokens ?? 0));
+  else list = [...list].sort((a, b) => { const ga = providerIndex(a); const gb = providerIndex(b); if (ga !== gb) return ga - gb; return (a.blended ?? 0) - (b.blended ?? 0); });
+  return list;
+}
+
 export function renderBenchmarkDashboard(data) {
   const container = document.getElementById('benchmark-dashboard-table');
   if (!container) return;
@@ -200,6 +216,16 @@ export function renderBenchmarkDashboard(data) {
     '<table class="model-table"><thead><tr><th>Model</th><th title="Massive Multitask Language Understanding — broad knowledge across 57 subjects (STEM, humanities, etc.). Higher = better.">MMLU</th><th title="HumanEval — code generation benchmark (Python). Higher = better.">Code</th><th title="GSM8K — grade-school math word problems; measures reasoning. Higher = better.">Reasoning</th><th title="Arena / leaderboard-style ranking (e.g. LMSys Chatbot Arena). Higher = better overall preference.">Arena</th><th title="Based on blended price per 1M tokens (70% input + 30% output). $ = free/low, $$ = budget, $$$ = premium.">Cost</th></tr></thead><tbody>' +
     rows +
     '</tbody></table>';
+}
+
+/** Return benchmark table rows for export (same data as dashboard). */
+export function getBenchmarkList(data) {
+  const all = getAllModels(data);
+  return all.map((m) => {
+    const b = getBenchmarkForModel(m.name, m.providerKey);
+    const { tier } = getCostTierLabel(m.blended);
+    return { name: m.name, mmlu: b.mmlu, code: b.code, reasoning: b.reasoning, arena: b.arena, costTier: tier };
+  });
 }
 
 export function escapeCsvCell(s) {

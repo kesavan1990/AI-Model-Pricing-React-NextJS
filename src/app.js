@@ -25,6 +25,12 @@ function setData(data) {
   if (data.mistral) mistralData = data.mistral;
 }
 
+// Last result per calculator (for export)
+let lastPricingResult = null;
+let lastPromptCostResult = null;
+let lastContextResult = null;
+let lastProductionResult = null;
+
 // --- Load & refresh ---
 async function loadPricing() {
   try {
@@ -371,6 +377,82 @@ function exportPricingPDF() {
   doc.save('ai-pricing-' + new Date().toISOString().slice(0, 10) + '.pdf');
 }
 
+function exportComparisonCSV() {
+  const list = render.getComparisonList(getData());
+  const rows = ['Model,Provider,Input per 1M,Output per 1M,Context'];
+  const fmt = (v) => (v === 0 ? 'Free' : '$' + Number(v).toFixed(2));
+  list.forEach((m) => {
+    rows.push([m.name, m.provider, fmt(m.input), fmt(m.output), m.contextWindow || '—'].map(render.escapeCsvCell).join(','));
+  });
+  const csv = '\uFEFF' + rows.join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  a.download = 'ai-model-comparison-' + new Date().toISOString().slice(0, 10) + '.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  render.showToast('Comparison exported as CSV.', 'success');
+}
+
+function exportComparisonPDF() {
+  const JsPDF = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+  if (typeof JsPDF === 'undefined') {
+    render.showToast('PDF library loading. Please try again in a moment.', 'error');
+    return;
+  }
+  const list = render.getComparisonList(getData());
+  const fmt = (v) => (v === 0 ? 'Free' : '$' + Number(v).toFixed(2));
+  const doc = new JsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  const pageW = doc.internal.pageSize.getWidth();
+  doc.setFontSize(14);
+  doc.text('Model comparison', pageW / 2, 18, { align: 'center' });
+  doc.setFontSize(9);
+  doc.setTextColor(80, 80, 80);
+  doc.text('Exported: ' + new Date().toLocaleDateString(undefined, { dateStyle: 'long' }), pageW / 2, 25, { align: 'center' });
+  doc.setTextColor(0, 0, 0);
+  const headers = ['Model', 'Provider', 'Input/1M', 'Output/1M', 'Context'];
+  const colWidths = [50, 36, 28, 28, 28];
+  const rows = list.map((m) => [m.name, m.provider, fmt(m.input), fmt(m.output), m.contextWindow || '—']);
+  render.drawPdfBorderedTable(doc, 32, headers, rows, colWidths);
+  doc.save('ai-model-comparison-' + new Date().toISOString().slice(0, 10) + '.pdf');
+  render.showToast('Comparison exported as PDF.', 'success');
+}
+
+function exportBenchmarksCSV() {
+  const list = render.getBenchmarkList(getData());
+  const rows = ['Model,MMLU,Code,Reasoning,Arena,Cost tier'];
+  list.forEach((m) => rows.push([m.name, m.mmlu, m.code, m.reasoning, m.arena, m.costTier].map(render.escapeCsvCell).join(',')));
+  const csv = '\uFEFF' + rows.join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  a.download = 'ai-benchmarks-' + new Date().toISOString().slice(0, 10) + '.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  render.showToast('Benchmarks exported as CSV.', 'success');
+}
+
+function exportBenchmarksPDF() {
+  const JsPDF = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+  if (typeof JsPDF === 'undefined') {
+    render.showToast('PDF library loading. Please try again in a moment.', 'error');
+    return;
+  }
+  const list = render.getBenchmarkList(getData());
+  const doc = new JsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  const pageW = doc.internal.pageSize.getWidth();
+  doc.setFontSize(14);
+  doc.text('Model benchmark dashboard', pageW / 2, 18, { align: 'center' });
+  doc.setFontSize(9);
+  doc.setTextColor(80, 80, 80);
+  doc.text('Exported: ' + new Date().toLocaleDateString(undefined, { dateStyle: 'long' }), pageW / 2, 25, { align: 'center' });
+  doc.setTextColor(0, 0, 0);
+  const headers = ['Model', 'MMLU', 'Code', 'Reasoning', 'Arena', 'Cost'];
+  const colWidths = [50, 28, 28, 32, 28, 24];
+  const rows = list.map((m) => [m.name, m.mmlu, m.code, m.reasoning, m.arena, m.costTier]);
+  render.drawPdfBorderedTable(doc, 32, headers, rows, colWidths);
+  doc.save('ai-benchmarks-' + new Date().toISOString().slice(0, 10) + '.pdf');
+  render.showToast('Benchmarks exported as PDF.', 'success');
+}
+
 function exportHistoryCSV() {
   const list = pricing.getHistory();
   if (!list.length) {
@@ -450,6 +532,7 @@ function runPromptCostEstimate() {
   const rows = list.map((m) => `<li><span class="model-label">${m.name}</span> <span class="model-cost">$${m.cost.toFixed(5)}</span></li>`).join('');
   resultEl.innerHTML = '<h4>Cost by model</h4><ul class="prompt-cost-list">' + rows + '</ul>';
   resultEl.style.display = 'block';
+  lastPromptCostResult = { rows: list.map((m) => ({ model: m.name, cost: m.cost })) };
 }
 
 function resetPromptEstimator() {
@@ -464,6 +547,7 @@ function resetPromptEstimator() {
     resultEl.style.display = 'none';
     resultEl.innerHTML = '';
   }
+  lastPromptCostResult = null;
 }
 
 function setPromptFromText(text) {
@@ -532,6 +616,7 @@ function runContextWindowCheck() {
   const outputTokens = Math.max(0, parseInt(outputEl?.value || '0', 10) || 0);
   const total = promptTokens + outputTokens;
   const rows = [];
+  const exportRows = [];
   const NEAR_THRESHOLD = 0.9;
   const data = getData();
   function addContextRows(providerKey, arr) {
@@ -548,6 +633,7 @@ function runContextWindowCheck() {
         resultText = 'Near limit';
       }
       rows.push(`<tr><td class="model-name">${m.name}</td><td>${ctx.label}</td><td class="${resultClass}">${resultText}</td></tr>`);
+      exportRows.push({ model: m.name, contextWindow: ctx.label, result: resultText });
     });
   }
   addContextRows('gemini', data.gemini);
@@ -565,11 +651,13 @@ function runContextWindowCheck() {
       resultText = 'Near limit';
     }
     rows.push(`<tr><td class="model-name">${m.name}</td><td>${ctx.label}</td><td class="${resultClass}">${resultText}</td></tr>`);
+    exportRows.push({ model: m.name, contextWindow: ctx.label, result: resultText });
   });
   addContextRows('anthropic', data.anthropic);
   addContextRows('mistral', data.mistral);
   resultEl.innerHTML = '<h4>Results</h4><table class="model-table"><thead><tr><th>Model</th><th>Context window</th><th>Result</th></tr></thead><tbody>' + rows.join('') + '</tbody></table>';
   resultEl.style.display = 'block';
+  lastContextResult = { rows: exportRows };
 }
 
 function resetContextWindowCheck() {
@@ -582,6 +670,7 @@ function resetContextWindowCheck() {
     resultEl.style.display = 'none';
     resultEl.innerHTML = '';
   }
+  lastContextResult = null;
 }
 
 function runProductionCostSim() {
@@ -630,6 +719,7 @@ function runProductionCostSim() {
   const rows = list.map((m) => `<tr><td class="model-name">${m.name}</td><td class="cost-per-request">${fmtReq(m.perRequest)}</td><td class="cost-daily">$${m.daily.toFixed(2)}</td><td class="cost-monthly">$${m.monthly.toFixed(2)}</td><td class="cost-annum">$${m.annum.toFixed(2)}</td></tr>`).join('');
   resultEl.innerHTML = '<h4>Estimated costs</h4><table class="model-table"><thead><tr><th>Model</th><th>Per request</th><th>Daily cost</th><th>Monthly cost</th><th>Per annum</th></tr></thead><tbody>' + rows + '</tbody></table>';
   resultEl.style.display = 'block';
+  lastProductionResult = { rows: list };
 }
 
 function resetProductionCostSim() {
@@ -642,6 +732,7 @@ function resetProductionCostSim() {
     resultEl.style.display = 'none';
     resultEl.innerHTML = '';
   }
+  lastProductionResult = null;
 }
 
 function renderCompareResult(name1, cost1, name2, cost2) {
@@ -679,6 +770,7 @@ function calculateUnified() {
     const rows = withCost.map((r) => `<tr><td>${r.label}</td><td class="cost">$${r.cost.toFixed(4)}</td></tr>`).join('');
     resultEl.className = 'calc-result wrap-scroll';
     resultEl.innerHTML = '<table class="calc-result-table"><thead><tr><th>Model</th><th>Est. cost</th></tr></thead><tbody>' + rows + '</tbody></table>';
+    lastPricingResult = { type: 'all', rows: withCost.map((r) => ({ label: r.label, cost: r.cost })) };
     return;
   }
   const entry = calc.getCalcModelByKey(sel, data);
@@ -692,17 +784,106 @@ function calculateUnified() {
     if (!entry2) {
       resultEl.className = 'calc-result single';
       resultEl.textContent = 'Estimated cost: $' + cost.toFixed(4);
+      lastPricingResult = { type: 'single', rows: [{ label: entry.label || entry.model?.name, cost }] };
       return;
     }
     const cost2 = calc.calcCostForEntry(entry2, inputTokens, cachedTokens, outputTokens);
-    const name1 = entry.provider === 'gemini' ? 'Google Gemini — ' + entry.name : 'OpenAI — ' + entry.name;
-    const name2 = entry2.provider === 'gemini' ? 'Google Gemini — ' + entry2.name : 'OpenAI — ' + entry2.name;
+    const name1 = entry.label || entry.provider + ' — ' + entry.name;
+    const name2 = entry2.label || entry2.provider + ' — ' + entry2.name;
     resultEl.className = 'calc-result';
     resultEl.innerHTML = renderCompareResult(name1, cost, name2, cost2);
+    lastPricingResult = { type: 'compare', rows: [{ label: name1, cost }, { label: name2, cost: cost2 }] };
     return;
   }
   resultEl.className = 'calc-result single';
   resultEl.textContent = 'Estimated cost: $' + cost.toFixed(4);
+  lastPricingResult = { type: 'single', rows: [{ label: entry.label || (entry.provider + ' — ' + entry.name), cost }] };
+}
+
+function getCurrentCalculatorExport() {
+  const hash = (location.hash || '').replace('#', '') || 'calc-pricing';
+  if (hash === 'calc-pricing') return { sub: 'pricing', data: lastPricingResult };
+  if (hash === 'calc-prompt') return { sub: 'prompt', data: lastPromptCostResult };
+  if (hash === 'calc-context') return { sub: 'context', data: lastContextResult };
+  if (hash === 'calc-production') return { sub: 'production', data: lastProductionResult };
+  return { sub: 'pricing', data: lastPricingResult };
+}
+
+function exportCalculatorsCSV() {
+  const { sub, data } = getCurrentCalculatorExport();
+  if (!data || !data.rows || !data.rows.length) {
+    render.showToast('Run the calculator first to export results.', 'error');
+    return;
+  }
+  let header = '';
+  let rows = [];
+  if (sub === 'pricing') {
+    header = 'Model,Est. cost';
+    rows = data.rows.map((r) => [r.label, r.cost.toFixed(4)].map(render.escapeCsvCell).join(','));
+  } else if (sub === 'prompt') {
+    header = 'Model,Cost';
+    rows = data.rows.map((r) => [r.model, r.cost.toFixed(5)].map(render.escapeCsvCell).join(','));
+  } else if (sub === 'context') {
+    header = 'Model,Context window,Result';
+    rows = data.rows.map((r) => [r.model, r.contextWindow, r.result].map(render.escapeCsvCell).join(','));
+  } else if (sub === 'production') {
+    header = 'Model,Per request,Daily cost,Monthly cost,Per annum';
+    const fmt = (v) => (typeof v === 'number' && v < 0.0001 && v > 0 ? v.toExponential(2) : (typeof v === 'number' ? v.toFixed(4) : v));
+    rows = data.rows.map((r) => [r.name, fmt(r.perRequest), r.daily.toFixed(2), r.monthly.toFixed(2), r.annum.toFixed(2)].map(render.escapeCsvCell).join(','));
+  }
+  const csv = '\uFEFF' + header + '\r\n' + rows.join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  a.download = 'ai-calculator-' + sub + '-' + new Date().toISOString().slice(0, 10) + '.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  render.showToast('Calculator result exported as CSV.', 'success');
+}
+
+function exportCalculatorsPDF() {
+  const JsPDF = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+  if (typeof JsPDF === 'undefined') {
+    render.showToast('PDF library loading. Please try again in a moment.', 'error');
+    return;
+  }
+  const { sub, data } = getCurrentCalculatorExport();
+  if (!data || !data.rows || !data.rows.length) {
+    render.showToast('Run the calculator first to export results.', 'error');
+    return;
+  }
+  const doc = new JsPDF({ orientation: sub === 'production' ? 'landscape' : 'portrait', unit: 'mm', format: 'a4' });
+  const pageW = doc.internal.pageSize.getWidth();
+  doc.setFontSize(14);
+  const titles = { pricing: 'Pricing calculator', prompt: 'Prompt cost estimate', context: 'Context window check', production: 'Production cost simulator' };
+  doc.text(titles[sub], pageW / 2, 18, { align: 'center' });
+  doc.setFontSize(9);
+  doc.setTextColor(80, 80, 80);
+  doc.text('Exported: ' + new Date().toLocaleDateString(undefined, { dateStyle: 'long' }), pageW / 2, 25, { align: 'center' });
+  doc.setTextColor(0, 0, 0);
+  let headers = [];
+  let colWidths = [];
+  let pdfRows = [];
+  if (sub === 'pricing') {
+    headers = ['Model', 'Est. cost'];
+    colWidths = [120, 40];
+    pdfRows = data.rows.map((r) => [r.label, '$' + r.cost.toFixed(4)]);
+  } else if (sub === 'prompt') {
+    headers = ['Model', 'Cost'];
+    colWidths = [120, 40];
+    pdfRows = data.rows.map((r) => [r.model, '$' + r.cost.toFixed(5)]);
+  } else if (sub === 'context') {
+    headers = ['Model', 'Context window', 'Result'];
+    colWidths = [80, 50, 40];
+    pdfRows = data.rows.map((r) => [r.model, r.contextWindow, r.result]);
+  } else if (sub === 'production') {
+    headers = ['Model', 'Per request', 'Daily', 'Monthly', 'Per annum'];
+    colWidths = [50, 28, 28, 32, 32];
+    const fmtReq = (v) => (v < 0.0001 && v > 0 ? '$' + v.toExponential(2) : '$' + v.toFixed(4));
+    pdfRows = data.rows.map((r) => [r.name, fmtReq(r.perRequest), '$' + r.daily.toFixed(2), '$' + r.monthly.toFixed(2), '$' + r.annum.toFixed(2)]);
+  }
+  render.drawPdfBorderedTable(doc, 32, headers, pdfRows, colWidths);
+  doc.save('ai-calculator-' + sub + '-' + new Date().toISOString().slice(0, 10) + '.pdf');
+  render.showToast('Calculator result exported as PDF.', 'success');
 }
 
 function resetUnified() {
@@ -714,6 +895,7 @@ function resetUnified() {
   const resultEl = document.getElementById('calc-result');
   resultEl.style.display = 'none';
   resultEl.innerHTML = '';
+  lastPricingResult = null;
 }
 
 // --- Doc search & recommendation ---
@@ -818,6 +1000,12 @@ function switchTab(tabId) {
 // --- Expose for inline onclick (index.html) ---
 window.exportPricingCSV = exportPricingCSV;
 window.exportPricingPDF = exportPricingPDF;
+window.exportComparisonCSV = exportComparisonCSV;
+window.exportComparisonPDF = exportComparisonPDF;
+window.exportBenchmarksCSV = exportBenchmarksCSV;
+window.exportBenchmarksPDF = exportBenchmarksPDF;
+window.exportCalculatorsCSV = exportCalculatorsCSV;
+window.exportCalculatorsPDF = exportCalculatorsPDF;
 window.exportHistoryCSV = exportHistoryCSV;
 window.exportHistoryPDF = exportHistoryPDF;
 window.calculateUnified = calculateUnified;

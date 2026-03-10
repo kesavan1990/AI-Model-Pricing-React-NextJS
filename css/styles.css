@@ -320,6 +320,13 @@ h1 {
     outline: none;
     border-color: rgba(102, 126, 234, 0.5);
 }
+.comparison-export-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+}
+.comparison-export-toolbar .export-label { margin: 0; }
 
 /* Cheapest row highlight (Compare table) */
 .model-comparison-table tr.cheapest {
@@ -626,6 +633,20 @@ h1 {
 .production-cost-result .cost-monthly,
 .production-cost-result .cost-annum { color: #4ade80; font-weight: 600; }
 
+.benchmark-export-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+.benchmark-export-toolbar .export-label { margin: 0; }
+.calculators-export-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+.calculators-export-toolbar .export-label { margin: 0; }
 .benchmark-dashboard-wrap { max-width: 900px; margin: 0 auto; overflow-x: auto; }
 .benchmark-dashboard-table { margin-bottom: 12px; }
 .benchmark-dashboard-table .model-table { font-size: 0.9rem; width: 100%; }
@@ -1033,7 +1054,10 @@ h1 {
 [data-theme="light"] .price-changes-summary .change-table th,
 [data-theme="light"] .price-changes-summary .change-more,
 [data-theme="light"] .pricing-section-header .section-label,
-[data-theme="light"] .export-toolbar .export-label { color: var(--theme-text-muted); }
+[data-theme="light"] .export-toolbar .export-label,
+[data-theme="light"] .comparison-export-toolbar .export-label,
+[data-theme="light"] .benchmark-export-toolbar .export-label,
+[data-theme="light"] .calculators-export-toolbar .export-label { color: var(--theme-text-muted); }
 [data-theme="light"] .price-changes-summary .change-table .col-provider,
 [data-theme="light"] .price-changes-summary .change-table .col-model,
 [data-theme="light"] .price-changes-summary .change-table .col-field { color: var(--theme-text); }
