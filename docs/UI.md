@@ -44,6 +44,20 @@ The cards use the same data as the pricing tables and update whenever pricing is
 
 ---
 
+## Calculator tooltips
+
+Across **Calculators** (Pricing, Prompt cost, Context window, Production cost), labels show a **(?)** icon. Hover over the label or the **(?)** to see a short tooltip explaining the term. This helps users who are unfamiliar with:
+
+- **Prompt tokens** — Tokens in the request sent to the model (your input/prompt).
+- **Output tokens** — Tokens in the model's response (completion).
+- **Context window** — Maximum tokens the model can process in one request (input + output combined).
+- **Cached input tokens** — Tokens served from cache at a lower rate (OpenAI); use 0 for others.
+- **Users per day** / **Requests per user** — Used in the production cost simulator to scale cost.
+
+Tooltips are implemented with a `title` attribute on a `<span class="calc-tooltip-icon">(?)</span>` next to each label in `index.html`; `.calc-tooltip-icon` is styled in `css/styles.css` (cursor: help, subtle opacity).
+
+---
+
 ## Cost calculator
 
 In **Calculators → 💰 Pricing**, the cost calculator estimates API cost for a chosen model (and optionally compares two models).

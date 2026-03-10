@@ -530,6 +530,7 @@ h1 {
 .calculator-single { max-width: 520px; margin: 0 auto; }
 .calculator-card-wide { width: 100%; }
 .calc-hint { color: #888; font-weight: normal; font-size: 0.85em; }
+.calc-tooltip-icon { opacity: 0.75; cursor: help; font-size: 0.85em; margin-left: 2px; font-weight: normal; }
 
 .prompt-estimator-card {
     max-width: 640px;

@@ -221,23 +221,23 @@
                 <div class="calculator-card calculator-card-wide">
                     <h3>All providers</h3>
                     <div class="calc-row">
-                        <label for="calc-model">Model</label>
+                        <label for="calc-model">Model <span class="calc-tooltip-icon" title="The AI model to estimate cost for (e.g. Gemini, GPT-4o)." aria-hidden="true">(?)</span></label>
                         <select id="calc-model"></select>
                     </div>
                     <div class="calc-row">
-                        <label for="calc-compare">Compare with (optional)</label>
+                        <label for="calc-compare">Compare with (optional) <span class="calc-tooltip-icon" title="Optionally pick a second model to compare cost side by side." aria-hidden="true">(?)</span></label>
                         <select id="calc-compare"><option value="">— None —</option></select>
                     </div>
                     <div class="calc-row">
-                        <label for="calc-input-tokens">Prompt tokens</label>
-                        <input type="number" id="calc-input-tokens" placeholder="e.g. 100000" min="0" value="100000" title="Input/prompt token count">
+                        <label for="calc-input-tokens">Prompt tokens <span class="calc-tooltip-icon" title="Tokens in the request sent to the model (your input/prompt). Pricing is per 1M tokens." aria-hidden="true">(?)</span></label>
+                        <input type="number" id="calc-input-tokens" placeholder="e.g. 100000" min="0" value="100000">
                     </div>
                     <div class="calc-row">
-                        <label for="calc-cached-tokens">Cached input tokens <span class="calc-hint">(OpenAI only)</span></label>
-                        <input type="number" id="calc-cached-tokens" placeholder="e.g. 0" min="0" value="0" title="Tokens served from cache (lower rate). Use 0 for Gemini.">
+                        <label for="calc-cached-tokens">Cached input tokens <span class="calc-hint">(OpenAI only)</span> <span class="calc-tooltip-icon" title="Tokens served from cache at a lower rate. Use 0 for Gemini, Anthropic, or Mistral." aria-hidden="true">(?)</span></label>
+                        <input type="number" id="calc-cached-tokens" placeholder="e.g. 0" min="0" value="0">
                     </div>
                     <div class="calc-row">
-                        <label for="calc-output-tokens">Output tokens</label>
+                        <label for="calc-output-tokens">Output tokens <span class="calc-tooltip-icon" title="Tokens in the model's response (completion). Pricing is per 1M tokens." aria-hidden="true">(?)</span></label>
                         <input type="number" id="calc-output-tokens" placeholder="e.g. 10000" min="0" value="10000">
                     </div>
                     <div class="calc-actions">
@@ -255,7 +255,7 @@
             <p class="section-subtitle">Paste your prompt to get a token count (using <strong>gpt-tokenizer</strong> / cl100k_base when available, else ≈4 chars/token) and cost across Gemini, OpenAI, Anthropic, and Mistral. Embedding-only models are excluded.</p>
             <div class="prompt-estimator-card">
                 <div class="calc-row">
-                    <label for="prompt-input">Paste your prompt or import a file</label>
+                    <label for="prompt-input">Paste your prompt or import a file <span class="calc-tooltip-icon" title="Your input text; the app estimates how many tokens it uses (affects cost)." aria-hidden="true">(?)</span></label>
                     <textarea id="prompt-input" rows="5" placeholder="Paste your prompt here…"></textarea>
                 </div>
                 <div class="prompt-import-row">
@@ -266,8 +266,8 @@
                 </div>
                 <div class="prompt-estimator-meta">
                     <div class="calc-row prompt-estimator-tokens">
-                        <label for="prompt-output-tokens">Estimated output tokens</label>
-                        <input type="number" id="prompt-output-tokens" placeholder="e.g. 500" min="0" value="500" title="Expected length of model response">
+                        <label for="prompt-output-tokens">Estimated output tokens <span class="calc-tooltip-icon" title="Expected length of the model's response in tokens (completion)." aria-hidden="true">(?)</span></label>
+                        <input type="number" id="prompt-output-tokens" placeholder="e.g. 500" min="0" value="500">
                     </div>
                     <p id="prompt-token-count" class="prompt-token-count">Prompt tokens: —</p>
                 </div>
@@ -282,15 +282,15 @@
         <div id="calc-sub-context" class="calc-sub-panel" role="tabpanel">
         <section class="page-section" id="section-context-window">
             <h2 class="section-title">📐 Context window calculator</h2>
-            <p class="section-subtitle">Check if your prompt + output fits within each model's context limit. Helps avoid context overflow errors.</p>
+            <p class="section-subtitle">Check if your prompt + output fits within each model's context limit. Helps avoid context overflow errors. <span class="calc-tooltip-icon" title="Context window = maximum tokens the model can process in one request (input + output combined)." aria-hidden="true">(?)</span></p>
             <div class="context-window-card">
                 <div class="context-window-inputs">
                     <div class="calc-row">
-                        <label for="context-prompt-tokens">Prompt tokens</label>
+                        <label for="context-prompt-tokens">Prompt tokens <span class="calc-tooltip-icon" title="Tokens in the request you send to the model." aria-hidden="true">(?)</span></label>
                         <input type="number" id="context-prompt-tokens" placeholder="e.g. 50000" min="0" value="10000">
                     </div>
                     <div class="calc-row">
-                        <label for="context-output-tokens">Output tokens</label>
+                        <label for="context-output-tokens">Output tokens <span class="calc-tooltip-icon" title="Tokens in the model's response (completion)." aria-hidden="true">(?)</span></label>
                         <input type="number" id="context-output-tokens" placeholder="e.g. 4000" min="0" value="4000">
                     </div>
                 </div>
@@ -309,19 +309,19 @@
             <div class="production-cost-card">
                 <div class="production-cost-inputs">
                     <div class="calc-row">
-                        <label for="prod-users-per-day">Users per day</label>
+                        <label for="prod-users-per-day">Users per day <span class="calc-tooltip-icon" title="Number of daily active users making API requests." aria-hidden="true">(?)</span></label>
                         <input type="number" id="prod-users-per-day" placeholder="e.g. 1000" min="0" value="1000">
                     </div>
                     <div class="calc-row">
-                        <label for="prod-requests-per-user">Requests per user</label>
+                        <label for="prod-requests-per-user">Requests per user <span class="calc-tooltip-icon" title="Average number of API requests per user per day." aria-hidden="true">(?)</span></label>
                         <input type="number" id="prod-requests-per-user" placeholder="e.g. 10" min="0" value="10">
                     </div>
                     <div class="calc-row">
-                        <label for="prod-prompt-tokens">Prompt tokens (per request)</label>
+                        <label for="prod-prompt-tokens">Prompt tokens (per request) <span class="calc-tooltip-icon" title="Tokens in each request sent to the model (input)." aria-hidden="true">(?)</span></label>
                         <input type="number" id="prod-prompt-tokens" placeholder="e.g. 500" min="0" value="500">
                     </div>
                     <div class="calc-row">
-                        <label for="prod-output-tokens">Output tokens (per request)</label>
+                        <label for="prod-output-tokens">Output tokens (per request) <span class="calc-tooltip-icon" title="Tokens in each model response (completion)." aria-hidden="true">(?)</span></label>
                         <input type="number" id="prod-output-tokens" placeholder="e.g. 200" min="0" value="200">
                     </div>
                 </div>
