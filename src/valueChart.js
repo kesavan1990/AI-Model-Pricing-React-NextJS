@@ -11,14 +11,18 @@ const DEFAULT_OUTPUT_TOKENS = 500;
 
 /**
  * Cost per request in dollars: (prompt/1e6)*input_price + (output/1e6)*output_price.
+ * Returns null if pricing is invalid (zero, negative, or missing).
  * @param {{ input: number, output: number }} model - Per-1M input/output prices
  * @param {number} promptTokens
  * @param {number} outputTokens
+ * @returns {number|null}
  */
 export function computeCostPerRequest(model, promptTokens = DEFAULT_PROMPT_TOKENS, outputTokens = DEFAULT_OUTPUT_TOKENS) {
-  const input = Number(model.input) || 0;
-  const output = Number(model.output) || 0;
-  return (promptTokens / 1e6) * input + (outputTokens / 1e6) * output;
+  const input = Number(model.input);
+  const output = Number(model.output);
+  if (input <= 0 || output <= 0 || !Number.isFinite(input) || !Number.isFinite(output)) return null;
+  const cost = (promptTokens / 1e6) * input + (outputTokens / 1e6) * output;
+  return Number.isFinite(cost) ? cost : null;
 }
 
 /**
@@ -34,28 +38,33 @@ export function mergeModels(data, fileBenchmarks, performanceMetric = 'arena', p
   return all
     .map((m) => {
       const bench = getBenchmarkForModelMerged(m.name, m.providerKey, fileBenchmarks);
-      const performance = performanceMetric === 'arena' ? (bench.arena ?? 0) : performanceMetric === 'mmlu' ? (bench.mmlu ?? 0) : (bench.code ?? 0);
+      const rawPerf = performanceMetric === 'arena' ? bench.arena : performanceMetric === 'mmlu' ? bench.mmlu : bench.code;
+      const performance = rawPerf != null && rawPerf !== '' ? Number(rawPerf) : null;
       const cost = computeCostPerRequest(m, promptTokens, outputTokens);
       return {
         name: m.name,
         provider: m.provider,
         providerKey: m.providerKey,
         cost,
-        performance: Number(performance) || 0,
+        performance: Number.isFinite(performance) ? performance : null,
         blended: m.blended,
         input: m.input,
         output: m.output,
       };
     })
-    .filter((m) => m.performance > 0);
+    .filter((m) => m.cost != null && Number.isFinite(m.cost) && m.performance != null && Number.isFinite(m.performance));
 }
 
 /**
  * Price–performance frontier: for each cost level, keep only models that have strictly better performance than all cheaper models.
- * @param {Array<{ cost: number, performance: number, [key: string]: * }>} models - Sorted by cost asc (caller may sort)
+ * Sort by cost ascending, then by performance descending when cost is equal (same-cost edge case).
+ * @param {Array<{ cost: number, performance: number, [key: string]: * }>} models
  */
 export function computeFrontier(models) {
-  const sorted = [...models].sort((a, b) => a.cost - b.cost);
+  const sorted = [...models].sort((a, b) => {
+    if (a.cost !== b.cost) return a.cost - b.cost;
+    return (b.performance ?? 0) - (a.performance ?? 0);
+  });
   const frontier = [];
   let bestPerf = 0;
   for (const m of sorted) {
@@ -112,14 +121,15 @@ export function renderQuadrantChart(canvasOrId, mergedModels, options = {}) {
   const allModelsFill = isDark ? 'rgba(180, 180, 180, 0.5)' : 'rgba(100, 100, 100, 0.35)';
   const allModelsBorder = isDark ? 'rgba(200, 200, 200, 0.65)' : 'rgba(80, 80, 80, 0.5)';
 
+  const isLargeDataset = allPoints.length > 50;
   const datasetAll = {
     label: 'All models',
     data: allPoints.map((p) => ({ x: p.x, y: p.y })),
     backgroundColor: allModelsFill,
     borderColor: allModelsBorder,
-    borderWidth: 1,
-    pointRadius: 4,
-    pointHoverRadius: 6,
+    borderWidth: isLargeDataset ? 0 : 1,
+    pointRadius: isLargeDataset ? 3 : 4,
+    pointHoverRadius: isLargeDataset ? 5 : 6,
     order: 2,
   };
 
@@ -136,6 +146,23 @@ export function renderQuadrantChart(canvasOrId, mergedModels, options = {}) {
   };
 
   const metricLabel = performanceMetric === 'arena' ? 'Arena' : performanceMetric === 'mmlu' ? 'MMLU' : 'Code';
+
+  const costs = list.map((m) => m.cost).filter((c) => Number.isFinite(c));
+  const perfs = list.map((m) => m.performance).filter((p) => Number.isFinite(p));
+  const p5 = (arr) => (arr.length ? arr.slice().sort((a, b) => a - b)[Math.max(0, Math.floor(arr.length * 0.05))] : undefined);
+  const p95 = (arr) => (arr.length ? arr.slice().sort((a, b) => a - b)[Math.min(arr.length - 1, Math.ceil(arr.length * 0.95))] : undefined);
+  const xMin = p5(costs);
+  const xMax = p95(costs);
+  const yMin = p5(perfs);
+  const yMax = p95(perfs);
+  const pad = (lo, hi, pct = 0.05) => {
+    const d = (hi ?? lo ?? 0) - (lo ?? 0) || 1;
+    return [lo != null ? Math.max(0, lo - d * pct) : undefined, hi != null ? hi + d * pct : undefined];
+  };
+  const [suggestedXMin, suggestedXMax] = pad(xMin, xMax);
+  const [suggestedYMin, suggestedYMax] = pad(yMin, yMax);
+  const useClampX = suggestedXMin != null && suggestedXMax != null && suggestedXMax > suggestedXMin;
+  const useClampY = suggestedYMin != null && suggestedYMax != null && suggestedYMax > suggestedYMin;
 
   const config = {
     type: 'scatter',
@@ -178,11 +205,13 @@ export function renderQuadrantChart(canvasOrId, mergedModels, options = {}) {
           title: { display: true, text: 'Cost per request ($)', color: textColor },
           grid: { color: gridColor },
           ticks: { color: textColor, callback(value) { return '$' + Number(value).toFixed(3); } },
+          ...(useClampX && { min: suggestedXMin, max: suggestedXMax }),
         },
         y: {
           title: { display: true, text: `Performance (${metricLabel})`, color: textColor },
           grid: { color: gridColor },
           ticks: { color: textColor },
+          ...(useClampY && { min: suggestedYMin, max: suggestedYMax }),
         },
       },
     },
@@ -208,11 +237,28 @@ export function destroyQuadrantChart() {
 
 /**
  * Update chart with current data. Call from app when data or filter changes.
+ * Cost is always computed using the fixed workload baseline (1k prompt + 500 output tokens),
+ * so the chart stays consistent regardless of simulator or calculator token settings.
+ * Uses requestAnimationFrame to defer heavy work (lazy rendering) and avoid blocking the main thread when dataset is large.
+ * Provider and performance-metric filtering reduce the number of points rendered.
  * @param {Object} data - Pricing data
  * @param {Array|null} fileBenchmarks - Benchmarks
  * @param {Object} options - { providerFilter, performanceMetric }
  */
 export function updateValueChart(data, fileBenchmarks, options = {}) {
-  const merged = mergeModels(data, fileBenchmarks, options.performanceMetric || 'arena');
-  renderQuadrantChart('value-chart-canvas', merged, options);
+  const runUpdate = () => {
+    const merged = mergeModels(
+      data,
+      fileBenchmarks,
+      options.performanceMetric || 'arena',
+      DEFAULT_PROMPT_TOKENS,
+      DEFAULT_OUTPUT_TOKENS
+    );
+    renderQuadrantChart('value-chart-canvas', merged, options);
+  };
+  if (typeof requestAnimationFrame !== 'undefined') {
+    requestAnimationFrame(runUpdate);
+  } else {
+    runUpdate();
+  }
 }

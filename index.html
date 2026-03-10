@@ -212,7 +212,7 @@
         </section>
         <section class="page-section value-chart-section" id="section-value-chart">
             <h2 class="section-title">📈 Cost vs Performance</h2>
-            <p class="section-subtitle">Value analysis: cost per request (1k prompt + 500 output tokens) vs benchmark. Grey = all models; colored points = frontier (best value at each cost level) <span class="calc-tooltip-icon" title="Frontier = best performance at each cost; no cheaper model scores higher. Calculated by: sort models by cost (low to high), then keep only those with strictly better performance than every cheaper model." aria-hidden="true">(?)</span> Hover for details.</p>
+            <p class="section-subtitle">Value analysis: cost per request using a <strong>fixed baseline</strong> (1,000 prompt + 500 output tokens)—unchanged by calculator or simulator. Grey = all models; colored points = frontier (best value at each cost level) <span class="calc-tooltip-icon" title="Frontier = best performance at each cost; no cheaper model scores higher. Calculated by: sort models by cost (low to high), then keep only those with strictly better performance than every cheaper model." aria-hidden="true">(?)</span> Hover for details.</p>
             <div class="value-chart-controls">
                 <div class="value-chart-control-group">
                     <label for="value-chart-metric" class="value-chart-label">Performance metric:</label>
@@ -345,6 +345,7 @@
         <section class="page-section" id="section-production-cost">
             <h2 class="section-title">🏭 Production cost simulator</h2>
             <p class="section-subtitle">Estimate real-world application costs. Useful for startup cost planning.</p>
+            <p class="simulator-note">Cost estimates assume flat token pricing. Tiered discounts and prompt caching are not included.</p>
             <div class="production-cost-card">
                 <div class="production-cost-inputs">
                     <div class="calc-row">
@@ -419,7 +420,7 @@
         </div>
 
         <footer class="page-footer">
-            <p class="last-updated">Last updated: <span id="lastUpdated">—</span>. Prices may vary. Check official docs for latest. Click &quot;Refresh from web&quot; to fetch live pricing from Vizra.</p>
+            <p class="last-updated">Pricing: <span id="lastUpdated">—</span>; Benchmarks: <span id="benchmarksLastUpdated">—</span>. Prices may vary. Check official docs for latest. Click &quot;Refresh from web&quot; to fetch live pricing from Vizra.</p>
             <div id="priceChangesSummary" class="price-changes-summary hidden" aria-live="polite"></div>
         </footer>
     </div>

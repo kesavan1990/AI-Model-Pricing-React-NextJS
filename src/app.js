@@ -61,6 +61,7 @@ async function loadPricing() {
     setData(result);
     benchmarksData = benchPayload?.benchmarks ?? null;
     render.setLastUpdated(result.updated);
+    render.setBenchmarksLastUpdated(benchPayload?.updated ?? '—');
     render.renderTables(getData(), getBenchmarksData());
     updateValueChartIfVisible();
     pricing.cleanupHistoryToDailyOnly();
@@ -78,6 +79,7 @@ async function loadPricing() {
     });
     benchmarksData = null;
     render.setLastUpdated('embedded default');
+    render.setBenchmarksLastUpdated('—');
     render.renderTables(getData(), getBenchmarksData());
     updateValueChartIfVisible();
     render.showToast('Using embedded default pricing.', 'success');

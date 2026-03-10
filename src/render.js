@@ -19,6 +19,11 @@ export function setLastUpdated(label) {
   if (el) el.textContent = label;
 }
 
+export function setBenchmarksLastUpdated(label) {
+  const el = document.getElementById('benchmarksLastUpdated');
+  if (el) el.textContent = label ?? '—';
+}
+
 export function formatTimestampWithTimezone(date) {
   try {
     return (date || new Date()).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'medium', timeZoneName: 'short' });

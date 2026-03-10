@@ -51,7 +51,7 @@ The script:
    - **code:** from embedded (HF Open LLM Leaderboard doesn’t expose HumanEval in the same slice; can be extended later).
 4. Writes `benchmarks.json` with `updated` (YYYY-MM-DD) and `benchmarks` array. Names in `benchmarks` match pricing model names so the frontend merge works.
 
-Model name matching is normalized (lowercase, collapse spaces/hyphens) so variants like "GPT-4o" and "gpt-4o" can match.
+Model name matching uses **normalized names** (lowercase, alphanumeric only: `name.toLowerCase().trim().replace(/[^a-z0-9]/g, '')`) so variants like `gpt-4o`, `gpt4o`, and `GPT-4o` all match. The script’s `normalizeName()` and the app’s `normalizeModelName()` in `src/calculator.js` use the same rule so merge is consistent.
 
 ## benchmarks.json shape
 
@@ -116,6 +116,7 @@ ai-model-pricing/
 - **Dependencies:** `cheerio` (for Arena HTML parsing), `ajv` (schema validation). Node 18+ (native `fetch`).
 - **Input:** Reads `pricing.json` from the repo. Fetches Arena (HTML) and HF (rows API).
 - **Output:** Writes `benchmarks.json`. Validates against `schemas/benchmarks.schema.json`; on validation failure, exits with code 1 and does not write.
+- **Empty-dataset protection:** If the built `benchmarks` array is empty (`!benchmarks || benchmarks.length === 0`), the script logs an error and exits with code 1 **without writing**, so a failed or partial run does not overwrite the file with empty data.
 - **Resilience:** If Arena or HF fetch fails, the script still runs and uses embedded scores for missing data.
 
 ## GitHub Action

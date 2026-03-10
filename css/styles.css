@@ -331,6 +331,9 @@ h1 {
 /* Cost vs Performance quadrant chart (Model Comparison tab) */
 .value-chart-section {
   margin-top: 2.5rem;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .value-chart-controls {
   display: flex;
@@ -404,6 +407,7 @@ h1 {
 .value-chart-wrap {
   position: relative;
   width: 100%;
+  min-width: 0;
   height: 380px;
   max-width: 900px;
 }
@@ -706,6 +710,13 @@ h1 {
 .context-window-result .result-fits { color: #4ade80; font-weight: 600; }
 .context-window-result .result-near { color: #fbbf24; font-weight: 600; }
 .context-window-result .result-exceeds { color: #f87171; font-weight: 600; }
+
+.simulator-note {
+  color: var(--theme-text-muted, #888);
+  font-size: 0.85rem;
+  margin: -8px auto 16px auto;
+  max-width: 720px;
+}
 
 .production-cost-card {
     max-width: 720px;
@@ -1155,6 +1166,7 @@ h1 {
 [data-theme="light"] .compare-summary { color: #0f172a; }
 [data-theme="light"] .calc-result-table th { color: #475569; }
 [data-theme="light"] .calc-hint,
+[data-theme="light"] .simulator-note,
 [data-theme="light"] .price-changes-summary .price-changes-hint,
 [data-theme="light"] .price-changes-summary .change-table th,
 [data-theme="light"] .price-changes-summary .change-more,
@@ -1245,5 +1257,10 @@ h1 {
     .container { padding-left: 12px; padding-right: 12px; }
     body { padding: 20px 12px; }
     .value-chart-controls { flex-direction: column; align-items: flex-start; }
-    .value-chart-wrap { height: 320px; }
+    .value-chart-wrap { height: 320px; max-width: 100%; }
+}
+
+@media (max-width: 480px) {
+    .value-chart-section { padding-bottom: 8px; }
+    .value-chart-wrap { height: 280px; max-width: 100%; }
 }

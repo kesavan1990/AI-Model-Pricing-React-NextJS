@@ -18,15 +18,10 @@ const ARENA_URL = 'https://arena.lmsys.org/';
 const HF_ROWS_URL = 'https://datasets-server.huggingface.co/rows';
 const FETCH_TIMEOUT_MS = 25_000;
 
-/** Normalize model name for matching: lowercase, collapse spaces to single, trim. */
+/** Normalize model name for matching (must match app normalizeModelName): lowercase, alphanumeric only. */
 function normalizeName(s) {
   if (s == null || typeof s !== 'string') return '';
-  return s
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, ' ')
-    .replace(/\s/g, '-')
-    .replace(/[^a-z0-9.-]/g, '');
+  return s.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
 }
 
 /** Fetch LMSYS Chatbot Arena leaderboard (model name + ELO/score). Returns [{ model, arena }]. */
@@ -217,6 +212,11 @@ async function main() {
   if (!validate(payload)) {
     const errs = (validate.errors || []).map((e) => `${e.instancePath || '/'} ${e.message}`).join('; ');
     console.error('Benchmarks update failed: Schema validation failed:', errs);
+    process.exit(1);
+  }
+
+  if (!benchmarks || benchmarks.length === 0) {
+    console.error('Benchmarks update failed: Invalid dataset (no benchmark entries). Refusing to overwrite.');
     process.exit(1);
   }
 

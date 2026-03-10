@@ -48,6 +48,10 @@ async function main() {
     }
     const data = await res.json();
     const { gemini, openai, anthropic, mistral } = fromVizraResponse(data);
+    const total = (gemini?.length || 0) + (openai?.length || 0) + (anthropic?.length || 0) + (mistral?.length || 0);
+    if (!data || total === 0) {
+        throw new Error('Invalid dataset: API returned no usable pricing data (empty or failed parse). Refusing to overwrite.');
+    }
     const updated = (data?.meta?.last_updated && String(data.meta.last_updated).slice(0, 10)) || new Date().toISOString().slice(0, 10);
     const payload = { updated, gemini, openai, anthropic, mistral };
     const outPath = join(process.cwd(), 'pricing.json');

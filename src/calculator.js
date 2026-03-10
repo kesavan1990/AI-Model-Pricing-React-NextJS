@@ -5,6 +5,16 @@
 
 export const PROVIDER_DISPLAY_ORDER = { gemini: 0, openai: 1, anthropic: 2, mistral: 3 };
 
+/**
+ * Normalize model name for matching across pricing and benchmarks (e.g. gpt-4o, gpt4o, GPT-4o → same key).
+ * @param {string} name
+ * @returns {string}
+ */
+export function normalizeModelName(name) {
+  if (name == null || typeof name !== 'string') return '';
+  return name.toLowerCase().trim().replace(/[^a-z0-9]/g, '');
+}
+
 export function formatContextLabel(tokens) {
   if (tokens >= 1e6) return tokens / 1e6 + 'M';
   if (tokens >= 1e3) return tokens / 1e3 + 'k';
@@ -79,9 +89,9 @@ export function getBenchmarkForModel(name, providerKey) {
  */
 export function getBenchmarkForModelMerged(name, providerKey, fileBenchmarks) {
   if (Array.isArray(fileBenchmarks) && fileBenchmarks.length > 0) {
-    const n = (name || '').trim().toLowerCase();
+    const norm = normalizeModelName(name);
     const entry = fileBenchmarks.find(
-      (e) => e && e.provider === providerKey && String(e.model || '').trim().toLowerCase() === n
+      (e) => e && e.provider === providerKey && normalizeModelName(e.model) === norm
     );
     if (entry) {
       return {
