@@ -16,12 +16,12 @@ export function showToast(msg, type) {
 
 export function setLastUpdated(label) {
   const el = document.getElementById('lastUpdated');
-  if (el) el.textContent = label;
+  if (el) el.textContent = formatLastUpdatedLabel(label);
 }
 
 export function setBenchmarksLastUpdated(label) {
   const el = document.getElementById('benchmarksLastUpdated');
-  if (el) el.textContent = label ?? '—';
+  if (el) el.textContent = label != null ? formatLastUpdatedLabel(String(label)) : '—';
 }
 
 export function formatTimestampWithTimezone(date) {
@@ -29,6 +29,22 @@ export function formatTimestampWithTimezone(date) {
     return (date || new Date()).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'medium', timeZoneName: 'short' });
   } catch (_) {
     return (date || new Date()).toISOString();
+  }
+}
+
+/** If label is or starts with an ISO date string, format it with explicit time zone (e.g. UTC); otherwise return as-is. */
+export function formatLastUpdatedLabel(label) {
+  if (label == null || typeof label !== 'string') return label || '';
+  const isoMatch = label.match(/^(\d{4}-\d{2}-\d{2}(?:T[\d.:]+Z?)?)\s*(.*)$/);
+  if (!isoMatch) return label;
+  try {
+    const d = new Date(isoMatch[1].trim());
+    if (Number.isNaN(d.getTime())) return label;
+    const formatted = d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'medium', timeZoneName: 'short' });
+    const suffix = (isoMatch[2] || '').trim();
+    return suffix ? `${formatted} ${suffix}` : formatted;
+  } catch (_) {
+    return label;
   }
 }
 
