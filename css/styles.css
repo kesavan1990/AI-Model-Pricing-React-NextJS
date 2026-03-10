@@ -650,7 +650,8 @@ h1 {
 }
 .calculators-export-toolbar .export-label { margin: 0; }
 #section-benchmark { display: flex; flex-direction: column; }
-#tab-calculators { display: flex; flex-direction: column; }
+/* Only use flex when Calculators panel is active; otherwise .tab-panel { display: none } must apply */
+#tab-calculators.tab-panel.active { display: flex; flex-direction: column; }
 .benchmark-dashboard-wrap { max-width: 900px; margin: 0 auto; overflow-x: auto; }
 .benchmark-dashboard-table { margin-bottom: 12px; }
 .benchmark-dashboard-table .model-table { font-size: 0.9rem; width: 100%; }

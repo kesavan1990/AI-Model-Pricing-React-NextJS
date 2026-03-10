@@ -74,6 +74,6 @@ Static only (HTML/CSS/JS). No server or database. See [HOSTING.md](HOSTING.md) f
 
 ## Docs
 
-- [docs/UI.md](docs/UI.md) — UI overview: **Dark mode / light mode**, **KPI cards** (layout and alignment), **Export toolbar alignment** (right-aligned CSV/PDF across Home, Model comparison, Calculators, Benchmarks), **Cost calculator**, **Production cost simulator** (formula, per request/annum), **Calculators export** (CSV/PDF of current result), **Model comparison table** (provider filter, grouping, sort by Input/Output/Context, cheapest highlight, export), **Model benchmark dashboard** (export CSV/PDF).
+- [docs/UI.md](docs/UI.md) — UI overview: **Dark mode / light mode**, **KPI cards** (layout and alignment), **Export toolbar alignment** (right-aligned CSV/PDF across Home, Model comparison, Calculators, Benchmarks), **Tab panel visibility** (Calculators panel flex only when active so Benchmarks/Recommend show correctly), **Favicon** (inline SVG to avoid 404), **Cost calculator**, **Production cost simulator** (formula, per request/annum), **Calculators export** (CSV/PDF of current result), **Model comparison table** (provider filter, grouping, sort by Input/Output/Context, cheapest highlight, export), **Model benchmark dashboard** (export CSV/PDF).
 - [docs/PRICING_UPDATES.md](docs/PRICING_UPDATES.md) — Pricing update architecture and flow.
 - [docs/PRICING_SCENARIOS.md](docs/PRICING_SCENARIOS.md) — How pricing is loaded in each scenario (first load, refresh, GitHub vs local).

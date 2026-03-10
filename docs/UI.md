@@ -14,6 +14,8 @@ Below the header (**AI Model Pricing Dashboard**), a single **top navigation bar
 
 Clicking a link updates the URL hash (e.g. `#pricing`, `#comparison`, `#calc-pricing`, `#benchmarks`, `#recommend`) and shows the corresponding panel. The active link is highlighted. The **Production cost simulator** is not a separate top-level link; it is available inside **Calculators** via the “Production cost” sub-tab. Markup: `<nav class="tab-nav top-nav">` in `index.html`; behavior in `src/app.js` (`switchTab`, `switchCalcSub`, hashchange listener).
 
+**Tab panel visibility** — Only one tab panel is shown at a time. Panels use `.tab-panel { display: none }` and `.tab-panel.active { display: block }` in `css/styles.css`. The **Calculators** panel needs a flex layout for its export toolbar alignment; to avoid that layout overriding visibility, the rule is scoped to the active state: `#tab-calculators.tab-panel.active { display: flex; flex-direction: column }`. Otherwise the Calculators panel would stay visible (due to ID specificity) and **Benchmarks** / **Recommend** would not show correctly.
+
 ---
 
 ## Dark mode and light mode
@@ -162,3 +164,9 @@ The table is filled by `renderModelComparisonTable(data)` in `src/render.js`, us
 On the **Benchmarks** tab, the **Model benchmark dashboard** shows one table with columns: **Model**, **MMLU**, **Code**, **Reasoning**, **Arena**, **Cost** (tier from current pricing). Scores are indicative from published results.
 
 **Export (CSV / PDF)** — Above the table, **Export: CSV** and **Export: PDF** let you download the full benchmark table. CSV columns: Model, MMLU, Code, Reasoning, Arena, Cost tier. PDF uses the same data in a landscape table. Implementation: `render.getBenchmarkList(data)` in `src/render.js` returns the same rows as the dashboard; `exportBenchmarksCSV()` and `exportBenchmarksPDF()` in `src/app.js` build the files. Buttons live in `.benchmark-export-toolbar` in `index.html`.
+
+---
+
+## Favicon
+
+The app provides a **favicon** so the browser does not request `/favicon.ico` (which would 404 on static hosts like GitHub Pages). The favicon is an inline SVG (🤖) in the document head via a `data:` URL: `<link rel="icon" href="data:image/svg+xml,..." type="image/svg+xml">` in `index.html`. No separate favicon file is required.
