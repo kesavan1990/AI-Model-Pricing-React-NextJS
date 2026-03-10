@@ -212,7 +212,7 @@
         </section>
         <section class="page-section value-chart-section" id="section-value-chart">
             <h2 class="section-title">📈 Cost vs Performance</h2>
-            <p class="section-subtitle">Value analysis: cost per request (1k prompt + 500 output tokens) vs benchmark. Grey = all models; colored points = frontier (best value at each cost level) <span class="calc-tooltip-icon" title="Frontier = models with best performance at their cost; no cheaper model scores higher on the selected metric." aria-hidden="true">(?)</span> Hover for details.</p>
+            <p class="section-subtitle">Value analysis: cost per request (1k prompt + 500 output tokens) vs benchmark. Grey = all models; colored points = frontier (best value at each cost level) <span class="calc-tooltip-icon" title="Frontier = best performance at each cost; no cheaper model scores higher. Calculated by: sort models by cost (low to high), then keep only those with strictly better performance than every cheaper model." aria-hidden="true">(?)</span> Hover for details.</p>
             <div class="value-chart-controls">
                 <div class="value-chart-control-group">
                     <label for="value-chart-metric" class="value-chart-label">Performance metric:</label>
@@ -233,7 +233,7 @@
                     </div>
                 </div>
             </div>
-            <p class="value-chart-legend-hint">Colored points = <strong>Frontier (best value)</strong> <span class="value-chart-frontier-tooltip" data-tooltip="Frontier = models with best performance at their cost; no cheaper model scores higher on the selected metric. Hover a colored point for details." title="Frontier = models with best performance at their cost; no cheaper model scores higher on the selected metric. Hover a colored point for details." aria-label="What is Frontier?">(?)</span></p>
+            <p class="value-chart-legend-hint">Colored points = <strong>Frontier (best value)</strong> <span class="value-chart-frontier-tooltip" data-tooltip="What: Models with best performance at their cost—no cheaper model scores higher on the selected metric (Arena, MMLU, or Code). How we calculate it: we sort all models by cost (low to high), then keep only models that have strictly better performance than every cheaper model. Hover a colored point for model details." title="What: Models with best performance at their cost—no cheaper model scores higher. How: sort by cost (low to high), then keep only models with strictly better performance than every cheaper model. Hover a colored point for details." aria-label="What is Frontier and how is it calculated?">(?)</span></p>
             <div class="value-chart-wrap">
                 <canvas id="value-chart-canvas" aria-label="Cost vs Performance scatter chart"></canvas>
             </div>
