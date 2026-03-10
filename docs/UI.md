@@ -159,6 +159,20 @@ The table is filled by `renderModelComparisonTable(data)` in `src/render.js`, us
 
 ---
 
+## Cost vs Performance quadrant chart
+
+On the **Compare** tab, below the Model comparison table, a **Cost vs Performance** scatter chart helps you see value at a glance: cost per request (X) vs a chosen performance metric (Y). All models appear as grey dots; **frontier** models (best performance at each cost level) are colored by provider and connected by a red frontier line. Hover any point for model name, cost per request, and performance score.
+
+**Data** — The chart uses the same merged dataset as the rest of the app: **pricing** (input/output per 1M tokens) and **benchmarks** (Arena, MMLU, Code). Cost per request is computed with fixed token counts: **1,000 prompt tokens** and **500 output tokens** by default, so models are comparable on a “typical” request.
+
+**Frontier** — The **price–performance frontier** is computed by sorting models by cost ascending, then keeping only models that have strictly better performance than all cheaper models. So you see the “best value” options; other models are shown as faint grey dots.
+
+**Controls** — **Performance metric** dropdown: **Arena**, **MMLU**, or **Code** (Y axis). **Filter by provider**: All, Google, OpenAI, Anthropic, Mistral (same idea as the table filter but independent for the chart).
+
+**Implementation** — `src/valueChart.js`: `mergeModels()` builds cost + performance per model from `getAllModels(data)` and `getBenchmarkForModelMerged()`; `computeCostPerRequest()` uses (prompt/1e6)×input + (output/1e6)×output; `computeFrontier()` implements the frontier algorithm; `renderQuadrantChart()` uses **Chart.js** (scatter + line). The chart is rendered or updated when the Compare tab is active and when data or filters change; theme (dark/light) is respected. Markup: `#section-value-chart`, `#value-chart-canvas`, `.value-chart-controls` in `index.html`; styles in `css/styles.css` (`.value-chart-section`, `.value-chart-wrap` with fixed height for responsive chart).
+
+---
+
 ## Model benchmark dashboard
 
 On the **Benchmarks** tab, the **Model benchmark dashboard** shows one table with columns: **Model**, **MMLU**, **Code**, **Reasoning**, **Arena**, **Cost** (tier from current pricing). Scores are indicative from published results.

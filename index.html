@@ -210,6 +210,33 @@
                 </table>
             </div>
         </section>
+        <section class="page-section value-chart-section" id="section-value-chart">
+            <h2 class="section-title">📈 Cost vs Performance</h2>
+            <p class="section-subtitle">Value analysis: cost per request (1k prompt + 500 output tokens) vs benchmark. Grey = all models; colored points = frontier (best value at each cost level). Hover for details.</p>
+            <div class="value-chart-controls">
+                <div class="value-chart-control-group">
+                    <label for="value-chart-metric" class="value-chart-label">Performance metric:</label>
+                    <select id="value-chart-metric" class="value-chart-select" aria-label="Performance metric for Y axis">
+                        <option value="arena">Arena</option>
+                        <option value="mmlu">MMLU</option>
+                        <option value="code">Code</option>
+                    </select>
+                </div>
+                <div class="value-chart-control-group">
+                    <span class="value-chart-label">Filter by provider:</span>
+                    <div class="value-chart-provider-btns" role="group" aria-label="Chart provider filter">
+                        <button type="button" class="value-chart-provider-btn active" data-value-provider="all" aria-pressed="true">All</button>
+                        <button type="button" class="value-chart-provider-btn" data-value-provider="gemini" aria-pressed="false">Google</button>
+                        <button type="button" class="value-chart-provider-btn" data-value-provider="openai" aria-pressed="false">OpenAI</button>
+                        <button type="button" class="value-chart-provider-btn" data-value-provider="anthropic" aria-pressed="false">Anthropic</button>
+                        <button type="button" class="value-chart-provider-btn" data-value-provider="mistral" aria-pressed="false">Mistral</button>
+                    </div>
+                </div>
+            </div>
+            <div class="value-chart-wrap">
+                <canvas id="value-chart-canvas" aria-label="Cost vs Performance scatter chart"></canvas>
+            </div>
+        </section>
         </div>
 
         <div id="tab-calculators" class="tab-panel" role="tabpanel">
@@ -418,6 +445,7 @@
     </div>
 
     <script>window.__appLoadFailed = true;</script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
     <script type="module" src="src/app.js"></script>
     <script>
       document.addEventListener('DOMContentLoaded', function() {

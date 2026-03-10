@@ -7,6 +7,7 @@ import * as api from './api.js';
 import * as pricing from './pricingService.js';
 import * as calc from './calculator.js';
 import * as render from './render.js';
+import * as valueChart from './valueChart.js';
 
 // --- State ---
 let geminiData = [];
@@ -38,6 +39,21 @@ function getBenchmarksData() {
   return benchmarksData;
 }
 
+// Value chart (Cost vs Performance) options
+let valueChartProviderFilter = 'all';
+let valueChartMetric = 'arena';
+
+function getValueChartOptions() {
+  return { providerFilter: valueChartProviderFilter, performanceMetric: valueChartMetric };
+}
+
+function updateValueChartIfVisible() {
+  const panel = document.getElementById('tab-comparison');
+  if (panel && panel.classList.contains('active')) {
+    valueChart.updateValueChart(getData(), getBenchmarksData(), getValueChartOptions());
+  }
+}
+
 // --- Load & refresh ---
 async function loadPricing() {
   try {
@@ -46,6 +62,7 @@ async function loadPricing() {
     benchmarksData = benchPayload?.benchmarks ?? null;
     render.setLastUpdated(result.updated);
     render.renderTables(getData(), getBenchmarksData());
+    updateValueChartIfVisible();
     pricing.cleanupHistoryToDailyOnly();
     if (!api.isGitHubPages()) await fillMissingProvidersFromVizra();
     maybeRunDailyCapture();
@@ -62,6 +79,7 @@ async function loadPricing() {
     benchmarksData = null;
     render.setLastUpdated('embedded default');
     render.renderTables(getData(), getBenchmarksData());
+    updateValueChartIfVisible();
     render.showToast('Using embedded default pricing.', 'success');
   }
 }
@@ -74,6 +92,7 @@ async function fillMissingProvidersFromVizra() {
     if (mistralData.length === 0 && cache.mistral?.length) mistralData = cache.mistral.slice();
     if (anthropicData.length > 0 || mistralData.length > 0) {
       render.renderTables(getData(), getBenchmarksData());
+      updateValueChartIfVisible();
       return;
     }
   }
@@ -93,6 +112,7 @@ async function fillMissingProvidersFromVizra() {
     }
     if (updated) {
       render.renderTables(getData(), getBenchmarksData());
+      updateValueChartIfVisible();
       const payload = { ...getData(), updated: new Date().toISOString().slice(0, 10), cachedAt: Date.now() };
       try {
         localStorage.setItem(pricing.STORAGE_KEY, JSON.stringify(payload));
@@ -103,6 +123,7 @@ async function fillMissingProvidersFromVizra() {
     if (applied) {
       setData(applied);
       render.renderTables(getData(), getBenchmarksData());
+      updateValueChartIfVisible();
       try {
         localStorage.setItem(pricing.STORAGE_KEY, JSON.stringify({ ...getData(), updated: new Date().toISOString().slice(0, 10), cachedAt: Date.now() }));
       } catch (_) {}
@@ -1026,6 +1047,7 @@ function switchTab(tabId) {
   }
   if (history.replaceState && tabId !== 'calculators') history.replaceState(null, '', '#' + tabId);
   window.scrollTo(0, 0);
+  if (tabId === 'comparison') setTimeout(updateValueChartIfVisible, 0);
 }
 
 // --- Expose for inline onclick (index.html) ---
@@ -1065,6 +1087,7 @@ function setTheme(theme) {
   try {
     localStorage.setItem(THEME_STORAGE_KEY, theme);
   } catch (_) {}
+  updateValueChartIfVisible();
 }
 
 function toggleTheme() {
@@ -1108,6 +1131,21 @@ function init() {
     const sortBy = this.value || 'default';
     render.setComparisonSortBy(sortBy);
     render.renderModelComparisonTable(getData());
+  });
+  document.getElementById('value-chart-metric')?.addEventListener('change', function () {
+    valueChartMetric = this.value || 'arena';
+    updateValueChartIfVisible();
+  });
+  document.querySelector('.value-chart-provider-btns')?.addEventListener('click', (e) => {
+    const btn = e.target.closest('.value-chart-provider-btn');
+    if (!btn) return;
+    valueChartProviderFilter = btn.getAttribute('data-value-provider') || 'all';
+    document.querySelectorAll('.value-chart-provider-btn').forEach((b) => {
+      const isActive = b.getAttribute('data-value-provider') === valueChartProviderFilter;
+      b.classList.toggle('active', isActive);
+      b.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+    updateValueChartIfVisible();
   });
   const hash = (location.hash || '').replace(/^#/, '');
   if (hash.startsWith('calc-')) {

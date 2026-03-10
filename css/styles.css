@@ -328,6 +328,92 @@ h1 {
 }
 .comparison-export-toolbar .export-label { margin: 0; }
 
+/* Cost vs Performance quadrant chart (Model Comparison tab) */
+.value-chart-section {
+  margin-top: 2.5rem;
+}
+.value-chart-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.5rem;
+  margin-bottom: 1rem;
+}
+.value-chart-control-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.value-chart-label {
+  color: var(--theme-text-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.value-chart-select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--theme-text);
+  font-size: 0.9rem;
+  min-width: 120px;
+  cursor: pointer;
+}
+.value-chart-select:focus {
+  outline: none;
+  border-color: rgba(102, 126, 234, 0.5);
+}
+.value-chart-provider-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.value-chart-provider-btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--theme-text);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.value-chart-provider-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+.value-chart-provider-btn.active {
+  background: rgba(102, 126, 234, 0.35);
+  border-color: rgba(102, 126, 234, 0.5);
+  color: #fff;
+}
+.value-chart-wrap {
+  position: relative;
+  width: 100%;
+  height: 380px;
+  max-width: 900px;
+}
+
+[data-theme="light"] .value-chart-select {
+  background: var(--theme-input-bg);
+  border-color: var(--theme-input-border);
+  color: var(--theme-text);
+}
+[data-theme="light"] .value-chart-provider-btn {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.15);
+  color: var(--theme-text);
+}
+[data-theme="light"] .value-chart-provider-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 0, 0, 0.25);
+}
+[data-theme="light"] .value-chart-provider-btn.active {
+  background: rgba(102, 126, 234, 0.2);
+  border-color: rgba(102, 126, 234, 0.4);
+  color: var(--theme-text);
+}
+
 /* Cheapest row highlight (Compare table) */
 .model-comparison-table tr.cheapest {
     background: rgba(74, 222, 128, 0.12);
@@ -1144,4 +1230,6 @@ h1 {
     h1 { font-size: 1.8rem; }
     .container { padding-left: 12px; padding-right: 12px; }
     body { padding: 20px 12px; }
+    .value-chart-controls { flex-direction: column; align-items: flex-start; }
+    .value-chart-wrap { height: 320px; }
 }
