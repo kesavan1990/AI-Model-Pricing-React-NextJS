@@ -1027,32 +1027,19 @@ function switchCalcSub(subId) {
 
 const SECTION_IDS = ['overview', 'value-analysis', 'recommend-section', 'models', 'calculators', 'benchmarks'];
 
-function scrollToSection(sectionId) {
-  const el = document.getElementById(sectionId);
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+function showSection(sectionId) {
+  SECTION_IDS.forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('active', id === sectionId);
+  });
+  setActiveSidebarLink(sectionId);
+  if (sectionId === 'value-analysis') setTimeout(updateValueChartIfVisible, 0);
 }
 
 function setActiveSidebarLink(sectionId) {
   document.querySelectorAll('.sidebar-link:not(.sidebar-link-modal)').forEach((l) => {
     l.classList.toggle('active', l.getAttribute('data-section') === sectionId);
   });
-}
-
-function syncSidebarFromScroll() {
-  const main = document.querySelector('.dashboard-main');
-  if (!main) return;
-  const scrollTop = main.scrollTop;
-  let active = SECTION_IDS[0];
-  for (let i = SECTION_IDS.length - 1; i >= 0; i--) {
-    const el = document.getElementById(SECTION_IDS[i]);
-    if (!el) continue;
-    const top = el.offsetTop;
-    if (scrollTop + 100 >= top) {
-      active = SECTION_IDS[i];
-      break;
-    }
-  }
-  setActiveSidebarLink(active);
 }
 
 // --- Expose for inline onclick (index.html) ---
@@ -1110,8 +1097,7 @@ function init() {
       e.preventDefault();
       const sub = link.getAttribute('data-calc-sub');
       switchCalcSub(sub);
-      scrollToSection('calculators');
-      setActiveSidebarLink('calculators');
+      showSection('calculators');
     });
   });
   document.querySelectorAll('.sidebar-link').forEach((link) => {
@@ -1127,15 +1113,10 @@ function init() {
       if (sectionId && href?.startsWith('#')) {
         e.preventDefault();
         const targetId = href.slice(1);
-        scrollToSection(targetId);
-        setActiveSidebarLink(sectionId);
+        showSection(targetId);
         if (history.replaceState) history.replaceState(null, '', '#' + targetId);
       }
     });
-  });
-  document.querySelector('.dashboard-main')?.addEventListener('scroll', () => {
-    if (window._scrollSyncTm) clearTimeout(window._scrollSyncTm);
-    window._scrollSyncTm = setTimeout(syncSidebarFromScroll, 100);
   });
   document.querySelector('.provider-filter-btns')?.addEventListener('click', (e) => {
     const btn = e.target.closest('.provider-filter-btn');
@@ -1179,20 +1160,18 @@ function init() {
     if (h === 'benchmarks') return 'benchmarks';
     return 'overview';
   };
-  if (hash) {
-    const sectionId = sectionFromHash(hash);
-    scrollToSection(sectionId);
-    setActiveSidebarLink(sectionId);
-    if (hash.startsWith('calc-')) {
-      const sub = hash.replace('calc-', '');
-      if (['pricing', 'prompt', 'context', 'production'].includes(sub)) switchCalcSub(sub);
-    }
+  const sectionId = hash ? sectionFromHash(hash) : 'overview';
+  showSection(sectionId);
+  if (hash?.startsWith('calc-')) {
+    const sub = hash.replace('calc-', '');
+    if (['pricing', 'prompt', 'context', 'production'].includes(sub)) switchCalcSub(sub);
+  }
+  if (!hash) {
+    if (history.replaceState) history.replaceState(null, '', '#overview');
   }
   window.addEventListener('hashchange', () => {
     const h = (location.hash || '').replace(/^#/, '');
-    const sectionId = sectionFromHash(h);
-    scrollToSection(sectionId);
-    setActiveSidebarLink(sectionId);
+    showSection(sectionFromHash(h));
     if (h.startsWith('calc-')) {
       const sub = h.replace('calc-', '');
       if (['pricing', 'prompt', 'context', 'production'].includes(sub)) switchCalcSub(sub);
@@ -1200,8 +1179,7 @@ function init() {
   });
   document.querySelector('.header-home-link')?.addEventListener('click', (e) => {
     e.preventDefault();
-    scrollToSection('overview');
-    setActiveSidebarLink('overview');
+    showSection('overview');
     if (history.replaceState) history.replaceState(null, '', '#overview');
   });
   document.getElementById('refreshWebBtn')?.addEventListener('click', refreshFromWeb);

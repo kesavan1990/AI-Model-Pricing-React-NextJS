@@ -67,13 +67,13 @@ Frontend (index.html + src/)
    → renderQuadrantChart() (scatter: all models grey, frontier colored)
 ```
 
-The **Cost vs Performance** quadrant lives on the **Compare** tab and uses this merged dataset so you see value (cost per request vs Arena/MMLU/Code) in one view.
+The **Cost vs Performance** quadrant is in the **Value Analysis** section and uses this merged dataset so you see value (cost per request vs Arena/MMLU/Code) in one view.
 
 ---
 
 ## What's in the app
 
-- **Dashboard layout** — Header (**AI Model Pricing Intelligence Dashboard**), **sidebar navigation** (Overview, Models, Value Analysis, Calculators, Benchmarks, Pricing History), and scrollable main area. Content order: KPI cards, Value Analysis chart, Recommended Models, Model comparison table, Calculators (Pricing, Prompt cost, Context window, Production cost), Benchmarks. Sidebar links scroll to sections; at ≤ 900px the sidebar becomes a horizontal nav. See [Dashboard layout and sidebar navigation](docs/UI.md#dashboard-layout-and-sidebar-navigation).
+- **Dashboard layout** — Header (**AI Model Pricing Intelligence Dashboard**), **sidebar navigation** (Overview, Models, Value Analysis, Calculators, Benchmarks, Pricing History), and main content area. **One section at a time:** clicking a sidebar link shows only that module (others are hidden). At ≤ 900px the sidebar becomes a horizontal nav. See [Dashboard layout and sidebar navigation](docs/UI.md#dashboard-layout-and-sidebar-navigation).
 - **KPI summary cards** — On Home: total models, cheapest (by blended cost), costliest, largest context. See [KPI summary cards](docs/UI.md#kpi-summary-cards).
 - **Pricing grid** — Gemini, OpenAI, Anthropic, Mistral (input/output/cached per 1M tokens).
 - **Dark mode / light mode** — Toggle in the header (☀️/🌙). Preference is saved and respects system `prefers-color-scheme` on first visit. See [docs/UI.md](docs/UI.md#dark-mode-and-light-mode).

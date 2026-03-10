@@ -2,7 +2,7 @@
 
 ## Dashboard layout and sidebar navigation
 
-The app uses a **structured dashboard layout** (similar to Vercel, Datadog, and AI analytics dashboards): a header, a **sidebar navigation**, and a scrollable main area. All sections are visible in one page; the sidebar lets you jump to each section. The header shows **AI Model Pricing Intelligence Dashboard** with theme toggle, Refresh, and Pricing History.
+The app uses a **structured dashboard layout** (similar to Vercel, Datadog, and AI analytics dashboards): a header, a **sidebar navigation**, and a main content area. **Only one section is visible at a time**; clicking a sidebar link shows that module and hides the others, keeping the page focused and avoiding long scrolling. The header shows **AI Model Pricing Intelligence Dashboard** with theme toggle, Refresh, and Pricing History.
 
 | Link | Destination |
 |------|-------------|
@@ -13,7 +13,7 @@ The app uses a **structured dashboard layout** (similar to Vercel, Datadog, and 
 | **Benchmarks** | MMLU, code, reasoning, arena scores. |
 | **Pricing History** | Opens the history modal. |
 
-Clicking a sidebar link scrolls to that section and updates the URL hash (`#overview`, `#models`, `#value-analysis`, `#calculators`, `#benchmarks`). The active sidebar link highlights based on scroll position. **Pricing History** opens the modal. Main area order: Overview, Value Analysis, Recommended Models, Models, Calculators, Benchmarks. Markup: `.dashboard-sidebar`, `.sidebar-nav`, `.sidebar-link`; behavior: `scrollToSection`, `setActiveSidebarLink`, `syncSidebarFromScroll`. The Production cost simulator is in the Calculators section via the Production cost sub-tab.
+Clicking a sidebar link **displays only that section** (all others are hidden) and updates the URL hash (`#overview`, `#models`, `#value-analysis`, `#calculators`, `#benchmarks`). The active sidebar link is highlighted. **Pricing History** opens the modal. Sections available: Overview, Value Analysis, Recommended Models, Models, Calculators, Benchmarks. Markup: `.dashboard-sidebar`, `.sidebar-nav`, `.sidebar-link`; behavior: `showSection`, `setActiveSidebarLink`. The Production cost simulator is in the Calculators section via the Production cost sub-tab.
 
 **Responsive** — At viewport ≤ 900px the sidebar moves to the top and becomes a horizontal nav; links wrap on small screens.
 
