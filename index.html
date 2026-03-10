@@ -36,9 +36,9 @@
                 <a href="#overview" class="sidebar-link active" data-section="overview">Overview</a>
                 <a href="#models" class="sidebar-link" data-section="models">Models</a>
                 <a href="#value-analysis" class="sidebar-link" data-section="value-analysis">Value Analysis</a>
-                <a href="#recommend" class="sidebar-link" data-section="recommend-section">Recommend</a>
                 <a href="#calculators" class="sidebar-link" data-section="calculators">Calculators</a>
                 <a href="#benchmarks" class="sidebar-link" data-section="benchmarks">Benchmarks</a>
+                <a href="#recommend" class="sidebar-link" data-section="recommend-section">Recommend</a>
                 <a href="#" class="sidebar-link sidebar-link-modal" data-action="history" title="Open pricing history modal">Pricing History</a>
             </nav>
         </aside>
@@ -197,29 +197,6 @@
             <p class="value-chart-legend-hint">Colored points = <strong>Frontier (best value)</strong> <span class="value-chart-frontier-tooltip" title="What: Models with best performance at their cost—no cheaper model scores higher. How: sort by cost (low to high), then keep only models with strictly better performance than every cheaper model. Hover a colored point for details." aria-label="What is Frontier and how is it calculated?">(?)</span></p>
             <div class="value-chart-wrap">
                 <canvas id="value-chart-canvas" aria-label="Cost vs Performance scatter chart"></canvas>
-            </div>
-        </section>
-        </section>
-
-        <section id="recommend-section" class="dashboard-section">
-        <section class="page-section recommend-section" id="section-recommend">
-            <h2 class="section-title">🎯 Recommended models</h2>
-            <p class="section-subtitle">Describe your use case — we recommend models by <strong>cost</strong>, <strong>reasoning ability</strong>, <strong>context length</strong>, and <strong>performance</strong>.</p>
-            <div class="recommend-card">
-                <div class="recommend-form">
-                    <div class="calc-row">
-                        <label for="useCaseDesc">Describe your use case</label>
-                        <textarea id="useCaseDesc" rows="3" placeholder="e.g. I need a cheap model for summarizing PDFs"></textarea>
-                    </div>
-                    <div class="recommend-actions">
-                        <button type="button" class="calc-btn recommend-btn" id="getRecommendBtn">Get recommendation</button>
-                        <button type="button" class="calc-btn reset" id="recommendResetBtn">Reset</button>
-                    </div>
-                </div>
-                <div id="recommendResult" class="recommend-result hidden">
-                    <h3 class="recommend-result-title">Suggested models</h3>
-                    <div id="recommendList" class="recommend-list"></div>
-                </div>
             </div>
         </section>
         </section>
@@ -418,6 +395,29 @@
                 <div id="benchmark-dashboard-table" class="benchmark-dashboard-table"></div>
                 <p class="benchmark-note">Benchmark scores: <strong>Arena</strong> from LMSYS Chatbot Arena (overall model quality); <strong>MMLU / Reasoning</strong> from Hugging Face Open LLM Leaderboard when available; otherwise indicative fallbacks. The app loads <code>benchmarks.json</code> (built weekly from Arena + HF + pricing) and merges with pricing by model. Pricing daily; benchmarks weekly. See docs for details.</p>
                 <p class="benchmark-legend"><strong>Cost tier</strong> (blended $/1M tokens: 70% input + 30% output): <span class="cost-legend">$</span> = free or very low (≤$0) · <span class="cost-legend">$$</span> = budget (&lt;$2) · <span class="cost-legend">$$$</span> = premium (≥$2).</p>
+            </div>
+        </section>
+        </section>
+
+        <section id="recommend-section" class="dashboard-section">
+        <section class="page-section recommend-section" id="section-recommend">
+            <h2 class="section-title">🎯 Recommended models</h2>
+            <p class="section-subtitle">Describe your use case — we recommend models by <strong>cost</strong>, <strong>reasoning ability</strong>, <strong>context length</strong>, and <strong>performance</strong>.</p>
+            <div class="recommend-card">
+                <div class="recommend-form">
+                    <div class="calc-row">
+                        <label for="useCaseDesc">Describe your use case</label>
+                        <textarea id="useCaseDesc" rows="3" placeholder="e.g. I need a cheap model for summarizing PDFs"></textarea>
+                    </div>
+                    <div class="recommend-actions">
+                        <button type="button" class="calc-btn recommend-btn" id="getRecommendBtn">Get recommendation</button>
+                        <button type="button" class="calc-btn reset" id="recommendResetBtn">Reset</button>
+                    </div>
+                </div>
+                <div id="recommendResult" class="recommend-result hidden">
+                    <h3 class="recommend-result-title">Suggested models</h3>
+                    <div id="recommendList" class="recommend-list"></div>
+                </div>
             </div>
         </section>
         </section>
