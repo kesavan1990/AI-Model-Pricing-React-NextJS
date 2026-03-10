@@ -1,13 +1,11 @@
 #!/usr/bin/env node
 /**
- * Builds benchmarks.json from pricing.json using embedded benchmark lookup.
- * Architecture: Benchmark sources → update-benchmarks.js → benchmarks.json.
- * UI loads pricing.json + benchmarks.json and merges by model name and provider.
+ * Builds benchmarks.json by merging:
+ * 1. LMSYS Chatbot Arena (human preference / overall quality) — scraped from arena.lmsys.org
+ * 2. Hugging Face Open LLM Leaderboard (MMLU, reasoning, etc.) — from datasets-server API
+ * 3. Embedded fallback — when external data is missing or no match
  *
- * This script reads pricing.json (from repo or last workflow run), assigns
- * benchmark scores per model via an embedded lookup (aligned with app fallback),
- * and writes benchmarks.json. When a real benchmark API is available, replace
- * the lookup with a fetch and normalize the response to this schema.
+ * Architecture: Arena + HF → update-benchmarks.js → benchmarks.json. UI loads pricing + benchmarks and merges by model.
  *
  * Run: node scripts/update-benchmarks.js
  * GitHub Action: .github/workflows/update-benchmarks.yml (weekly).
@@ -16,8 +14,80 @@
 const OUT_FILE = 'benchmarks.json';
 const SCHEMA_PATH = 'schemas/benchmarks.schema.json';
 const PRICING_FILE = 'pricing.json';
+const ARENA_URL = 'https://arena.lmsys.org/';
+const HF_ROWS_URL = 'https://datasets-server.huggingface.co/rows';
+const FETCH_TIMEOUT_MS = 25_000;
 
-/** Embedded benchmark lookup by provider + model name (same logic as app fallback). */
+/** Normalize model name for matching: lowercase, collapse spaces to single, trim. */
+function normalizeName(s) {
+  if (s == null || typeof s !== 'string') return '';
+  return s
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .replace(/\s/g, '-')
+    .replace(/[^a-z0-9.-]/g, '');
+}
+
+/** Fetch LMSYS Chatbot Arena leaderboard (model name + ELO/score). Returns [{ model, arena }]. */
+async function fetchArenaScores() {
+  try {
+    const ac = new AbortController();
+    const to = setTimeout(() => ac.abort(), FETCH_TIMEOUT_MS);
+    const res = await fetch(ARENA_URL, { signal: ac.signal, headers: { 'User-Agent': 'Mozilla/5.0 (compatible; BenchmarkBot/1.0)' } });
+    clearTimeout(to);
+    if (!res.ok) return [];
+    const html = await res.text();
+    const { load } = await import('cheerio');
+    const $ = load(html);
+    const scores = [];
+    $('table tbody tr').each((_, row) => {
+      const tds = $(row).find('td');
+      if (tds.length < 2) return;
+      const model = $(tds[0]).text().trim();
+      const scoreText = $(tds[1]).text().trim();
+      const num = parseFloat(scoreText.replace(/[,]/g, ''), 10);
+      if (model && !Number.isNaN(num)) scores.push({ model, arena: num });
+    });
+    if (scores.length > 0) console.log('Arena: fetched', scores.length, 'scores');
+    return scores;
+  } catch (e) {
+    console.warn('Arena fetch failed:', e.message || e);
+    return [];
+  }
+}
+
+/** Fetch Hugging Face Open LLM Leaderboard slice (MMLU-PRO, BBH, MATH, etc.). Returns [{ model, mmlu, reasoning }]. */
+async function fetchHFBenchmarks() {
+  try {
+    const ac = new AbortController();
+    const to = setTimeout(() => ac.abort(), FETCH_TIMEOUT_MS);
+    const url = `${HF_ROWS_URL}?dataset=open-llm-leaderboard%2Fcontents&config=default&split=train&offset=0&length=500`;
+    const res = await fetch(url, { signal: ac.signal });
+    clearTimeout(to);
+    if (!res.ok) return [];
+    const data = await res.json();
+    const rows = data.rows || [];
+    const out = [];
+    for (const row of rows) {
+      const rowData = row.row || row;
+      const model = rowData.Model ?? rowData.model ?? rowData.fullname ?? '';
+      if (!model || typeof model !== 'string') continue;
+      const mmluVal = rowData['MMLU-PRO'] ?? rowData['MMLU-PRO Raw'] ?? rowData.mmlu;
+      const reasoningVal = rowData['MATH Lvl 5'] ?? rowData['MATH Lvl 5 Raw'] ?? rowData.BBH ?? rowData['BBH Raw'] ?? rowData.reasoning;
+      const mmlu = typeof mmluVal === 'number' && !Number.isNaN(mmluVal) ? mmluVal : 0;
+      const reasoning = typeof reasoningVal === 'number' && !Number.isNaN(reasoningVal) ? reasoningVal : 0;
+      out.push({ model: model.trim(), mmlu, reasoning });
+    }
+    if (out.length > 0) console.log('HF leaderboard: fetched', out.length, 'rows');
+    return out;
+  } catch (e) {
+    console.warn('HF leaderboard fetch failed:', e.message || e);
+    return [];
+  }
+}
+
+/** Embedded benchmark lookup (same logic as app fallback). */
 function getScoresForModel(name, providerKey) {
   const n = (name || '').toLowerCase();
   if (providerKey === 'gemini') {
@@ -55,7 +125,30 @@ function getScoresForModel(name, providerKey) {
   return { mmlu: 75, code: 78, reasoning: 80, arena: 82 };
 }
 
-function buildBenchmarksFromPricing(pricing) {
+/** Find best Arena match for a pricing model name. */
+function findArenaScore(pricingModelName, arenaList) {
+  const key = normalizeName(pricingModelName);
+  if (!key) return null;
+  for (const { model, arena } of arenaList) {
+    const k = normalizeName(model);
+    if (k === key) return arena;
+    if (k.includes(key) || key.includes(k)) return arena;
+  }
+  return null;
+}
+
+/** Find best HF match for a pricing model name. */
+function findHFScores(pricingModelName, hfList) {
+  const key = normalizeName(pricingModelName);
+  if (!key) return null;
+  for (const hf of hfList) {
+    const k = normalizeName(hf.model);
+    if (k === key || k.includes(key) || key.includes(k)) return { mmlu: hf.mmlu, reasoning: hf.reasoning };
+  }
+  return null;
+}
+
+function buildBenchmarksFromPricing(pricing, arenaList, hfList) {
   const entries = [];
   const providers = [
     { key: 'gemini', list: pricing.gemini },
@@ -68,15 +161,17 @@ function buildBenchmarksFromPricing(pricing) {
     for (const m of list) {
       const name = m && m.name ? String(m.name).trim() : '';
       if (!name) continue;
-      const scores = getScoresForModel(name, key);
-      if (!scores) continue;
+      const embedded = getScoresForModel(name, key);
+      if (!embedded) continue;
+      const arenaScore = findArenaScore(name, arenaList);
+      const hfScores = findHFScores(name, hfList);
       entries.push({
         model: name,
         provider: key,
-        mmlu: scores.mmlu,
-        code: scores.code,
-        reasoning: scores.reasoning,
-        arena: scores.arena,
+        mmlu: hfScores?.mmlu ?? embedded.mmlu,
+        code: embedded.code,
+        reasoning: hfScores?.reasoning ?? embedded.reasoning,
+        arena: arenaScore ?? embedded.arena,
       });
     }
   }
@@ -103,7 +198,8 @@ async function main() {
     process.exit(1);
   }
 
-  const benchmarks = buildBenchmarksFromPricing(pricing);
+  const [arenaList, hfList] = await Promise.all([fetchArenaScores(), fetchHFBenchmarks()]);
+  const benchmarks = buildBenchmarksFromPricing(pricing, arenaList, hfList);
   const updated = new Date().toISOString().slice(0, 10);
   const payload = { updated, benchmarks };
 
@@ -125,7 +221,7 @@ async function main() {
   }
 
   fs.writeFileSync(outPath, JSON.stringify(payload, null, 2) + '\n', 'utf8');
-  console.log('Wrote', OUT_FILE, `(${benchmarks.length} models)`);
+  console.log('Wrote', OUT_FILE, `(${benchmarks.length} models, Arena=${arenaList.length}, HF=${hfList.length})`);
 }
 
 main().catch((e) => {

@@ -42,12 +42,13 @@ In the repo: **Actions → Update pricing → Run workflow**.
 
 ## Benchmark pipeline (second dataset)
 
-The app loads **two datasets**: `pricing.json` (daily) and `benchmarks.json` (weekly). The UI merges them by **model name** and **provider**. Script: `npm run update-benchmarks`. Workflow: [`.github/workflows/update-benchmarks.yml`](.github/workflows/update-benchmarks.yml) (weekly, Sunday 00:00 UTC). See [docs/BENCHMARKS.md](docs/BENCHMARKS.md). **Update frequency:** Pricing daily; benchmarks weekly.
+The app loads **two datasets**: `pricing.json` (daily) and `benchmarks.json` (weekly). The UI merges them by **model name** and **provider**. The benchmark script fetches **LMSYS Chatbot Arena** (overall quality / ELO) and **Hugging Face Open LLM Leaderboard** (MMLU, reasoning, etc.), merges with pricing models, and writes `benchmarks.json`. Script: `npm run update-benchmarks`. Workflow: [`.github/workflows/update-benchmarks.yml`](.github/workflows/update-benchmarks.yml) (weekly, Sunday 03:00 UTC). See [docs/BENCHMARKS.md](docs/BENCHMARKS.md).
 
-| Metric     | Update frequency |
-|-----------|-------------------|
-| Pricing   | Daily (06:00 UTC) |
-| Benchmarks| Weekly (Sun 00:00 UTC) |
+| Source / Metric | Update frequency |
+|------------------|------------------|
+| Pricing          | Daily (06:00 UTC) |
+| Arena leaderboard| Weekly (Sun 03:00 UTC) |
+| HF leaderboard   | Weekly (Sun 03:00 UTC) |
 
 ---
 

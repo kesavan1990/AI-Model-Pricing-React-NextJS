@@ -358,7 +358,7 @@
             </div>
             <div class="benchmark-dashboard-wrap">
                 <div id="benchmark-dashboard-table" class="benchmark-dashboard-table"></div>
-                <p class="benchmark-note">Benchmark scores are indicative from published results; Arena is illustrative. Check official sources for latest benchmarks. <strong>Update frequency:</strong> The app loads <code>benchmarks.json</code> (built weekly by the benchmark pipeline from <code>pricing.json</code>) and merges with pricing by model name. Pricing updates daily; benchmarks update weekly. See docs for details.</p>
+                <p class="benchmark-note">Benchmark scores: <strong>Arena</strong> from LMSYS Chatbot Arena (overall model quality); <strong>MMLU / Reasoning</strong> from Hugging Face Open LLM Leaderboard when available; otherwise indicative fallbacks. The app loads <code>benchmarks.json</code> (built weekly from Arena + HF + pricing) and merges with pricing by model. Pricing daily; benchmarks weekly. See docs for details.</p>
                 <p class="benchmark-legend"><strong>Cost tier</strong> (blended $/1M tokens: 70% input + 30% output): <span class="cost-legend">$</span> = free or very low (≤$0) · <span class="cost-legend">$$</span> = budget (&lt;$2) · <span class="cost-legend">$$$</span> = premium (≥$2).</p>
             </div>
         </section>
