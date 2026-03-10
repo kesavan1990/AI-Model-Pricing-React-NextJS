@@ -1059,7 +1059,12 @@ h1 {
 [data-theme="light"] .model-name span { color: var(--theme-text-muted); background: rgba(0,0,0,0.08); }
 [data-theme="light"] .last-updated { color: var(--theme-text-muted); }
 
+/* Mobile-friendly layout: stack and resize for phones and small tablets */
 @media (max-width: 768px) {
+    .kpi-container {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
     .pricing-grid {
         grid-template-columns: 1fr;
     }
@@ -1071,14 +1076,43 @@ h1 {
     .header-right-actions {
         justify-content: flex-start;
     }
+    .tab-nav.top-nav {
+        flex-direction: column;
+        gap: 8px;
+        padding: 10px 12px;
+    }
+    .tab-nav .tab-link {
+        width: 100%;
+        text-align: center;
+        padding: 10px 12px;
+    }
     .pricing-section-header {
         flex-direction: column;
         align-items: flex-start;
     }
     .export-toolbar { width: 100%; justify-content: flex-end; }
+    .provider-filter-wrap {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .provider-filter-btns { width: 100%; }
+    .provider-filter-btn { flex: 1 1 auto; min-width: 0; }
+    .comparison-sort-wrap {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .comparison-sort-select { min-width: 100%; }
+    .calc-sub-nav {
+        flex-direction: column;
+        gap: 8px;
+    }
+    .calc-sub-link { text-align: center; }
     .page-nav { gap: 6px 12px; padding: 10px 12px; }
     .page-nav-link { font-size: 0.9rem; padding: 8px 12px; }
     .page-section { margin-bottom: 40px; }
     .section-title { font-size: 1.4rem; }
     h1 { font-size: 1.8rem; }
+    .container { padding-left: 12px; padding-right: 12px; }
+    body { padding: 20px 12px; }
 }

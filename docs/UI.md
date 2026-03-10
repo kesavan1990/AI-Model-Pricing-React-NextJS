@@ -40,7 +40,25 @@ On the **Home** tab, at the top of the page (above the pricing grid), four **KPI
 
 The cards use the same data as the pricing tables and update whenever pricing is loaded or refreshed (e.g. after **Refresh from web** or when applying a history snapshot). Implementation: `updateKPIs(data)` in `src/render.js` is called from `renderTables(data)`; markup is in `index.html` (`.kpi-container`, `.kpi-card`); styles in `css/styles.css` (including `[data-theme="light"]` overrides).
 
-**Layout and alignment:** The KPI block uses a CSS Grid so the four cards align from the top-left and use the full content width (no floating in the middle). On large screens they appear in one row (4 equal columns). On viewports ≤ 900px the grid switches to 2 columns; on ≤ 480px the cards stack in a single column. Styles: `.kpi-container` with `grid-template-columns: repeat(4, 1fr)` and responsive `@media` overrides in `css/styles.css`.
+**Layout and alignment:** The KPI block uses a CSS Grid so the four cards align from the top-left and use the full content width (no floating in the middle). On large screens they appear in one row (4 equal columns). On viewports ≤ 900px the grid switches to 2 columns; on ≤ 768px the cards stack in a single column for mobile. Styles: `.kpi-container` with `grid-template-columns: repeat(4, 1fr)` and responsive `@media` overrides in `css/styles.css`.
+
+---
+
+## Mobile-friendly layout
+
+Many users open the dashboard on phones. The app uses **responsive CSS** so all main sections work on small screens (e.g. ≤ 768px).
+
+| Area | Mobile behavior (≤ 768px) |
+|------|---------------------------|
+| **KPI cards** | Single column (`grid-template-columns: 1fr`); cards stack vertically. |
+| **Top navigation** | Vertical stack (`flex-direction: column`); full-width links for easier tap targets. |
+| **Pricing grid** | One provider card per row. |
+| **Calculators** | Calculator cards and calc sub-nav stack; full-width controls. |
+| **Model comparison** | Provider filter and Sort by controls stack; table scrolls horizontally if needed. |
+| **Header** | Header and actions stack; reduced padding. |
+| **Page** | Reduced body and container padding for more usable width. |
+
+All of this is implemented in a single `@media (max-width: 768px)` block in `css/styles.css`, which improves accessibility and usability on phones and small tablets.
 
 ---
 

@@ -52,6 +52,7 @@ In the repo: **Actions → Update pricing → Run workflow**.
 - **Find the right model** — Filter by use case and cost.
 - **Pricing history** — Daily snapshots (12:00 AM IST), compare two dates, export CSV/PDF.
 - **Refresh from web** — Reload pricing (from `pricing.json` on GitHub Pages, or from Vizra when run locally).
+- **Mobile-friendly layout** — Responsive CSS at `@media (max-width: 768px)`: KPI cards and nav stack, pricing grid and calculators single column, full-width controls. See [Mobile-friendly layout](docs/UI.md#mobile-friendly-layout).
 
 ## Code structure
 
