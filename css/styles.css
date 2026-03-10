@@ -387,6 +387,46 @@ h1 {
   border-color: rgba(102, 126, 234, 0.5);
   color: #fff;
 }
+.value-chart-legend-hint {
+  font-size: 0.9rem;
+  color: var(--theme-text-muted);
+  margin-bottom: 10px;
+}
+.value-chart-frontier-tooltip {
+  cursor: help;
+  font-weight: normal;
+  opacity: 0.9;
+  margin-left: 2px;
+  position: relative;
+  text-decoration: none;
+  color: var(--theme-text);
+}
+.value-chart-frontier-tooltip:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 0;
+  bottom: 100%;
+  margin-bottom: 6px;
+  padding: 8px 10px;
+  max-width: 320px;
+  font-size: 0.85rem;
+  font-weight: normal;
+  line-height: 1.35;
+  color: var(--theme-text);
+  background: var(--theme-card);
+  border: 1px solid var(--theme-card-border);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  pointer-events: none;
+  white-space: normal;
+}
+[data-theme="light"] .value-chart-frontier-tooltip:hover::after {
+  background: #fff;
+  border-color: rgba(0, 0, 0, 0.15);
+  color: var(--theme-text);
+}
+
 .value-chart-wrap {
   position: relative;
   width: 100%;
