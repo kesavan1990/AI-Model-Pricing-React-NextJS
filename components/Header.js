@@ -1,24 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import Link from 'next/link';
 import { usePricing } from '../context/PricingContext';
+import { useTheme } from '../context/ThemeContext';
 
 export function Header({ onOpenHistory }) {
   const { refresh, loading } = usePricing();
-  const [theme, setTheme] = useState('dark');
+  const { theme, setTheme } = useTheme();
   const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const t = document.documentElement.getAttribute('data-theme') || 'dark';
-    setTheme(t);
-  }, []);
-
   const toggleTheme = () => {
-    const next = theme === 'light' ? 'dark' : 'light';
-    document.documentElement.setAttribute('data-theme', next);
-    setTheme(next);
-    if (typeof window !== 'undefined') localStorage.setItem('ai-pricing-theme', next);
+    setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
   const handleRefresh = async () => {
@@ -30,9 +23,9 @@ export function Header({ onOpenHistory }) {
   return (
     <header className="dashboard-header">
       <h1 className="dashboard-title">
-        <a href="#overview" className="header-home-link" title="Go to overview">
+        <Link href="/dashboard" className="header-home-link" title="Go to dashboard">
           🤖
-        </a>{' '}
+        </Link>{' '}
         AI Model Pricing Intelligence Dashboard
       </h1>
       <div className="header-actions">

@@ -1,44 +1,44 @@
 'use client';
 
-export function Sidebar({ activeSection, onNavigate, onOpenHistory }) {
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
+export function Sidebar({ onOpenHistory }) {
+  const pathname = usePathname() || '';
+
   const links = [
-    { section: 'overview', label: 'Overview' },
-    { section: 'models', label: 'Models' },
-    { section: 'value-analysis', label: 'Value Analysis' },
-    { section: 'calculators', label: 'Calculators' },
-    { section: 'benchmarks', label: 'Benchmarks' },
-    { section: 'recommend-section', label: 'Recommend' },
+    { href: '/dashboard', label: 'Dashboard' },
+    { href: '/pricing', label: 'Pricing' },
+    { href: '/calculator', label: 'Calculator' },
+    { href: '/comparison', label: 'Comparison' },
+    { href: '/value-analysis', label: 'Value Analysis' },
+    { href: '/benchmarks', label: 'Benchmarks' },
+    { href: '/recommend', label: 'Recommend' },
   ];
 
   return (
     <aside className="dashboard-sidebar" aria-label="Dashboard navigation">
+      <div className="dashboard-sidebar-title">
+        AI Pricing
+      </div>
       <nav className="sidebar-nav">
-        {links.map(({ section, label }) => (
-          <a
-            key={section}
-            href={section === 'recommend-section' ? '#recommend' : '#' + section}
-            className={'sidebar-link' + (activeSection === section ? ' active' : '')}
-            data-section={section}
-            onClick={(e) => {
-              e.preventDefault();
-              onNavigate(section);
-            }}
+        {links.map(({ href, label }) => (
+          <Link
+            key={href}
+            href={href}
+            className={'sidebar-link' + (pathname === href ? ' active' : '')}
           >
             {label}
-          </a>
+          </Link>
         ))}
-        <a
-          href="#"
-          className="sidebar-link sidebar-link-modal"
-          data-action="history"
-          onClick={(e) => {
-            e.preventDefault();
-            onOpenHistory();
-          }}
+        <button
+          type="button"
+          className="sidebar-link sidebar-link-modal text-left w-full cursor-pointer border-0 bg-transparent"
+          onClick={() => onOpenHistory()}
           title="Open pricing history modal"
         >
           Pricing History
-        </a>
+        </button>
       </nav>
     </aside>
   );

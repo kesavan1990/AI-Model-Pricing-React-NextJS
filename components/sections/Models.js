@@ -1,8 +1,8 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState, useCallback, Fragment } from 'react';
 import { usePricing } from '../../context/PricingContext';
-import { getAllModels } from '../../src/calculator.js';
+import { getAllModels, getBenchmarkForModelMerged } from '../../src/calculator.js';
 import { escapeCsvCell, drawPdfBorderedTable } from '../../src/render.js';
 
 const PROVIDER_ORDER = ['gemini', 'openai', 'anthropic', 'mistral'];
@@ -20,14 +20,24 @@ function getComparisonList(data, providerFilter, sortBy) {
 }
 
 export function Models() {
-  const { getData, comparisonProviderFilter, setComparisonProviderFilter, comparisonSortBy, setComparisonSortBy, showToast } = usePricing();
+  const { getData, getBenchmarksData, comparisonProviderFilter, setComparisonProviderFilter, comparisonSortBy, setComparisonSortBy, showToast } = usePricing();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [expandedRow, setExpandedRow] = useState(null);
   const data = getData();
   const list = useMemo(
     () => getComparisonList(data, comparisonProviderFilter, comparisonSortBy),
     [data, comparisonProviderFilter, comparisonSortBy]
   );
+  const filteredList = useMemo(() => {
+    const q = (searchQuery || '').trim().toLowerCase();
+    if (!q) return list;
+    return list.filter((m) => (m.name || '').toLowerCase().includes(q) || (m.provider || '').toLowerCase().includes(q));
+  }, [list, searchQuery]);
   const withBlended = list.filter((m) => m.blended >= 0);
   const cheapestModel = withBlended.length ? withBlended.reduce((min, m) => (m.blended < min.blended ? m : min), withBlended[0]) : null;
+  const minInput = useMemo(() => (filteredList.length ? Math.min(...filteredList.map((m) => Number(m.input) ?? Infinity)) : null), [filteredList]);
+  const minOutput = useMemo(() => (filteredList.length ? Math.min(...filteredList.map((m) => (m.output === 0 ? 0 : Number(m.output) ?? Infinity))) : null), [filteredList]);
+  const toggleExpand = useCallback((index) => setExpandedRow((prev) => (prev === index ? null : index)), []);
 
   const exportCSV = () => {
     const rows = ['Model,Provider,Pricing tier,Input per 1M,Output per 1M,Context window'];
@@ -93,6 +103,21 @@ export function Models() {
           ))}
         </div>
       </div>
+      <div className="comparison-search-wrap">
+        <label htmlFor="comparison-search" className="comparison-search-label">Search:</label>
+        <input
+          id="comparison-search"
+          type="search"
+          className="comparison-search-input"
+          placeholder="Model or provider name..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          aria-label="Search models by name or provider"
+        />
+        {searchQuery && (
+          <span className="comparison-search-hint">{filteredList.length} of {list.length} models</span>
+        )}
+      </div>
       <div className="comparison-sort-wrap">
         <label htmlFor="comparison-sort-by" className="comparison-sort-label">Sort by:</label>
         <select
@@ -113,7 +138,7 @@ export function Models() {
         </div>
       </div>
       <div className="pricing-table-scroll">
-        <table className="model-table model-comparison-table" aria-label="Model comparison">
+        <table className="model-table model-comparison-table model-comparison-table-interactive" aria-label="Model comparison">
           <thead>
             <tr>
               <th>Model</th>
@@ -125,20 +150,62 @@ export function Models() {
             </tr>
           </thead>
           <tbody>
-            {list.map((m, i) => {
+            {filteredList.map((m, i) => {
               const isCheapest = cheapestModel && m.name === cheapestModel.name && m.providerKey === cheapestModel.providerKey && (m.contextTier || '') === (cheapestModel.contextTier || '');
+              const isExpanded = expandedRow === i;
+              const numInput = Number(m.input);
+              const numOutput = m.output === 0 ? 0 : Number(m.output);
+              const isLowInput = minInput != null && numInput === minInput;
+              const isLowOutput = minOutput != null && numOutput === minOutput;
               return (
-                <tr key={i} className={isCheapest ? 'cheapest' : ''}>
-                  <td className="model-name">
-                    {m.name}
-                    {isCheapest && <span className="cheapest-badge" aria-label="Cheapest"> 🟢 Cheapest</span>}
-                  </td>
-                  <td className="provider-name">{m.provider}</td>
-                  <td className="context-tier">{m.contextTier || '—'}</td>
-                  <td className="price price-input">{fmt(m.input)}</td>
-                  <td className="price price-output">{fmt(m.output)}</td>
-                  <td className="context-window">{m.contextWindow || '—'}</td>
-                </tr>
+                <Fragment key={i}>
+                  <tr
+                    className={(isCheapest ? 'cheapest ' : '') + (isExpanded ? 'expanded' : '')}
+                    onClick={() => toggleExpand(i)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpand(i); } }}
+                    aria-expanded={isExpanded}
+                    aria-label={`${m.name}, ${m.provider}. Click to ${isExpanded ? 'collapse' : 'expand'} details`}
+                  >
+                    <td className="model-name" title={m.name}>
+                      {m.name}
+                      {isCheapest && <span className="cheapest-badge" aria-label="Cheapest"> 🟢 Cheapest</span>}
+                    </td>
+                    <td className="provider-name" title={`Provider: ${m.provider}`}>{m.provider}</td>
+                    <td className="context-tier" title="Pricing tier or context tier">{m.contextTier || '—'}</td>
+                    <td className={'price price-input' + (isLowInput ? ' price-low' : '')} title={`Input: ${fmt(m.input)} per 1M tokens`}>{fmt(m.input)}</td>
+                    <td className={'price price-output' + (isLowOutput ? ' price-low' : '')} title={`Output: ${fmt(m.output)} per 1M tokens`}>{fmt(m.output)}</td>
+                    <td className="context-window" title={`Context window: ${m.contextWindow || '—'}`}>{m.contextWindow || '—'}</td>
+                  </tr>
+                  {isExpanded && (() => {
+                    const fileBenchmarks = getBenchmarksData();
+                    const bench = getBenchmarkForModelMerged(m.name, m.providerKey, Array.isArray(fileBenchmarks) ? fileBenchmarks : null);
+                    return (
+                      <tr className="comparison-detail-row" aria-hidden="true">
+                        <td colSpan={6} className="comparison-detail-cell">
+                          <div className="comparison-detail-card comparison-detail-card-benchmarks">
+                            <div className="comparison-detail-header">
+                              <strong>{m.name}</strong>
+                              <span className="comparison-detail-provider">{m.provider}</span>
+                            </div>
+                            <div className="comparison-detail-benchmarks-title">Benchmark results</div>
+                            <div className="comparison-detail-grid comparison-detail-benchmarks-grid">
+                              <span className="comparison-detail-label">MMLU</span>
+                              <span className="comparison-detail-value comparison-detail-bench-score">{bench.mmlu}</span>
+                              <span className="comparison-detail-label">Code</span>
+                              <span className="comparison-detail-value comparison-detail-bench-score">{bench.code}</span>
+                              <span className="comparison-detail-label">Reasoning</span>
+                              <span className="comparison-detail-value comparison-detail-bench-score">{bench.reasoning}</span>
+                              <span className="comparison-detail-label">Arena</span>
+                              <span className="comparison-detail-value comparison-detail-bench-score">{bench.arena}</span>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })()}
+                </Fragment>
               );
             })}
           </tbody>

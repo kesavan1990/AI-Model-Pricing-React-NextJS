@@ -163,7 +163,7 @@ function ProviderTable({ providerKey, title, logoClass, note, models, searchPlac
   );
 }
 
-export function Overview() {
+export function Overview({ showOnlyPricing = false }) {
   const { getData } = usePricing();
   const { exportCSV, exportPDF } = useExportPricing();
   const [geminiSearch, setGeminiSearch] = useState('');
@@ -192,6 +192,7 @@ export function Overview() {
 
   return (
     <>
+      {!showOnlyPricing && (
       <div className="kpi-container" aria-label="Pricing summary">
         <div className="kpi-card">
           <h3 className="kpi-title">Total Models</h3>
@@ -213,6 +214,7 @@ export function Overview() {
           <p className="kpi-meta">{kpis.largestContextSize}</p>
         </div>
       </div>
+      )}
       <section className="page-section" id="section-pricing">
         <h2 className="section-title">📊 Current pricing</h2>
         <p className="section-subtitle">

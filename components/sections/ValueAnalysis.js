@@ -107,8 +107,9 @@ export function ValueAnalysis() {
   );
 
   return (
-    <section className="page-section value-chart-section" id="section-value-chart">
-      <h2 className="section-title">📈 Cost vs Performance</h2>
+    <div id="section-value-analysis">
+      <section className="page-section value-chart-section" id="section-value-chart">
+        <h2 className="section-title">📈 Cost vs Performance</h2>
       <p className="section-subtitle">
         Value analysis: cost per request using a <strong>fixed baseline</strong> (1,000 prompt + 500 output tokens). Grey = all models; colored points = frontier (best value at each cost level). Hover for details.
       </p>
@@ -147,9 +148,10 @@ export function ValueAnalysis() {
         Colored points = <strong>Frontier (best value)</strong>{' '}
         <span className="value-chart-frontier-tooltip" title="Models with best performance at their cost—no cheaper model scores higher. Sort by cost (low to high), then keep only models with strictly better performance than every cheaper model.">(?)</span>
       </p>
-      <div className="value-chart-wrap" style={{ minHeight: 400 }}>
+      <div className="value-chart-wrap">
         <Scatter data={{ datasets: chartData.datasets }} options={options} />
       </div>
     </section>
+    </div>
   );
 }

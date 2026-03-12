@@ -62,9 +62,11 @@ export function PricingProvider({ children }) {
       setBenchmarksLastUpdated(benchPayload?.updated != null ? String(benchPayload.updated) : '—');
       if (result.usedFallback === 'cache') {
         setToast({ msg: 'Loaded pricing from local cache (file unavailable).', type: 'success', show: true });
+        setTimeout(() => setToast((t) => ({ ...t, show: false })), 3500);
       }
       if (result.usedFallback === 'default') {
         setToast({ msg: 'Using embedded default pricing (no file or cache).', type: 'success', show: true });
+        setTimeout(() => setToast((t) => ({ ...t, show: false })), 3500);
       }
     } catch (err) {
       console.error('loadPricing failed:', err);
@@ -81,6 +83,7 @@ export function PricingProvider({ children }) {
       setLastUpdated('embedded default');
       setBenchmarksLastUpdated('—');
       setToast({ msg: 'Using embedded default pricing.', type: 'success', show: true });
+      setTimeout(() => setToast((t) => ({ ...t, show: false })), 3500);
     } finally {
       setLoading(false);
     }
@@ -104,8 +107,11 @@ export function PricingProvider({ children }) {
       setLastUpdated(result.updated || '—');
       setBenchmarksLastUpdated(benchPayload?.updated != null ? String(benchPayload.updated) : '—');
       setToast({ msg: 'Pricing updated.', type: 'success', show: true });
+      const hideToast = () => setToast((t) => ({ ...t, show: false }));
+      setTimeout(hideToast, 3500);
     } catch (err) {
       setToast({ msg: 'Refresh failed. Kept current pricing.', type: 'error', show: true });
+      setTimeout(() => setToast((t) => ({ ...t, show: false })), 3500);
     } finally {
       setLoading(false);
     }

@@ -149,11 +149,24 @@ export function calcCostForEntry(entry, inputTokens, cachedTokens, outputTokens)
   return calcCostOpenAI(inT, cachedTokens || 0, outT, inp, cached, out);
 }
 
+function isEmbeddingOnlyModel(provider, modelName) {
+  const n = (modelName || '').toLowerCase();
+  if (provider === 'gemini' && /embedding/.test(n)) return true;
+  if (provider === 'openai' && /^text-embedding/.test(n)) return true;
+  return false;
+}
+
 export function getUnifiedCalcModels(data) {
   const { gemini = [], openai = [], anthropic = [], mistral = [] } = data;
   const list = [];
-  gemini.forEach((m, i) => { if (isAllowedModel('gemini', m.name) && !isRetired('gemini', m.name)) list.push({ key: 'gemini:' + i, provider: 'gemini', label: 'Google Gemini — ' + m.name, model: m }); });
-  openai.forEach((m, i) => { if (isAllowedModel('openai', m.name) && !isRetired('openai', m.name)) list.push({ key: 'openai:' + i, provider: 'openai', label: 'OpenAI — ' + m.name, model: m }); });
+  gemini.forEach((m, i) => {
+    if (isEmbeddingOnlyModel('gemini', m.name)) return;
+    if (isAllowedModel('gemini', m.name) && !isRetired('gemini', m.name)) list.push({ key: 'gemini:' + i, provider: 'gemini', label: 'Google Gemini — ' + m.name, model: m });
+  });
+  openai.forEach((m, i) => {
+    if (isEmbeddingOnlyModel('openai', m.name)) return;
+    if (isAllowedModel('openai', m.name) && !isRetired('openai', m.name)) list.push({ key: 'openai:' + i, provider: 'openai', label: 'OpenAI — ' + m.name, model: m });
+  });
   anthropic.forEach((m, i) => { if (isAllowedModel('anthropic', m.name) && !isRetired('anthropic', m.name)) list.push({ key: 'anthropic:' + i, provider: 'anthropic', label: 'Anthropic — ' + m.name, model: m }); });
   mistral.forEach((m, i) => { if (isAllowedModel('mistral', m.name) && !isRetired('mistral', m.name)) list.push({ key: 'mistral:' + i, provider: 'mistral', label: 'Mistral — ' + m.name, model: m }); });
   return list;
@@ -424,4 +437,15 @@ export function estimatePromptTokens(text) {
     }
   } catch (_) {}
   return Math.ceil(t.length / 4);
+}
+
+/**
+ * Token count for OpenAI-style chat API: user message + assistant turn start.
+ * Matches what tools like Tiktokenizer show (content + <|im_start|>user<|im_sep|>...<|im_end|><|im_start|>assistant<|im_sep|>).
+ */
+export function estimatePromptTokensWithOpenAIChatFormat(text) {
+  if (!text || typeof text !== 'string') return 0;
+  const content = text.trim();
+  const fullMessage = '<|im_start|>user<|im_sep|>' + content + '<|im_end|><|im_start|>assistant<|im_sep|>';
+  return estimatePromptTokens(fullMessage);
 }

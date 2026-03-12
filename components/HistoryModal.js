@@ -126,8 +126,8 @@ export function HistoryModal({ open, onClose }) {
   if (!open) return null;
 
   return (
-    <div id="historyModal" className="modal-overlay open" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
+    <div id="historyModal" className="modal-overlay open" onClick={(e) => e.target === e.currentTarget && onClose()} role="dialog" aria-modal="true" aria-label="Pricing history">
+      <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2 className="modal-title">Pricing history</h2>
           <p className="modal-subtitle">Daily snapshots (12:00 AM IST) are kept. History is stored in this browser only.</p>

@@ -18,10 +18,10 @@ export function Footer() {
   }, [benchmarksLastUpdated]);
 
   return (
-    <footer className="dashboard-footer">
-      <span id="lastUpdated" className="footer-updated">—</span>
-      <span className="footer-sep"> · </span>
-      <span id="benchmarksLastUpdated" className="footer-benchmarks">—</span>
+    <footer className="page-footer">
+      <p className="last-updated">
+        Pricing: <span id="lastUpdated">—</span>; Benchmarks: <span id="benchmarksLastUpdated">—</span>. Prices may vary. Check official docs for latest.
+      </p>
     </footer>
   );
 }
