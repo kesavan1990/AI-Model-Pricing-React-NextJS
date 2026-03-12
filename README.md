@@ -2,6 +2,8 @@
 
 A static web app to compare and calculate pricing for AI models (Google Gemini, OpenAI, Anthropic, Mistral). Includes KPI cards, pricing grid, model comparison table, cost-vs-performance chart, calculators (pricing, prompt cost, context window, production cost), benchmarks, recommend-by-use-case, pricing history, and export (CSV/PDF).
 
+**Two frontends:** (1) **Legacy:** open `index.html` or serve the repo (e.g. `npx serve .`) for the original HTML + vanilla JS app. (2) **React/Next.js:** run the React app (see [Running the React/Next.js app](#running-the-reactnextjs-app) below). Functionality is the same; the Next.js app uses the same data pipeline and business logic under `src/` and `lib/`.
+
 ## Live pricing (automated)
 
 Pricing is **not manually maintained**. The app uses an automated pipeline so `pricing.json` stays up to date as providers change (e.g. OpenAI GPT-4 updates, new Gemini tiers).
@@ -111,6 +113,19 @@ Front-end logic is split into ES modules under `src/` for clearer code and easie
 | **`src/app.js`** | App entry: state (gemini/openai/anthropic/mistral), `loadPricing`, `refreshFromWeb`, daily capture, history compare, calculator handlers, event wiring; imports the modules above. |
 
 `index.html` contains markup only: it links to **`css/styles.css`** for all styles and to **`src/app.js`** as the app entry (`<script type="module" src="src/app.js"></script>`). No inline CSS or app logic.
+
+### React/Next.js frontend (optional)
+
+The same app is also implemented as a **React/Next.js** frontend so you can run it with `npm run dev` or `npm run build` / `npm run start`. Functionality is unchanged: same data pipeline (`src/`, `lib/dataPipeline.js`), same calculators, exports, chart, and history.
+
+| Path | Role |
+|------|------|
+| **`app/`** | Next.js App Router: `layout.js`, `page.js`. |
+| **`components/`** | React components: `Dashboard`, `Header`, `Sidebar`, `Toast`, `Footer`, `HistoryModal`, and section components under `components/sections/` (Overview, Models, ValueAnalysis, Calculators, Benchmarks, Recommend). |
+| **`context/PricingContext.js`** | React context: load pricing (Vizra → overlays → setData), benchmarks, filters, toast, and export state. |
+| **`lib/dataPipeline.js`** | Shared pipeline: `applyOfficialOverlays()`, `processPayload()` (reassign provider, allowlist, retired filter). Used by the React app; mirrors `app.js` setData logic. |
+
+**Running the React/Next.js app:** From the repo root run `npm install` then `npm run dev`. Ensure **`pricing.json`** and **`benchmarks.json`** are in the **`public/`** folder so the app can fetch them at `/pricing.json` and `/benchmarks.json` (e.g. `cp pricing.json benchmarks.json public/` or copy manually). The legacy app (opening `index.html` or serving the repo) uses these files from the repo root.
 
 ## Hosting
 

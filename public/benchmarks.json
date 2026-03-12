@@ -1,0 +1,1549 @@
+{
+  "updated": "2026-03-10",
+  "benchmarks": [
+    {
+      "model": "gemini-2.0-flash-lite",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.0-flash",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.5-flash",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.5-flash-(thinking)",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.5-pro",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-pro",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-1.0-pro",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-1.0-ultra",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-1.0-ultra-001",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-1.5-pro",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-1.5-pro-002",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-1.5-pro-preview-0514",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-1.5-pro-preview-0215",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-1.5-pro-preview-0409",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-1.5-flash",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-1.5-flash-exp-0827",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-1.5-flash-002",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-1.5-flash-preview-0514",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-pro-vision",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-1.0-pro-vision",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.5-pro-exp-03-25",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.0-pro-exp-02-05",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.0-flash-exp",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.0-flash-001",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.5-flash-image-preview",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.0-flash-live-001",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.5-flash-preview-tts",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.5-flash-preview-05-20",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.5-flash-preview-04-17",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.5-flash-lite-preview-06-17",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.5-flash-lite",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.0-flash-lite-001",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.5-pro-preview-06-05",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.5-pro-preview-05-06",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.5-pro-preview-03-25",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.0-flash-preview-image-generation",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.5-pro-preview-tts",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.0-flash-lite-preview-02-05",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.0-flash-live-preview-04-09",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-embedding-001",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-1.5-pro-exp-0801",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-gemma-2-27b-it",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-gemma-2-9b-it",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.5-flash-lite-preview-09-2025",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.5-flash-preview-09-2025",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.5-flash-image",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-live-2.5-flash-preview-native-audio-09-2025",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-3-pro-preview",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-3-pro-image-preview",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.5-computer-use-preview-10-2025",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-3-flash-preview",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-robotics-er-1.5-preview",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "deep-research-pro-preview-12-2025",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.5-flash-native-audio-preview-09-2025",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.5-flash-native-audio-preview-12-2025",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-exp-1206",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-3.1-pro-preview",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-3.1-pro-preview-customtools",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-3.1-flash-image-preview",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-3.1-flash-lite-preview",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "chatgpt-4.1-nano",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "chatgpt-4o-mini",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "chatgpt-4.1-mini",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "chatgpt-o3-mini",
+      "provider": "openai",
+      "mmlu": 89,
+      "code": 91,
+      "reasoning": 96,
+      "arena": 97
+    },
+    {
+      "model": "chatgpt-o4-mini",
+      "provider": "openai",
+      "mmlu": 89,
+      "code": 91,
+      "reasoning": 96,
+      "arena": 97
+    },
+    {
+      "model": "chatgpt-4.1",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "chatgpt-4o",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "chatgpt-o3",
+      "provider": "openai",
+      "mmlu": 89,
+      "code": 91,
+      "reasoning": 96,
+      "arena": 97
+    },
+    {
+      "model": "chatgpt-o1",
+      "provider": "openai",
+      "mmlu": 89,
+      "code": 91,
+      "reasoning": 96,
+      "arena": 97
+    },
+    {
+      "model": "chatgpt-4.5",
+      "provider": "openai",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
+      "model": "o1-pro",
+      "provider": "openai",
+      "mmlu": 89,
+      "code": 91,
+      "reasoning": 96,
+      "arena": 97
+    },
+    {
+      "model": "gpt-4",
+      "provider": "openai",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
+      "model": "gpt-4.1",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4.1-2025-04-14",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4.1-mini",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4.1-mini-2025-04-14",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4.1-nano",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4.1-nano-2025-04-14",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4o",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4o-search-preview-2025-03-11",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4o-search-preview",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4.5-preview",
+      "provider": "openai",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
+      "model": "gpt-4o-audio-preview",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4o-audio-preview-2024-12-17",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4o-audio-preview-2024-10-01",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4o-audio-preview-2025-06-03",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4o-mini-audio-preview",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4o-mini-audio-preview-2024-12-17",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4o-mini",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4o-mini-search-preview-2025-03-11",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4o-mini-search-preview",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4o-mini-2024-07-18",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "o1-pro-2025-03-19",
+      "provider": "openai",
+      "mmlu": 89,
+      "code": 91,
+      "reasoning": 96,
+      "arena": 97
+    },
+    {
+      "model": "o1-mini",
+      "provider": "openai",
+      "mmlu": 89,
+      "code": 91,
+      "reasoning": 96,
+      "arena": 97
+    },
+    {
+      "model": "o1-mini-2024-09-12",
+      "provider": "openai",
+      "mmlu": 89,
+      "code": 91,
+      "reasoning": 96,
+      "arena": 97
+    },
+    {
+      "model": "o1-preview",
+      "provider": "openai",
+      "mmlu": 89,
+      "code": 91,
+      "reasoning": 96,
+      "arena": 97
+    },
+    {
+      "model": "o1-preview-2024-09-12",
+      "provider": "openai",
+      "mmlu": 89,
+      "code": 91,
+      "reasoning": 96,
+      "arena": 97
+    },
+    {
+      "model": "o1-2024-12-17",
+      "provider": "openai",
+      "mmlu": 89,
+      "code": 91,
+      "reasoning": 96,
+      "arena": 97
+    },
+    {
+      "model": "gpt-4o-2024-05-13",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4o-2024-08-06",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4o-2024-11-20",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4o-realtime-preview-2024-10-01",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4o-realtime-preview",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4o-realtime-preview-2024-12-17",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4o-realtime-preview-2025-06-03",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4o-mini-realtime-preview",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4o-mini-realtime-preview-2024-12-17",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4-turbo-preview",
+      "provider": "openai",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
+      "model": "gpt-4-0314",
+      "provider": "openai",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
+      "model": "gpt-4-32k",
+      "provider": "openai",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
+      "model": "gpt-4-32k-0314",
+      "provider": "openai",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
+      "model": "gpt-4-32k-0613",
+      "provider": "openai",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
+      "model": "gpt-4-turbo",
+      "provider": "openai",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
+      "model": "gpt-4-turbo-2024-04-09",
+      "provider": "openai",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
+      "model": "gpt-4-1106-preview",
+      "provider": "openai",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
+      "model": "gpt-4-0125-preview",
+      "provider": "openai",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
+      "model": "gpt-3.5-turbo",
+      "provider": "openai",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
+      "model": "gpt-3.5-turbo-0301",
+      "provider": "openai",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
+      "model": "gpt-3.5-turbo-0613",
+      "provider": "openai",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
+      "model": "gpt-3.5-turbo-1106",
+      "provider": "openai",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
+      "model": "gpt-3.5-turbo-0125",
+      "provider": "openai",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
+      "model": "gpt-3.5-turbo-16k",
+      "provider": "openai",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
+      "model": "gpt-3.5-turbo-16k-0613",
+      "provider": "openai",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
+      "model": "gpt-4o-transcribe",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4o-mini-transcribe",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4o-mini-tts",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-3.5-turbo-instruct",
+      "provider": "openai",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
+      "model": "gpt-3.5-turbo-instruct-0914",
+      "provider": "openai",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
+      "model": "gpt-4o-transcribe-diarize",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4o-mini-tts-2025-03-20",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4o-mini-tts-2025-12-15",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4o-mini-transcribe-2025-03-20",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "gpt-4o-mini-transcribe-2025-12-15",
+      "provider": "openai",
+      "mmlu": 88,
+      "code": 90,
+      "reasoning": 92,
+      "arena": 93
+    },
+    {
+      "model": "claude-3.5-sonnet",
+      "provider": "anthropic",
+      "mmlu": 87,
+      "code": 89,
+      "reasoning": 90,
+      "arena": 92
+    },
+    {
+      "model": "claude-3.7-sonnet",
+      "provider": "anthropic",
+      "mmlu": 87,
+      "code": 89,
+      "reasoning": 90,
+      "arena": 92
+    },
+    {
+      "model": "claude-4-sonnet",
+      "provider": "anthropic",
+      "mmlu": 87,
+      "code": 89,
+      "reasoning": 90,
+      "arena": 92
+    },
+    {
+      "model": "claude-4-opus",
+      "provider": "anthropic",
+      "mmlu": 89,
+      "code": 91,
+      "reasoning": 93,
+      "arena": 95
+    },
+    {
+      "model": "claude-3.5-haiku",
+      "provider": "anthropic",
+      "mmlu": 84,
+      "code": 86,
+      "reasoning": 87,
+      "arena": 88
+    },
+    {
+      "model": "claude-opus-4-20250514",
+      "provider": "anthropic",
+      "mmlu": 89,
+      "code": 91,
+      "reasoning": 93,
+      "arena": 95
+    },
+    {
+      "model": "claude-opus-4-1",
+      "provider": "anthropic",
+      "mmlu": 89,
+      "code": 91,
+      "reasoning": 93,
+      "arena": 95
+    },
+    {
+      "model": "claude-opus-4-1-20250805",
+      "provider": "anthropic",
+      "mmlu": 89,
+      "code": 91,
+      "reasoning": 93,
+      "arena": 95
+    },
+    {
+      "model": "claude-sonnet-4-20250514",
+      "provider": "anthropic",
+      "mmlu": 87,
+      "code": 89,
+      "reasoning": 90,
+      "arena": 92
+    },
+    {
+      "model": "claude-4-opus-20250514",
+      "provider": "anthropic",
+      "mmlu": 89,
+      "code": 91,
+      "reasoning": 93,
+      "arena": 95
+    },
+    {
+      "model": "claude-4-sonnet-20250514",
+      "provider": "anthropic",
+      "mmlu": 87,
+      "code": 89,
+      "reasoning": 90,
+      "arena": 92
+    },
+    {
+      "model": "claude-3-7-sonnet-20250219",
+      "provider": "anthropic",
+      "mmlu": 87,
+      "code": 89,
+      "reasoning": 90,
+      "arena": 92
+    },
+    {
+      "model": "claude-sonnet-4-5",
+      "provider": "anthropic",
+      "mmlu": 87,
+      "code": 89,
+      "reasoning": 90,
+      "arena": 92
+    },
+    {
+      "model": "claude-sonnet-4-5-20250929",
+      "provider": "anthropic",
+      "mmlu": 87,
+      "code": 89,
+      "reasoning": 90,
+      "arena": 92
+    },
+    {
+      "model": "claude-haiku-4-5-20251001",
+      "provider": "anthropic",
+      "mmlu": 84,
+      "code": 86,
+      "reasoning": 87,
+      "arena": 88
+    },
+    {
+      "model": "claude-haiku-4-5",
+      "provider": "anthropic",
+      "mmlu": 84,
+      "code": 86,
+      "reasoning": 87,
+      "arena": 88
+    },
+    {
+      "model": "claude-3-haiku",
+      "provider": "anthropic",
+      "mmlu": 84,
+      "code": 86,
+      "reasoning": 87,
+      "arena": 88
+    },
+    {
+      "model": "claude-3-opus",
+      "provider": "anthropic",
+      "mmlu": 89,
+      "code": 91,
+      "reasoning": 93,
+      "arena": 95
+    },
+    {
+      "model": "claude-opus-4-5-20251101",
+      "provider": "anthropic",
+      "mmlu": 89,
+      "code": 91,
+      "reasoning": 93,
+      "arena": 95
+    },
+    {
+      "model": "claude-opus-4-5",
+      "provider": "anthropic",
+      "mmlu": 89,
+      "code": 91,
+      "reasoning": 93,
+      "arena": 95
+    },
+    {
+      "model": "claude-opus-4-6",
+      "provider": "anthropic",
+      "mmlu": 89,
+      "code": 91,
+      "reasoning": 93,
+      "arena": 95
+    },
+    {
+      "model": "claude-opus-4-6-20260205",
+      "provider": "anthropic",
+      "mmlu": 89,
+      "code": 91,
+      "reasoning": 93,
+      "arena": 95
+    },
+    {
+      "model": "claude-sonnet-4-6",
+      "provider": "anthropic",
+      "mmlu": 87,
+      "code": 89,
+      "reasoning": 90,
+      "arena": 92
+    },
+    {
+      "model": "mistral-3.1-small",
+      "provider": "mistral",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "mistral-tiny",
+      "provider": "mistral",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "mistral-small",
+      "provider": "mistral",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "mistral-medium",
+      "provider": "mistral",
+      "mmlu": 83,
+      "code": 86,
+      "reasoning": 85,
+      "arena": 87
+    },
+    {
+      "model": "mistral-medium-2505",
+      "provider": "mistral",
+      "mmlu": 83,
+      "code": 86,
+      "reasoning": 85,
+      "arena": 87
+    },
+    {
+      "model": "mistral-medium-2312",
+      "provider": "mistral",
+      "mmlu": 83,
+      "code": 86,
+      "reasoning": 85,
+      "arena": 87
+    },
+    {
+      "model": "mistral-large",
+      "provider": "mistral",
+      "mmlu": 86,
+      "code": 88,
+      "reasoning": 89,
+      "arena": 90
+    },
+    {
+      "model": "mistral-large-2411",
+      "provider": "mistral",
+      "mmlu": 86,
+      "code": 88,
+      "reasoning": 89,
+      "arena": 90
+    },
+    {
+      "model": "mistral-large-2402",
+      "provider": "mistral",
+      "mmlu": 86,
+      "code": 88,
+      "reasoning": 89,
+      "arena": 90
+    },
+    {
+      "model": "mistral-large-2407",
+      "provider": "mistral",
+      "mmlu": 86,
+      "code": 88,
+      "reasoning": 89,
+      "arena": 90
+    },
+    {
+      "model": "pixtral-large-2411",
+      "provider": "mistral",
+      "mmlu": 86,
+      "code": 88,
+      "reasoning": 89,
+      "arena": 90
+    },
+    {
+      "model": "pixtral-12b-2409",
+      "provider": "mistral",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "open-mistral-7b",
+      "provider": "mistral",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "open-mixtral-8x7b",
+      "provider": "mistral",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "open-mixtral-8x22b",
+      "provider": "mistral",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "codestral-2405",
+      "provider": "mistral",
+      "mmlu": 83,
+      "code": 86,
+      "reasoning": 85,
+      "arena": 87
+    },
+    {
+      "model": "open-mistral-nemo",
+      "provider": "mistral",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "open-mistral-nemo-2407",
+      "provider": "mistral",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "open-codestral-mamba",
+      "provider": "mistral",
+      "mmlu": 83,
+      "code": 86,
+      "reasoning": 85,
+      "arena": 87
+    },
+    {
+      "model": "devstral-small-2505",
+      "provider": "mistral",
+      "mmlu": 83,
+      "code": 86,
+      "reasoning": 85,
+      "arena": 87
+    },
+    {
+      "model": "devstral-small-2507",
+      "provider": "mistral",
+      "mmlu": 83,
+      "code": 86,
+      "reasoning": 85,
+      "arena": 87
+    },
+    {
+      "model": "devstral-medium-2507",
+      "provider": "mistral",
+      "mmlu": 83,
+      "code": 86,
+      "reasoning": 85,
+      "arena": 87
+    },
+    {
+      "model": "magistral-medium-2506",
+      "provider": "mistral",
+      "mmlu": 86,
+      "code": 88,
+      "reasoning": 89,
+      "arena": 90
+    },
+    {
+      "model": "magistral-small-2506",
+      "provider": "mistral",
+      "mmlu": 86,
+      "code": 88,
+      "reasoning": 89,
+      "arena": 90
+    },
+    {
+      "model": "magistral-medium-2509",
+      "provider": "mistral",
+      "mmlu": 86,
+      "code": 88,
+      "reasoning": 89,
+      "arena": 90
+    },
+    {
+      "model": "mistral-large-3",
+      "provider": "mistral",
+      "mmlu": 86,
+      "code": 88,
+      "reasoning": 89,
+      "arena": 90
+    },
+    {
+      "model": "codestral-2508",
+      "provider": "mistral",
+      "mmlu": 83,
+      "code": 86,
+      "reasoning": 85,
+      "arena": 87
+    },
+    {
+      "model": "labs-devstral-small-2512",
+      "provider": "mistral",
+      "mmlu": 83,
+      "code": 86,
+      "reasoning": 85,
+      "arena": 87
+    },
+    {
+      "model": "devstral-2512",
+      "provider": "mistral",
+      "mmlu": 83,
+      "code": 86,
+      "reasoning": 85,
+      "arena": 87
+    },
+    {
+      "model": "magistral-medium-1-2-2509",
+      "provider": "mistral",
+      "mmlu": 86,
+      "code": 88,
+      "reasoning": 89,
+      "arena": 90
+    },
+    {
+      "model": "magistral-small-1-2-2509",
+      "provider": "mistral",
+      "mmlu": 86,
+      "code": 88,
+      "reasoning": 89,
+      "arena": 90
+    },
+    {
+      "model": "mistral-large-2512",
+      "provider": "mistral",
+      "mmlu": 86,
+      "code": 88,
+      "reasoning": 89,
+      "arena": 90
+    },
+    {
+      "model": "mistral-medium-3-1-2508",
+      "provider": "mistral",
+      "mmlu": 83,
+      "code": 86,
+      "reasoning": 85,
+      "arena": 87
+    },
+    {
+      "model": "mistral-small-3-2-2506",
+      "provider": "mistral",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "ministral-3-3b-2512",
+      "provider": "mistral",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "ministral-3-8b-2512",
+      "provider": "mistral",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "ministral-3-14b-2512",
+      "provider": "mistral",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    }
+  ]
+}

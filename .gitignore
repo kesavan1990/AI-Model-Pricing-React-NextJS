@@ -2,6 +2,19 @@
 # Only ignore root-level api/; src/api/ is the frontend pricing API service module
 /api/
 
+# Dependencies (do not push to GitHub — exceeds file size limit)
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# Build / env
+.env
+.env.local
+.env.*.local
+*.tsbuildinfo
+
 # OS
 .DS_Store
 Thumbs.db
