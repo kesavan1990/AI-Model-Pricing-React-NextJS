@@ -84,26 +84,75 @@ function appendRowsWithFragment(tbody, rowHtmlArray) {
   tbody.appendChild(fragment);
 }
 
+/** True if the Gemini model is retired/deprecated (e.g. Gemini 1.0). Used for UI badge. */
+export function isRetiredGeminiModel(name) {
+  if (!name || typeof name !== 'string') return false;
+  const n = name.toLowerCase();
+  return n.includes('1.0') || /^gemini-1\.0-/.test(n) || n === 'gemini-pro';
+}
+
+/** True if the OpenAI model is retired/deprecated (e.g. older GPT-4/3.5 versions). Used for UI badge. */
+export function isRetiredOpenAIModel(name) {
+  if (!name || typeof name !== 'string') return false;
+  const n = name.toLowerCase();
+  return (
+    n === 'babbage-002' || n === 'davinci-002' ||
+    n === 'text-embedding-ada-002' ||
+    /gpt-4-0314|gpt-4-32k-0314|gpt-4-32k-0613|gpt-4-1106-preview|gpt-4-0125-preview|gpt-4-turbo-preview/.test(n) ||
+    /gpt-3\.5-turbo-0301|gpt-3\.5-turbo-0613|gpt-3\.5-turbo-1106|gpt-3\.5-turbo-instruct/.test(n)
+  );
+}
+
+/** True if the Anthropic model is retired/deprecated (e.g. Claude 3 Opus, 3.5 Haiku, 3.7 Sonnet). Used for UI badge. */
+export function isRetiredAnthropicModel(name) {
+  if (!name || typeof name !== 'string') return false;
+  const n = name.toLowerCase();
+  return (
+    n === 'claude-3-opus' || n === 'claude-3-haiku' ||
+    /claude-3-5-haiku|claude-3-7-sonnet|claude-3\.5-sonnet|claude-3\.7-sonnet/.test(n) ||
+    /claude-3-haiku-20240307|claude-3-5-haiku-20241022|claude-3-7-sonnet-20250219/.test(n)
+  );
+}
+
+/** True if the Mistral model is retired/deprecated (e.g. legacy Mistral Large/Small, Nemo). Used for UI badge. */
+export function isRetiredMistralModel(name) {
+  if (!name || typeof name !== 'string') return false;
+  const n = name.toLowerCase();
+  return (
+    n === 'mistral-large' || n === 'mistral-small' ||
+    n === 'mistral-medium-2312' || /^open-mistral-nemo(-|$)/.test(n)
+  );
+}
+
 export function renderTables(data, benchmarks = null) {
   const { gemini = [], openai = [], anthropic = [], mistral = [] } = data;
   const geminiRow = (m) => {
     const badge = m.badge ? `<span>${m.badge}</span>` : '';
+    const retiredBadge = isRetiredGeminiModel(m.name) ? ' <span class="retired-badge" title="Retired by Google; may be unavailable or deprecated">Retired</span>' : '';
     const inp = m.input === 0 ? 'Free' : '$' + Number(m.input).toFixed(2);
     const out = m.output === 0 ? 'Free' : '$' + Number(m.output).toFixed(2);
-    return `<tr><td class="model-name">${m.name}${badge}</td><td class="price price-input">${inp}</td><td class="price price-output">${out}</td></tr>`;
+    return `<tr><td class="model-name">${m.name}${badge}${retiredBadge}</td><td class="price price-input">${inp}</td><td class="price price-output">${out}</td></tr>`;
   };
   const openaiRow = (m) => {
     const badge = m.badge ? `<span>${m.badge}</span>` : '';
+    const retiredBadge = isRetiredOpenAIModel(m.name) ? ' <span class="retired-badge" title="Retired or deprecated by OpenAI; may be unavailable">Retired</span>' : '';
     const isEmbed = /^text-embedding/i.test(m.name);
     const inp = m.input === 0 ? 'Free' : '$' + Number(m.input).toFixed(2);
     const cached = m.cachedInput != null ? '$' + Number(m.cachedInput).toFixed(2) : '—';
     const out = isEmbed ? '—' : (m.output === 0 ? 'Free' : '$' + Number(m.output).toFixed(2));
-    return `<tr><td class="model-name">${m.name}${badge}</td><td class="price price-input">${inp}</td><td class="price price-cached">${cached}</td><td class="price price-output">${out}</td></tr>`;
+    return `<tr><td class="model-name">${m.name}${badge}${retiredBadge}</td><td class="price price-input">${inp}</td><td class="price price-cached">${cached}</td><td class="price price-output">${out}</td></tr>`;
   };
-  const simpleRow = (m) => {
+  const anthropicRow = (m) => {
+    const retiredBadge = isRetiredAnthropicModel(m.name) ? ' <span class="retired-badge" title="Retired or deprecated by Anthropic; may be unavailable">Retired</span>' : '';
     const inp = m.input === 0 ? 'Free' : '$' + Number(m.input).toFixed(2);
     const out = m.output === 0 ? 'Free' : '$' + Number(m.output).toFixed(2);
-    return `<tr><td class="model-name">${m.name}</td><td class="price price-input">${inp}</td><td class="price price-output">${out}</td></tr>`;
+    return `<tr><td class="model-name">${m.name}${retiredBadge}</td><td class="price price-input">${inp}</td><td class="price price-output">${out}</td></tr>`;
+  };
+  const mistralRow = (m) => {
+    const retiredBadge = isRetiredMistralModel(m.name) ? ' <span class="retired-badge" title="Retired or deprecated by Mistral; may be unavailable">Retired</span>' : '';
+    const inp = m.input === 0 ? 'Free' : '$' + Number(m.input).toFixed(2);
+    const out = m.output === 0 ? 'Free' : '$' + Number(m.output).toFixed(2);
+    return `<tr><td class="model-name">${m.name}${retiredBadge}</td><td class="price price-input">${inp}</td><td class="price price-output">${out}</td></tr>`;
   };
   const geminiTbody = document.getElementById('gemini-tbody');
   const openaiTbody = document.getElementById('openai-tbody');
@@ -111,8 +160,8 @@ export function renderTables(data, benchmarks = null) {
   const mistralTbody = document.getElementById('mistral-tbody');
   if (geminiTbody) appendRowsWithFragment(geminiTbody, gemini.map(geminiRow));
   if (openaiTbody) appendRowsWithFragment(openaiTbody, openai.map(openaiRow));
-  if (anthropicTbody) appendRowsWithFragment(anthropicTbody, anthropic.map(simpleRow));
-  if (mistralTbody) appendRowsWithFragment(mistralTbody, mistral.map(simpleRow));
+  if (anthropicTbody) appendRowsWithFragment(anthropicTbody, anthropic.map(anthropicRow));
+  if (mistralTbody) appendRowsWithFragment(mistralTbody, mistral.map(mistralRow));
   filterPricingTable('gemini-tbody', document.getElementById('gemini-search')?.value);
   filterPricingTable('openai-tbody', document.getElementById('openai-search')?.value);
   filterPricingTable('anthropic-tbody', document.getElementById('anthropic-search')?.value);
@@ -213,7 +262,16 @@ export function renderModelComparisonTable(data, providerFilter, sortByArg) {
     const out = fmt(m.output);
     const ctx = m.contextWindow || '—';
     const isCheapest = cheapestModel && m.name === cheapestModel.name && m.providerKey === cheapestModel.providerKey;
-    const nameCell = isCheapest ? `${m.name} <span class="cheapest-badge" aria-label="Cheapest">🟢 Cheapest</span>` : m.name;
+    let nameCell = isCheapest ? `${m.name} <span class="cheapest-badge" aria-label="Cheapest">🟢 Cheapest</span>` : m.name;
+    if (m.providerKey === 'gemini' && isRetiredGeminiModel(m.name)) {
+      nameCell += ' <span class="retired-badge" title="Retired by Google; may be unavailable or deprecated">Retired</span>';
+    } else if (m.providerKey === 'openai' && isRetiredOpenAIModel(m.name)) {
+      nameCell += ' <span class="retired-badge" title="Retired or deprecated by OpenAI">Retired</span>';
+    } else if (m.providerKey === 'anthropic' && isRetiredAnthropicModel(m.name)) {
+      nameCell += ' <span class="retired-badge" title="Retired or deprecated by Anthropic">Retired</span>';
+    } else if (m.providerKey === 'mistral' && isRetiredMistralModel(m.name)) {
+      nameCell += ' <span class="retired-badge" title="Retired or deprecated by Mistral">Retired</span>';
+    }
     const rowClass = isCheapest ? 'cheapest' : '';
     return `<tr class="${rowClass}"><td class="model-name">${nameCell}</td><td class="provider-name">${m.provider}</td><td class="price price-input">${inp}</td><td class="price price-output">${out}</td><td class="context-window">${ctx}</td></tr>`;
   });

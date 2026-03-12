@@ -253,6 +253,15 @@ h1 {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.provider-pricing-note {
+    font-size: 0.8rem;
+    color: var(--theme-text-muted, #888);
+    margin: -8px 0 14px 0;
+    line-height: 1.4;
+}
+.provider-pricing-note a { color: #93c5fd; text-decoration: none; }
+.provider-pricing-note a:hover { text-decoration: underline; }
+
 .provider-logo-badge {
     width: 52px;
     height: 52px;
@@ -529,6 +538,15 @@ h1 {
     font-weight: 600;
 }
 .model-comparison-table tr.cheapest .model-name { font-weight: 600; }
+.retired-badge {
+    font-size: 0.7rem;
+    background: rgba(148, 163, 184, 0.25);
+    color: #94a3b8;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 6px;
+    font-weight: 600;
+}
 .cheapest-badge {
     display: inline-block;
     margin-left: 8px;
@@ -1185,6 +1203,9 @@ h1 {
 [data-theme="light"] .calculator-card:hover { box-shadow: 0 12px 28px rgba(0,0,0,0.12); }
 [data-theme="light"] .provider-header,
 [data-theme="light"] .tab-panel .page-section { border-color: var(--theme-card-border); }
+[data-theme="light"] .provider-pricing-note { color: #64748b; }
+[data-theme="light"] .provider-pricing-note a { color: #2563eb; }
+[data-theme="light"] .retired-badge { background: #e2e8f0; color: #64748b; }
 [data-theme="light"] .tab-nav { background: var(--theme-tab-bg); border-color: var(--theme-tab-border); }
 [data-theme="light"] .tab-link { color: var(--theme-text-muted); }
 [data-theme="light"] .tab-link:hover { color: var(--theme-text); background: rgba(0,0,0,0.06); }
