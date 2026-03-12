@@ -11,15 +11,17 @@
 
 import { isRetiredOpenAIModel } from '../utils/retiredModels.js';
 
-// --- Gemini: official list is 2.5 series, 3.x series, embedding-2, live, and some 2.0 (until deprecated) ---
+// --- Gemini: official list is 2.5 series, 3.x series, embedding-2, live, robotics, and some 2.0 (until deprecated) ---
 const GEMINI_ALLOWED_PATTERNS = [
   /^gemini-2\.5-/,           // 2.5 Pro, 2.5 Flash, 2.5 Flash-Lite, Live, TTS, etc.
   /^gemini-3\./,              // 3.1 Pro, 3 Flash, 3.1 Flash-Lite, 3.1 Flash Image, etc.
-  /^gemini-embedding-2/,       // gemini-embedding-2-preview
-  /^gemini-live-2\.5/,         // Live 2.5
+  /^gemini-embedding-2/,      // gemini-embedding-2-preview
+  /^gemini-embedding-001/,   // legacy embedding (if still listed)
+  /^gemini-live-2\.5/,       // Live 2.5
   /^gemini-2\.0-/,            // 2.0 Flash/Lite (until official removal)
-  /^gemini-gemma-2-/,          // Gemma 2 (if still on official page)
-  /^gemini-exp-/,              // Experimental (if listed)
+  /^gemini-gemma-2-/,         // Gemma 2 (if still on official page)
+  /^gemini-exp-/,             // Experimental (if listed)
+  /^gemini-robotics-/,        // Robotics ER and related (official)
 ];
 
 function isAllowedGeminiModel(name) {
@@ -52,20 +54,29 @@ function isAllowedAnthropicModel(name) {
 
 // --- Mistral: official list uses current naming (Large 3, Medium 3.x, Small 3.x, Ministral, Magistral, etc.) ---
 const MISTRAL_ALLOWED_PATTERNS = [
-  /^mistral-large-3/,     // Mistral Large 3
-  /^mistral-large-2512/,  // v25.12
-  /^mistral-medium-3/,    // Mistral Medium 3.1 (e.g. mistral-medium-3-1-2508)
-  /^mistral-small-3/,      // Mistral Small 3.2 (e.g. mistral-small-3-2-2506)
-  /^mistral-3\./,          // mistral-3.1-small, etc.
-  /^ministral-3/,         // Ministral 3
-  /^magistral-/,          // Magistral Medium/Small
-  /^codestral-/,          // Codestral
-  /^pixtral-/,            // Pixtral
-  /^devstral-/,            // Devstral
-  /^open-mistral-7b/,     // Open Mistral 7B
-  /^mistral-7b/,          // Mistral 7B
-  /^mistral-tiny/,        // Mistral Tiny (if on official page)
-  /^mixtral-8x22b/,       // Mixtral 8x22B (if still listed)
+  /^mistral-large-3/,       // Mistral Large 3
+  /^mistral-large-2512/,    // v25.12
+  /^mistral-medium-3/,      // Mistral Medium 3.1 (e.g. mistral-medium-3-1-2508)
+  /^mistral-small-3/,       // Mistral Small 3.2 (e.g. mistral-small-3-2-2506)
+  /^mistral-3\./,           // mistral-3.1-small, etc.
+  /^mistral-medium-2505/,   // dated variants (if on page)
+  /^mistral-large-24/,      // mistral-large-2402, 2407, 2411 (if still listed)
+  /^ministral-3/,           // Ministral 3 (3b, 8b, 14b)
+  /^magistral-/,            // Magistral Medium/Small (2506, 2509, 1-2-2509, etc.)
+  /^codestral-/,            // Codestral (2405, 2508)
+  /^pixtral-/,              // Pixtral (large-2411, 12b-2409)
+  /^devstral-/,             // Devstral (small-2505, 2507, 2512)
+  /^labs-devstral-/i,       // labs-devstral-small-2512
+  /^open-mistral-7b/,       // Open Mistral 7B
+  /^open-mistral-/,         // open-mistral-nemo, etc. (if still listed)
+  /^open-mixtral-/,         // open-mixtral-8x7b, open-mixtral-8x22b
+  /^open-codestral-/,       // open-codestral-mamba
+  /^mistral-7b/,            // Mistral 7B
+  /^mistral-tiny/,          // Mistral Tiny (if on official page)
+  /^mistral-small$/,        // generic small (if on page)
+  /^mistral-medium$/,       // generic medium (if on page)
+  /^mistral-large$/,        // generic large (if on page)
+  /^mixtral-8x22b/,         // Mixtral 8x22B
 ];
 
 function isAllowedMistralModel(name) {

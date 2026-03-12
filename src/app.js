@@ -10,6 +10,7 @@ import { mergeTiersIntoPayload } from './data/pricingTiersOverlay.js';
 import { getCachedPricing, setCachedPricing } from './utils/cacheManager.js';
 import { isRetiredGeminiModel, isRetiredOpenAIModel, isRetiredAnthropicModel, isRetiredMistralModel } from './utils/retiredModels.js';
 import { isAllowedModel } from './data/allowedModels.js';
+import { getProviderByModelName } from './data/providerByModel.js';
 import * as calc from './calculator.js';
 import * as render from './render.js';
 import * as valueChart from './valueChart.js';
@@ -22,6 +23,31 @@ let mistralData = [];
 
 function getData() {
   return { gemini: geminiData, openai: openaiData, anthropic: anthropicData, mistral: mistralData };
+}
+
+/** Reassign every model to its canonical provider by name so all models appear under the correct provider. */
+function reassignByCanonicalProvider(data) {
+  if (!data || typeof data !== 'object') return data;
+  const buckets = { gemini: [], openai: [], anthropic: [], mistral: [] };
+  const seen = { gemini: new Set(), openai: new Set(), anthropic: new Set(), mistral: new Set() };
+  const push = (provider, model) => {
+    if (!model || !model.name || !buckets[provider]) return;
+    const key = model.name.toLowerCase().trim();
+    if (seen[provider].has(key)) return;
+    seen[provider].add(key);
+    buckets[provider].push(model);
+  };
+  for (const provider of ['gemini', 'openai', 'anthropic', 'mistral']) {
+    const list = data[provider];
+    if (!Array.isArray(list)) continue;
+    for (const m of list) {
+      if (!m || !m.name) continue;
+      const canonical = getProviderByModelName(m.name);
+      if (canonical) push(canonical, m);
+      else push(provider, m);
+    }
+  }
+  return { ...data, ...buckets };
 }
 
 /** Keep only models that are listed as available on each provider's official page. */
@@ -49,7 +75,8 @@ function filterRetiredModels(data) {
 }
 
 function setData(data) {
-  const allowed = filterToAllowedModels(data);
+  const reassigned = reassignByCanonicalProvider(data);
+  const allowed = filterToAllowedModels(reassigned);
   const filtered = filterRetiredModels(allowed);
   if (filtered.gemini) geminiData = filtered.gemini;
   if (filtered.openai) openaiData = filtered.openai;
