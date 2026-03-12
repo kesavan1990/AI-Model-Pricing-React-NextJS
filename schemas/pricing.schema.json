@@ -32,12 +32,26 @@
     "model": {
       "type": "object",
       "required": ["name", "input", "output"],
-      "additionalProperties": false,
+      "additionalProperties": true,
       "properties": {
         "name": { "type": "string", "minLength": 1 },
         "input": { "type": "number", "minimum": 0 },
         "output": { "type": "number", "minimum": 0 },
-        "cachedInput": { "type": ["number", "null"], "minimum": 0 }
+        "cachedInput": { "type": ["number", "null"], "minimum": 0 },
+        "tiers": {
+          "type": "array",
+          "description": "Context/tier-specific pricing (e.g. ≤200K vs >200K). When present, UI shows one row per tier.",
+          "items": {
+            "type": "object",
+            "required": ["contextLabel", "input", "output"],
+            "properties": {
+              "contextLabel": { "type": "string", "minLength": 1 },
+              "input": { "type": "number", "minimum": 0 },
+              "output": { "type": "number", "minimum": 0 },
+              "cachedInput": { "type": ["number", "null"] }
+            }
+          }
+        }
       }
     }
   }

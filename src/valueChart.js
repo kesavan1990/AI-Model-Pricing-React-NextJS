@@ -43,6 +43,7 @@ export function mergeModels(data, fileBenchmarks, performanceMetric = 'arena', p
       const cost = computeCostPerRequest(m, promptTokens, outputTokens);
       return {
         name: m.name,
+        contextTier: m.contextTier || null,
         provider: m.provider,
         providerKey: m.providerKey,
         cost,
@@ -105,7 +106,7 @@ export function renderQuadrantChart(canvasOrId, mergedModels, options = {}) {
   }
 
   const frontier = computeFrontier(list);
-  const frontierSet = new Set(frontier.map((m) => m.providerKey + ':' + m.name));
+  const frontierSet = new Set(frontier.map((m) => m.providerKey + ':' + m.name + ':' + (m.contextTier || '')));
 
   const allPoints = list.map((m) => ({ x: m.cost, y: m.performance, ...m }));
   const frontierPoints = frontier.map((m) => ({ x: m.cost, y: m.performance, ...m }));
@@ -186,9 +187,10 @@ export function renderQuadrantChart(canvasOrId, mergedModels, options = {}) {
               const p = context.raw;
               const m = allPoints.find((a) => a.x === p.x && a.y === p.y) || frontierPoints.find((a) => a.x === p.x && a.y === p.y);
               if (!m) return `${p.x?.toFixed(4)} $, ${p.y}`;
-              const onFrontier = frontierSet.has(m.providerKey + ':' + m.name);
+              const onFrontier = frontierSet.has(m.providerKey + ':' + m.name + ':' + (m.contextTier || ''));
+              const nameLabel = m.contextTier ? `${m.name} (${m.contextTier})` : m.name;
               const lines = [
-                m.name + ' · ' + m.provider,
+                nameLabel + ' · ' + m.provider,
                 `Cost/request: $${(m.cost || 0).toFixed(4)}`,
                 `${metricLabel}: ${m.performance}`,
               ];

@@ -70,6 +70,8 @@ All of this is implemented in a single `@media (max-width: 768px)` block in `css
 
 In the **Overview** section, the **Current pricing** block shows API pricing per 1M tokens from Vizra for all four providers. The section header label lists **Gemini · OpenAI · Anthropic · Mistral** so users see that all providers are included. Below the label and Export (CSV/PDF) toolbar, the **pricing grid** displays four provider cards: Google Gemini, OpenAI, Anthropic, and Mistral, each with a searchable model table. Markup: `.pricing-section-header` with `.section-label` and `.pricing-grid` in `index.html`.
 
+**Context/tier pricing** — When tiered pricing is available (e.g. ≤200K vs >200K tokens), the app shows **all tiers** in the pricing grid: each model has a **Context / tier** column and one row per tier (e.g. "≤200K tokens", ">200K tokens"). Tier data comes from `src/data/pricingTiersOverlay.js` (merged into the payload after load). The **Model comparison** table and **Cost vs Performance** chart also expand by tier (one row or point per tier). Exports (CSV/PDF) include the context tier column.
+
 **Provider-specific pricing and retired models** — Each provider card can show a short note (`.provider-pricing-note`) and **Retired** badge (`.retired-badge`) where applicable:
 
 - **Gemini:** Context-tiered pricing (e.g. ≤200K vs >200K tokens); single rate shown; link to [official pricing](https://ai.google.dev/gemini-api/docs/pricing). Retired: e.g. Gemini 1.0 Pro/Ultra, `gemini-pro`; `isRetiredGeminiModel()`.

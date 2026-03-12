@@ -6,6 +6,7 @@
 import * as api from './api.js';
 import * as pricingApi from './api/pricingService.js';
 import * as pricing from './pricingService.js';
+import { mergeTiersIntoPayload } from './data/pricingTiersOverlay.js';
 import { getCachedPricing, setCachedPricing } from './utils/cacheManager.js';
 import * as calc from './calculator.js';
 import * as render from './render.js';
@@ -57,6 +58,7 @@ function updateValueChartIfVisible() {
 async function loadPricing() {
   try {
     const [result, benchPayload] = await Promise.all([pricing.loadPricingFromApi(pricingApi.fetchPricingData), api.getBenchmarks()]);
+    mergeTiersIntoPayload(result);
     setData(result);
     benchmarksData = benchPayload?.benchmarks ?? null;
     render.setLastUpdated(result.updated);
@@ -70,12 +72,14 @@ async function loadPricing() {
     if (result.usedFallback === 'default') render.showToast('Using embedded default pricing (no file or cache).', 'success');
   } catch (err) {
     console.error('loadPricing failed:', err);
-    setData({
+    const fallback = {
       gemini: pricing.DEFAULT_PRICING.gemini.slice(),
       openai: pricing.DEFAULT_PRICING.openai.slice(),
       anthropic: (pricing.DEFAULT_PRICING.anthropic || []).slice(),
       mistral: (pricing.DEFAULT_PRICING.mistral || []).slice(),
-    });
+    };
+    mergeTiersIntoPayload(fallback);
+    setData(fallback);
     benchmarksData = null;
     render.setLastUpdated('embedded default');
     render.setBenchmarksLastUpdated('—');
@@ -120,6 +124,7 @@ async function fillMissingProvidersFromVizra() {
   } catch (_) {
     const applied = await pricing.applyFallbackPricingFromFile(api.getPricing, getData());
     if (applied) {
+      mergeTiersIntoPayload(applied);
       setData(applied);
       render.renderTables(getData(), getBenchmarksData());
       updateValueChartIfVisible();
@@ -159,7 +164,9 @@ async function runDailyCapture() {
     try {
       localStorage.setItem(pricing.LAST_DAILY_KEY, today);
     } catch (_) {}
-    setData({ gemini: g, openai: o, anthropic: a, mistral: m });
+    const dailyPayload = { gemini: g, openai: o, anthropic: a, mistral: m };
+    mergeTiersIntoPayload(dailyPayload);
+    setData(dailyPayload);
     const payload = { ...getData(), updated: new Date().toISOString().slice(0, 10) };
     setCachedPricing(payload);
     render.setLastUpdated(payload.updated + ' (from web)');
@@ -203,12 +210,14 @@ async function refreshFromWeb() {
     if (api.isGitHubPages()) {
       const data = await api.getPricing();
       if (!data || typeof data !== 'object') throw new Error('Could not load pricing');
-      setData({
+      const refreshed = {
         gemini: data.gemini?.length ? pricing.dedupeModelsByName(data.gemini) : geminiData,
         openai: data.openai?.length ? pricing.dedupeModelsByName(data.openai) : openaiData,
         anthropic: data.anthropic?.length ? pricing.dedupeModelsByName(data.anthropic) : anthropicData,
         mistral: data.mistral?.length ? pricing.dedupeModelsByName(data.mistral) : mistralData,
-      });
+      };
+      mergeTiersIntoPayload(refreshed);
+      setData(refreshed);
       const payload = { ...getData(), updated: data.updated || new Date().toISOString().slice(0, 10) };
       let drops = [],
         increases = [];
@@ -235,12 +244,14 @@ async function refreshFromWeb() {
       if (!raw || typeof raw !== 'object') throw new Error('Pricing API unavailable');
       const { payload: parsed } = pricing.normalizeFetchedPricing(raw);
       if (!parsed || (!parsed.gemini?.length && !parsed.openai?.length)) throw new Error('No pricing data');
-      setData({
+      const refreshedVizra = {
         gemini: parsed.gemini?.length ? parsed.gemini : geminiData,
         openai: parsed.openai?.length ? parsed.openai : openaiData,
         anthropic: parsed.anthropic?.length ? parsed.anthropic : anthropicData,
         mistral: parsed.mistral?.length ? parsed.mistral : mistralData,
-      });
+      };
+      mergeTiersIntoPayload(refreshedVizra);
+      setData(refreshedVizra);
       const payload = { ...getData(), updated: new Date().toISOString().slice(0, 10) };
       let drops = [],
         increases = [];
@@ -267,6 +278,7 @@ async function refreshFromWeb() {
     setData(prev);
     const fallback = await pricing.applyFallbackPricingFromFile(api.getPricing, getData());
     if (fallback) {
+      mergeTiersIntoPayload(fallback);
       setData(fallback);
       render.setLastUpdated(render.formatTimestampWithTimezone(new Date()) + ' (fallback)');
       render.renderTables(getData(), getBenchmarksData());
@@ -357,12 +369,25 @@ function openHistoryModal() {
 
 // --- Exports (CSV/PDF) ---
 function exportPricingCSV() {
-  const rows = ['Provider,Model,Input per 1M tokens,Output per 1M tokens,Cached input per 1M tokens'];
+  const rows = ['Provider,Model,Context / tier,Input per 1M,Output per 1M,Cached per 1M'];
   const { gemini, openai, anthropic, mistral } = getData();
-  gemini.forEach((m) => rows.push(['Google Gemini', m.name, m.input, m.output, ''].map(render.escapeCsvCell).join(',')));
-  openai.forEach((m) => rows.push(['OpenAI', m.name, m.input, m.output, m.cachedInput != null ? m.cachedInput : ''].map(render.escapeCsvCell).join(',')));
-  anthropic.forEach((m) => rows.push(['Anthropic', m.name, m.input, m.output, ''].map(render.escapeCsvCell).join(',')));
-  mistral.forEach((m) => rows.push(['Mistral', m.name, m.input, m.output, ''].map(render.escapeCsvCell).join(',')));
+  const push = (provider, m, ctx, inp, out, cached) => rows.push([provider, m.name, ctx, inp, out, cached != null ? cached : ''].map(render.escapeCsvCell).join(','));
+  gemini.forEach((m) => {
+    if (m.tiers?.length) m.tiers.forEach((t) => push('Google Gemini', m, t.contextLabel, t.input, t.output, null));
+    else push('Google Gemini', m, '—', m.input, m.output, null);
+  });
+  openai.forEach((m) => {
+    if (m.tiers?.length) m.tiers.forEach((t) => push('OpenAI', m, t.contextLabel, t.input, t.output, t.cachedInput));
+    else push('OpenAI', m, '—', m.input, m.output, m.cachedInput);
+  });
+  anthropic.forEach((m) => {
+    if (m.tiers?.length) m.tiers.forEach((t) => push('Anthropic', m, t.contextLabel, t.input, t.output, null));
+    else push('Anthropic', m, '—', m.input, m.output, null);
+  });
+  mistral.forEach((m) => {
+    if (m.tiers?.length) m.tiers.forEach((t) => push('Mistral', m, t.contextLabel, t.input, t.output, null));
+    else push('Mistral', m, '—', m.input, m.output, null);
+  });
   const csv = '\uFEFF' + rows.join('\r\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
@@ -385,23 +410,37 @@ function exportPricingPDF() {
   doc.setTextColor(80, 80, 80);
   doc.text('Pricing as of: ' + new Date().toLocaleDateString(undefined, { dateStyle: 'long' }), pageW / 2, 25, { align: 'center' });
   doc.setTextColor(0, 0, 0);
-  const headers = ['Provider', 'Model', 'Input/1M', 'Output/1M', 'Cached/1M'];
-  const colWidths = [32, 56, 24, 24, 24];
+  const headers = ['Provider', 'Model', 'Context/tier', 'Input/1M', 'Output/1M', 'Cached/1M'];
+  const colWidths = [28, 48, 28, 22, 22, 22];
   const rows = [];
-  getData().gemini.forEach((m) => rows.push(['Google Gemini', m.name, m.input === 0 ? 'Free' : '$' + Number(m.input).toFixed(2), m.output === 0 ? 'Free' : '$' + Number(m.output).toFixed(2), '—']));
-  getData().openai.forEach((m) => rows.push(['OpenAI', m.name, m.input === 0 ? 'Free' : '$' + Number(m.input).toFixed(2), m.output === 0 ? 'Free' : '$' + Number(m.output).toFixed(2), m.cachedInput != null ? '$' + Number(m.cachedInput).toFixed(2) : '—']));
-  getData().anthropic.forEach((m) => rows.push(['Anthropic', m.name, m.input === 0 ? 'Free' : '$' + Number(m.input).toFixed(2), m.output === 0 ? 'Free' : '$' + Number(m.output).toFixed(2), '—']));
-  getData().mistral.forEach((m) => rows.push(['Mistral', m.name, m.input === 0 ? 'Free' : '$' + Number(m.input).toFixed(2), m.output === 0 ? 'Free' : '$' + Number(m.output).toFixed(2), '—']));
+  const fmt = (v) => (v === 0 ? 'Free' : '$' + Number(v).toFixed(2));
+  const add = (provider, m, ctx, inp, out, cached) => rows.push([provider, m.name, ctx, fmt(inp), fmt(out), cached != null ? fmt(cached) : '—']);
+  getData().gemini.forEach((m) => {
+    if (m.tiers?.length) m.tiers.forEach((t) => add('Google Gemini', m, t.contextLabel, t.input, t.output, null));
+    else add('Google Gemini', m, '—', m.input, m.output, null);
+  });
+  getData().openai.forEach((m) => {
+    if (m.tiers?.length) m.tiers.forEach((t) => add('OpenAI', m, t.contextLabel, t.input, t.output, t.cachedInput));
+    else add('OpenAI', m, '—', m.input, m.output, m.cachedInput);
+  });
+  getData().anthropic.forEach((m) => {
+    if (m.tiers?.length) m.tiers.forEach((t) => add('Anthropic', m, t.contextLabel, t.input, t.output, null));
+    else add('Anthropic', m, '—', m.input, m.output, null);
+  });
+  getData().mistral.forEach((m) => {
+    if (m.tiers?.length) m.tiers.forEach((t) => add('Mistral', m, t.contextLabel, t.input, t.output, null));
+    else add('Mistral', m, '—', m.input, m.output, null);
+  });
   render.drawPdfBorderedTable(doc, 32, headers, rows, colWidths);
   doc.save('ai-pricing-' + new Date().toISOString().slice(0, 10) + '.pdf');
 }
 
 function exportComparisonCSV() {
   const list = render.getComparisonList(getData());
-  const rows = ['Model,Provider,Input per 1M,Output per 1M,Context'];
+  const rows = ['Model,Provider,Pricing tier,Input per 1M,Output per 1M,Context window'];
   const fmt = (v) => (v === 0 ? 'Free' : '$' + Number(v).toFixed(2));
   list.forEach((m) => {
-    rows.push([m.name, m.provider, fmt(m.input), fmt(m.output), m.contextWindow || '—'].map(render.escapeCsvCell).join(','));
+    rows.push([m.name, m.provider, m.contextTier || '—', fmt(m.input), fmt(m.output), m.contextWindow || '—'].map(render.escapeCsvCell).join(','));
   });
   const csv = '\uFEFF' + rows.join('\r\n');
   const a = document.createElement('a');
@@ -428,9 +467,9 @@ function exportComparisonPDF() {
   doc.setTextColor(80, 80, 80);
   doc.text('Exported: ' + new Date().toLocaleDateString(undefined, { dateStyle: 'long' }), pageW / 2, 25, { align: 'center' });
   doc.setTextColor(0, 0, 0);
-  const headers = ['Model', 'Provider', 'Input/1M', 'Output/1M', 'Context'];
-  const colWidths = [50, 36, 28, 28, 28];
-  const rows = list.map((m) => [m.name, m.provider, fmt(m.input), fmt(m.output), m.contextWindow || '—']);
+  const headers = ['Model', 'Provider', 'Pricing tier', 'Input/1M', 'Output/1M', 'Context'];
+  const colWidths = [42, 32, 32, 24, 24, 24];
+  const rows = list.map((m) => [m.name, m.provider, m.contextTier || '—', fmt(m.input), fmt(m.output), m.contextWindow || '—']);
   render.drawPdfBorderedTable(doc, 32, headers, rows, colWidths);
   doc.save('ai-model-comparison-' + new Date().toISOString().slice(0, 10) + '.pdf');
   render.showToast('Comparison exported as PDF.', 'success');

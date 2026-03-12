@@ -135,10 +135,14 @@ export function calcCostForEntry(entry, inputTokens, cachedTokens, outputTokens)
   if (!entry) return 0;
   const inT = inputTokens || 0;
   const outT = outputTokens || 0;
+  const rate = entry.model.tiers?.length ? entry.model.tiers[0] : entry.model;
+  const inp = Number(rate.input) || 0;
+  const out = Number(rate.output) || 0;
+  const cached = rate.cachedInput != null ? Number(rate.cachedInput) : null;
   if (entry.provider === 'gemini' || entry.provider === 'anthropic' || entry.provider === 'mistral') {
-    return calcCost(inT, outT, entry.model.input, entry.model.output);
+    return calcCost(inT, outT, inp, out);
   }
-  return calcCostOpenAI(inT, cachedTokens || 0, outT, entry.model.input, entry.model.cachedInput, entry.model.output);
+  return calcCostOpenAI(inT, cachedTokens || 0, outT, inp, cached, out);
 }
 
 export function getUnifiedCalcModels(data) {
@@ -166,90 +170,58 @@ export function getCalcModelByKey(key, data) {
 const INPUT_WEIGHT = 0.7;
 const OUTPUT_WEIGHT = 0.3;
 
+function pushModel(list, provider, providerKey, m, input, output, cachedInput, contextTier) {
+  const blended = input * INPUT_WEIGHT + output * OUTPUT_WEIGHT;
+  const tier = input === 0 && output === 0 ? 'budget' : blended >= 8 ? 'pro' : blended < 1 ? 'budget' : 'mid';
+  const ctx = getContextWindow(providerKey, m.name);
+  list.push({
+    provider,
+    providerKey,
+    name: m.name,
+    input,
+    output,
+    cachedInput: cachedInput ?? null,
+    blended,
+    tier,
+    hasCached: cachedInput != null,
+    contextWindow: ctx ? ctx.label : null,
+    contextTokens: ctx ? ctx.tokens : 0,
+    contextTier: contextTier ?? null,
+  });
+}
+
 export function getAllModels(data) {
   const { gemini = [], openai = [], anthropic = [], mistral = [] } = data;
   const list = [];
   gemini.forEach((m) => {
-    const input = Number(m.input) || 0,
-      output = Number(m.output) || 0;
-    const blended = input * INPUT_WEIGHT + output * OUTPUT_WEIGHT;
-    const tier = input === 0 && output === 0 ? 'budget' : blended >= 8 ? 'pro' : blended < 1 ? 'budget' : 'mid';
-    const ctx = getContextWindow('gemini', m.name);
-    list.push({
-      provider: 'Google Gemini',
-      providerKey: 'gemini',
-      name: m.name,
-      input,
-      output,
-      cachedInput: null,
-      blended,
-      tier,
-      hasCached: false,
-      contextWindow: ctx ? ctx.label : null,
-      contextTokens: ctx ? ctx.tokens : 0,
-    });
+    if (m.tiers && m.tiers.length > 0) {
+      m.tiers.forEach((t) => pushModel(list, 'Google Gemini', 'gemini', m, Number(t.input) || 0, Number(t.output) || 0, null, t.contextLabel));
+    } else {
+      pushModel(list, 'Google Gemini', 'gemini', m, Number(m.input) || 0, Number(m.output) || 0, null, null);
+    }
   });
   openai.forEach((m) => {
     if (/^text-embedding/i.test(m.name)) return;
-    const input = Number(m.input) || 0,
-      output = Number(m.output) || 0,
-      cached = Number(m.cachedInput) || 0;
-    const blended = input * INPUT_WEIGHT + output * OUTPUT_WEIGHT;
-    const tier = blended >= 8 ? 'pro' : blended < 1 ? 'budget' : 'mid';
-    const ctx = getContextWindow('openai', m.name);
-    list.push({
-      provider: 'OpenAI',
-      providerKey: 'openai',
-      name: m.name,
-      input,
-      output,
-      cachedInput: m.cachedInput != null ? cached : null,
-      blended,
-      tier,
-      hasCached: m.cachedInput != null,
-      contextWindow: ctx ? ctx.label : null,
-      contextTokens: ctx ? ctx.tokens : 0,
-    });
+    if (m.tiers && m.tiers.length > 0) {
+      m.tiers.forEach((t) => pushModel(list, 'OpenAI', 'openai', m, Number(t.input) || 0, Number(t.output) || 0, t.cachedInput != null ? Number(t.cachedInput) : null, t.contextLabel));
+    } else {
+      const input = Number(m.input) || 0, output = Number(m.output) || 0, cached = Number(m.cachedInput) || 0;
+      pushModel(list, 'OpenAI', 'openai', m, input, output, m.cachedInput != null ? cached : null, null);
+    }
   });
   anthropic.forEach((m) => {
-    const input = Number(m.input) || 0,
-      output = Number(m.output) || 0;
-    const blended = input * INPUT_WEIGHT + output * OUTPUT_WEIGHT;
-    const tier = blended >= 8 ? 'pro' : blended < 1 ? 'budget' : 'mid';
-    const ctx = getContextWindow('anthropic', m.name);
-    list.push({
-      provider: 'Anthropic',
-      providerKey: 'anthropic',
-      name: m.name,
-      input,
-      output,
-      cachedInput: null,
-      blended,
-      tier,
-      hasCached: false,
-      contextWindow: ctx ? ctx.label : null,
-      contextTokens: ctx ? ctx.tokens : 0,
-    });
+    if (m.tiers && m.tiers.length > 0) {
+      m.tiers.forEach((t) => pushModel(list, 'Anthropic', 'anthropic', m, Number(t.input) || 0, Number(t.output) || 0, null, t.contextLabel));
+    } else {
+      pushModel(list, 'Anthropic', 'anthropic', m, Number(m.input) || 0, Number(m.output) || 0, null, null);
+    }
   });
   mistral.forEach((m) => {
-    const input = Number(m.input) || 0,
-      output = Number(m.output) || 0;
-    const blended = input * INPUT_WEIGHT + output * OUTPUT_WEIGHT;
-    const tier = blended >= 8 ? 'pro' : blended < 1 ? 'budget' : 'mid';
-    const ctx = getContextWindow('mistral', m.name);
-    list.push({
-      provider: 'Mistral',
-      providerKey: 'mistral',
-      name: m.name,
-      input,
-      output,
-      cachedInput: null,
-      blended,
-      tier,
-      hasCached: false,
-      contextWindow: ctx ? ctx.label : null,
-      contextTokens: ctx ? ctx.tokens : 0,
-    });
+    if (m.tiers && m.tiers.length > 0) {
+      m.tiers.forEach((t) => pushModel(list, 'Mistral', 'mistral', m, Number(t.input) || 0, Number(t.output) || 0, null, t.contextLabel));
+    } else {
+      pushModel(list, 'Mistral', 'mistral', m, Number(m.input) || 0, Number(m.output) || 0, null, null);
+    }
   });
   return list;
 }
