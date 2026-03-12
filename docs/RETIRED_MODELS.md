@@ -23,16 +23,16 @@ Retired/deprecated models are **excluded from the app**: they do not appear in a
    - `isRetiredMistralModel(name)`
    - `isRetired(providerKey, name)` (single entry point)
 
-2. **`src/app.js`**  
+2. **`lib/dataPipeline.js`** (used by **PricingContext**)  
    - `filterToAllowedModels(data)` keeps only models that pass `isAllowedModel(provider, name)` (see [ALLOWED_MODELS.md](ALLOWED_MODELS.md)).  
    - `filterRetiredModels(data)` filters out retired models using the helpers above.  
-   - `setData(data)` runs `filterToAllowedModels(data)` then `filterRetiredModels(...)` before assigning to in-memory state, so `getData()` returns only official-available, non-retired models.
+   - `processPayload(data)` runs `reassignByCanonicalProvider()` → `filterToAllowedModels()` → `filterRetiredModels()` before the result is stored in context, so `getData()` returns only official-available, non-retired models.
 
 3. **`src/calculator.js`**  
    - `getAllModels(data)` and `getUnifiedCalcModels(data)` include a model only when `isAllowedModel(providerKey, m.name)` is true and `!isRetired(providerKey, m.name)`.
 
-4. **`src/render.js`**  
-   Re-exports the `isRetired*` functions from `utils/retiredModels.js` for backward compatibility.
+4. **`lib/dataPipeline.js`**  
+   Calls `filterRetiredModels()` as part of `processPayload()`. Section components and `src/calculator.js` consume data that has already been filtered.
 
 ## Official sources (deprecated lists taken from here)
 

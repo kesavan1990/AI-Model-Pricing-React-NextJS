@@ -26,7 +26,7 @@ The app supports **dark mode** (default) and **light mode**. You can switch betw
 - **Toggle:** Use the **theme button** in the header (next to "Refresh from web"). The icon shows **☀️** in dark mode (click to switch to light) and **🌙** in light mode (click to switch to dark).
 - **Persistence:** Your choice is saved in `localStorage` (`ai-pricing-theme`) so it is kept across sessions.
 - **First visit:** If you have not chosen a theme yet, the app uses your system preference (`prefers-color-scheme: light`) when available; otherwise it defaults to dark.
-- **Implementation:** The theme is applied via `data-theme="light"` on `<html>`. CSS variables and `[data-theme="light"]` overrides in `css/styles.css` define the light palette (e.g. light background, dark text). Theme logic lives in `src/app.js` (`getPreferredTheme`, `setTheme`, `toggleTheme`).
+- **Implementation:** The theme is applied via `data-theme="light"` on `<html>`. CSS variables and `[data-theme="light"]` overrides in `css/styles.css` define the light palette (e.g. light background, dark text). Theme logic lives in **ThemeContext** (`context/ThemeContext.js`) and the header theme toggle; the root layout applies `data-theme` to `<html>`.
 
 ---
 
@@ -41,7 +41,7 @@ In the **Overview** section, at the top of the main area (above the pricing grid
 | **Costliest** | Model with the highest blended cost per 1M tokens. Subtitle: **$X.XX / 1M blended**. |
 | **Largest context** | Model with the largest context window. Subtitle: context size (e.g. **1M**, **128k**). |
 
-The cards use the same data as the pricing tables and update whenever pricing is loaded or refreshed (e.g. after **Refresh from web** or when applying a history snapshot). Implementation: `updateKPIs(data)` in `src/render.js` is called from `renderTables(data)`; markup is in `index.html` (`.kpi-container`, `.kpi-card`); styles in `css/styles.css` (including `[data-theme="light"]` overrides).
+The cards use the same data as the pricing tables and update whenever pricing is loaded or refreshed (e.g. after **Refresh from web** or when applying a history snapshot). Implementation: **Dashboard** section (`components/sections/Overview.js` or dashboard page) and **StatCard** components render the KPI cards; data from `usePricing().getData()`; styles in `css/styles.css` (including `[data-theme="light"]` overrides).
 
 **Layout and alignment:** The KPI block uses a CSS Grid so the four cards align from the top-left and use the full content width (no floating in the middle). On large screens they appear in one row (4 equal columns). On viewports ≤ 900px the grid switches to 2 columns; on ≤ 768px the cards stack in a single column for mobile. Styles: `.kpi-container` with `grid-template-columns: repeat(4, 1fr)` and responsive `@media` overrides in `css/styles.css`.
 
@@ -68,7 +68,7 @@ All of this is implemented in a single `@media (max-width: 768px)` block in `css
 
 ## Current pricing section
 
-In the **Overview** section, the **Current pricing** block shows API pricing per 1M tokens from Vizra for all four providers. The section header label lists **Gemini · OpenAI · Anthropic · Mistral** so users see that all providers are included. Below the label and Export (CSV/PDF) toolbar, the **pricing grid** displays four provider cards: Google Gemini, OpenAI, Anthropic, and Mistral, each with a searchable model table. Markup: `.pricing-section-header` with `.section-label` and `.pricing-grid` in `index.html`.
+In the **Overview** section, the **Current pricing** block shows API pricing per 1M tokens from Vizra for all four providers. The section header label lists **Gemini · OpenAI · Anthropic · Mistral** so users see that all providers are included. Below the label and Export (CSV/PDF) toolbar, the **pricing grid** displays four provider cards: Google Gemini, OpenAI, Anthropic, and Mistral, each with a searchable model table. Rendered by the **Overview** (or Pricing) section component; classes `.pricing-section-header`, `.section-label`, `.pricing-grid` in `css/styles.css`.
 
 **Context/tier pricing** — When tiered pricing is available (e.g. ≤200K vs >200K tokens), the app shows **all tiers** in the pricing grid: each model has a **Context / tier** column and one row per tier (e.g. "≤200K tokens", ">200K tokens"). Tier data comes from `src/data/pricingTiersOverlay.js` (merged into the payload after load). The **Model comparison** table and **Cost vs Performance** chart also expand by tier (one row or point per tier). Exports (CSV/PDF) include the context tier column.
 
@@ -76,7 +76,7 @@ In the **Overview** section, the **Current pricing** block shows API pricing per
 
 **Export toolbar alignment** — All export (CSV/PDF) toolbars in the app are **right-aligned** for consistency: **Current pricing** (Overview), **Model comparison** (Models section), **Calculators**, and **Benchmarks**. Implementation: Overview uses `justify-content: space-between` on `.pricing-section-header`; Model comparison uses `margin-left: auto` on `.comparison-export-toolbar`; Calculators and Benchmarks use `margin-left: auto` on `.calculators-export-toolbar` and `.benchmark-export-toolbar` with parent `#calculators` and `#section-benchmark` set to `display: flex; flex-direction: column` in `css/styles.css`.
 
-**Official-only and retired (excluded in all sections)** — Only **official-available** models are shown (allowlist in **`src/data/allowedModels.js`**); **retired** models are also excluded (**`src/utils/retiredModels.js`**). **App state:** `src/app.js` runs `filterToAllowedModels()` then `filterRetiredModels()` on every `setData()`, so Overview and `getData()` only see allowed, non-retired models. **Model lists:** `src/calculator.js` uses `isAllowedModel()` and `isRetired()` in `getAllModels()` and `getUnifiedCalcModels()`, so **Models**, **Value Analysis**, **Calculators**, **Benchmarks**, and **Recommend** show only official-available, non-retired models. See [ALLOWED_MODELS.md](ALLOWED_MODELS.md) and [RETIRED_MODELS.md](RETIRED_MODELS.md).
+**Official-only and retired (excluded in all sections)** — Only **official-available** models are shown (allowlist in **`src/data/allowedModels.js`**); **retired** models are also excluded (**`src/utils/retiredModels.js`**). **App state:** **PricingContext** calls `processPayload()` (in `lib/dataPipeline.js`) on every `setData()`, which runs `filterToAllowedModels()` then `filterRetiredModels()`, so `getData()` only sees allowed, non-retired models. **Model lists:** `src/calculator.js` uses `isAllowedModel()` and `isRetired()` in `getAllModels()` and `getUnifiedCalcModels()`, so **Models**, **Value Analysis**, **Calculators**, **Benchmarks**, and **Recommend** show only official-available, non-retired models. See [ALLOWED_MODELS.md](ALLOWED_MODELS.md) and [RETIRED_MODELS.md](RETIRED_MODELS.md).
 
 **Table rendering (DocumentFragment)** — To keep rendering fast and avoid multiple DOM updates, table rows are appended via a **DocumentFragment**. Instead of appending each row to the `tbody` in a loop (which would trigger a reflow per row), the app builds an array of row HTML strings, parses them into a temporary container, moves all `<tr>` nodes into a fragment, and appends the fragment to the `tbody` in a single operation. Benefits: fewer reflows, faster rendering, and better performance for large model lists. Used in **Current pricing** (four provider tables), **Model comparison** table, and **Benchmarks** dashboard. Implementation: `appendRowsWithFragment(tbody, rowHtmlArray)` in `src/render.js`; used by `renderTables()`, `renderModelComparisonTable()`, and `renderBenchmarkDashboard()`.
 
@@ -92,7 +92,7 @@ Across **Calculators** (Pricing, Prompt cost, Context window, Production cost), 
 - **Cached input tokens** — Tokens served from cache at a lower rate (OpenAI); use 0 for others.
 - **Users per day** / **Requests per user** — Used in the production cost simulator to scale cost.
 
-Tooltips are implemented with a `title` attribute on a `<span class="calc-tooltip-icon">(?)</span>` next to each label in `index.html`; `.calc-tooltip-icon` is styled in `css/styles.css` (cursor: help, subtle opacity).
+Tooltips are implemented with a `title` attribute on a `<span class="calc-tooltip-icon">(?)</span>` next to each label in the **Calculators** section component; `.calc-tooltip-icon` is styled in `css/styles.css` (cursor: help, subtle opacity).
 
 ---
 
@@ -142,9 +142,9 @@ Here *inputPrice* and *outputPrice* are the model’s per‑1M‑token prices; *
 
 Monthly cost is daily cost × 30; per annum is monthly × 12. Use **Simulate** to run the calculation and **Reset** to restore default inputs.
 
-**Simulator note** — A short note appears above the simulator form: *"Cost estimates assume flat token pricing. Tiered discounts and prompt caching are not included."* This avoids misinterpretation: the simulator does not apply volume discounts or cached-input pricing (e.g. OpenAI cached tokens) in the table; it uses the same per‑1M input/output rates as the rest of the app. Markup: `<p class="simulator-note">` in `index.html`; styles in `css/styles.css` (`.simulator-note`).
+**Simulator note** — A short note appears above the simulator form: *"Cost estimates assume flat token pricing. Tiered discounts and prompt caching are not included."* This avoids misinterpretation: the simulator does not apply volume discounts or cached-input pricing (e.g. OpenAI cached tokens) in the table; it uses the same per‑1M input/output rates as the rest of the app. Rendered in the **Calculators** section (Production cost sub-tab); styles in `css/styles.css` (`.simulator-note`).
 
-**Calculators export (CSV / PDF)** — In the **Calculators** tab, an **Export current result** toolbar (below the sub-nav) lets you download the result of the **currently active** calculator as CSV or PDF. Which result is exported depends on the active sub-tab: **Pricing** (model + est. cost), **Prompt cost** (model + cost per model), **Context window** (model + context window + result), or **Production cost** (model + per request, daily, monthly, per annum). Run the calculator first; if there is no result, a toast asks you to run it. Implementation: `lastPricingResult`, `lastPromptCostResult`, `lastContextResult`, `lastProductionResult` in `src/app.js` store the last result per tool; `getCurrentCalculatorExport()` reads the URL hash to pick the active sub; `exportCalculatorsCSV()` and `exportCalculatorsPDF()` build the file. Buttons live in `.calculators-export-toolbar` in `index.html`.
+**Calculators export (CSV / PDF)** — In the **Calculators** tab, an **Export current result** toolbar (below the sub-nav) lets you download the result of the **currently active** calculator as CSV or PDF. Which result is exported depends on the active sub-tab: **Pricing** (model + est. cost), **Prompt cost** (model + cost per model), **Context window** (model + context window + result), or **Production cost** (model + per request, daily, monthly, per annum). Run the calculator first; if there is no result, a toast asks you to run it. Implementation: **PricingContext** (or Calculators section state) holds the last result per calculator sub-tab; the active sub-tab is tracked in component state; export handlers build CSV/PDF. Buttons live in the Calculators section (`.calculators-export-toolbar`).
 
 ---
 
@@ -171,7 +171,7 @@ Example table shape:
 
 The table is filled by `renderModelComparisonTable(data)` in `src/render.js`, using `getAllModels(data)` from `src/calculator.js` (which includes context from `getContextWindow(providerKey, modelName)`).
 
-**Provider filter** — Above the table, **Filter by provider** lets you narrow the list to one provider: **All**, **Google** (Gemini), **OpenAI**, **Anthropic**, or **Mistral**. Click a button to filter; the table updates to show only that provider’s models. This makes it easier to compare within a provider and improves UX as model count grows. Logic: `setComparisonProviderFilter(provider)` and `renderModelComparisonTable(data, provider)` in `src/render.js`; click handlers in `src/app.js` init.
+**Provider filter** — Above the table, **Filter by provider** lets you narrow the list to one provider: **All**, **Google** (Gemini), **OpenAI**, **Anthropic**, or **Mistral**. Click a button to filter; the table updates to show only that provider’s models. This makes it easier to compare within a provider and improves UX as model count grows. Logic: **Models** section (`components/sections/Models.js`) holds comparison filter and sort state; table is rendered from `getData()` and filter/sort; export uses the same filtered/sorted list.
 
 **Grouping and sort order** — With **Sort by: Default**, results are **grouped by provider** (Google → OpenAI → Anthropic → Mistral), and within each provider group models are sorted by **blended cost ascending** (cheapest first). When **All** is selected you see all providers in that order; when a single provider is selected, that provider’s models are listed with cheapest first.
 
@@ -179,7 +179,7 @@ The table is filled by `renderModelComparisonTable(data)` in `src/render.js`, us
 
 **Cheapest model highlight** — Among the models currently shown (after any provider filter), the row with the **lowest blended cost** (70% input + 30% output per 1M tokens) is highlighted: the row has a green-tinted background and the model name shows a **🟢 Cheapest** badge. In light theme the highlight uses a light green background (`#dcfce7`). This makes the best-value option obvious at a glance.
 
-**Export (CSV / PDF)** — In the Model comparison section, **Export: CSV** and **Export: PDF** let you download the current table (respecting the active provider filter and sort order). CSV columns: Model, Provider, Input per 1M, Output per 1M, Context. PDF uses the same data in a landscape table. Implementation: `exportComparisonCSV()` and `exportComparisonPDF()` in `src/app.js` use `render.getComparisonList(data)` to get the filtered and sorted list; buttons live in `.comparison-export-toolbar` in `index.html`.
+**Export (CSV / PDF)** — In the Model comparison section, **Export: CSV** and **Export: PDF** let you download the current table (respecting the active provider filter and sort order). CSV columns: Model, Provider, Input per 1M, Output per 1M, Context. PDF uses the same data in a landscape table. Implementation: **Models** section calls export helpers (e.g. from `src/render.js`) with the current filtered and sorted list; buttons live in `.comparison-export-toolbar`.
 
 ---
 
@@ -199,21 +199,59 @@ In the **Value Analysis** section, a **Cost vs Performance** scatter chart helps
 
 **Performance (large datasets)** — When the number of models grows (e.g. 40 → 100), the chart uses **lazy rendering** (`requestAnimationFrame` in `updateValueChart()`) so heavy work runs in the next frame and does not block the main thread. **Provider filter** and **performance metric** selector reduce the number of points drawn. For more than 50 points, the "all models" layer uses a smaller point radius and no border to reduce draw cost; frontier points are unchanged. Implementation: `src/valueChart.js` (`updateValueChart`, `renderQuadrantChart`).
 
-**Chart colors (light and dark theme)** — The chart uses theme-aware colors so it stays readable in both modes. **Dark theme:** axis and legend text `#e2e8f0`; grid `rgba(255,255,255,0.12)`; “All models” dots medium light grey (fill/border) so they remain visible on dark background; frontier points colored by provider (blue / emerald / orange / violet) at 0.95 opacity. **Light theme:** axis and legend text `#334155`; grid `rgba(0,0,0,0.1)`; “All models” dots medium grey; same provider colors. When you toggle the app theme, the chart is redrawn with the matching palette (see `setTheme()` → `updateValueChartIfVisible()` in `src/app.js`).
+**Chart colors (light and dark theme)** — The chart uses theme-aware colors so it stays readable in both modes. **Dark theme:** axis and legend text `#e2e8f0`; grid `rgba(255,255,255,0.12)`; “All models” dots medium light grey (fill/border) so they remain visible on dark background; frontier points colored by provider (blue / emerald / orange / violet) at 0.95 opacity. **Light theme:** axis and legend text `#334155`; grid `rgba(0,0,0,0.1)`; “All models” dots medium grey; same provider colors. When you toggle the app theme (**ThemeContext**), the chart is redrawn with the matching palette (Value Analysis section reacts to theme).
 
-**Implementation** — `src/valueChart.js`: `mergeModels()` builds cost + performance per model from `getAllModels(data)` and `getBenchmarkForModelMerged()`; `computeCostPerRequest()` uses (prompt/1e6)×input + (output/1e6)×output with the fixed baseline (1k prompt, 500 output); `computeFrontier()` sorts by cost then performance (same-cost edge case); `renderQuadrantChart()` uses **Chart.js** (scatter: all models + frontier points). The chart is rendered or updated when data or filters change (chart is in the Value Analysis section); theme (dark/light) is respected. Markup: `#section-value-chart`, `#value-chart-canvas`, `.value-chart-controls`, `.value-chart-legend-hint`, `.value-chart-frontier-tooltip` in `index.html`; styles in `css/styles.css` (`.value-chart-section` with overflow-x and max-width, `.value-chart-wrap` with fixed height and responsive overrides at 768px and 480px).
+**Implementation** — **Value Analysis** section (`components/sections/ValueAnalysis.js`) uses `src/valueChart.js`: `mergeModels()` builds cost + performance from `getAllModels(data)` and `getBenchmarkForModelMerged()`; `computeCostPerRequest()` uses the fixed baseline (1k prompt, 500 output); `computeFrontier()` sorts by cost then performance; **Chart.js** renders the scatter (all models + frontier). The chart updates when data or filters change; theme is respected. Styles in `css/styles.css` (`.value-chart-section`, `.value-chart-wrap`, responsive overrides).
 
 ---
 
 ## Model benchmark dashboard
 
-On the **Benchmarks** tab, the **Model benchmark dashboard** shows one table with columns: **Model**, **MMLU**, **Code**, **Reasoning**, **Arena**, **Cost** (tier from current pricing). Scores are indicative from published results.
+On the **Benchmarks** tab (React: `/benchmarks`), the **Model benchmark dashboard** shows leaderboard cards, one main table, and a radar comparison. All content uses merged pricing + benchmarks; **one row per model name** (duplicates removed so the same model does not appear twice).
 
-**Benchmark pipeline** — The UI loads both `pricing.json` and `benchmarks.json` and merges by **model name** and **provider**. The benchmark script fetches **LMSYS Chatbot Arena** (arena.lmsys.org; overall quality / ELO) and **Hugging Face Open LLM Leaderboard** (MMLU, reasoning via datasets-server API), merges with pricing models, and writes `benchmarks.json`. When external data is missing, embedded scores from `getBenchmarkForModel()` in `src/calculator.js` are used. See [Benchmark pipeline](docs/BENCHMARKS.md).
+**Layout and alignment** — The **Benchmarks Leaderboard** title and subtitle are **left-aligned**. The heatmap legend is **right-aligned** above the table. The **Benchmark Radar Comparison** section title and instructions are left-aligned.
 
-**Update frequency** — In line with typical dashboards: **pricing** updates **daily** (06:00 UTC); **benchmarks** update **weekly** (Sunday 03:00 UTC via `.github/workflows/update-benchmarks.yml`). Arena rankings and benchmark scores don’t change as often as prices. The benchmark workflow reads `pricing.json`, assigns scores per model (embedded lookup; replaceable by a real API later), and writes `benchmarks.json`; the frontend fetches both and merges by model.
+### Leaderboard cards
 
-**Export (CSV / PDF)** — Above the table, **Export: CSV** and **Export: PDF** let you download the full benchmark table. CSV columns: Model, MMLU, Code, Reasoning, Arena, Cost tier. PDF uses the same data in a landscape table. Implementation: `render.getBenchmarkList(data)` in `src/render.js` returns the same rows as the dashboard; `exportBenchmarksCSV()` and `exportBenchmarksPDF()` in `src/app.js` build the files. Buttons live in `.benchmark-export-toolbar` in `index.html`.
+Four cards show **top 5** models each: **Best Reasoning Models**, **Best Coding Models**, **Best General Intelligence** (MMLU), **Best Arena Score**. Each lists model name and score.
+
+### Benchmark table
+
+One table with columns: **Model**, **MMLU**, **Code**, **Reasoning**, **Arena**, **Cost** (tier from current pricing). Scores are indicative from published results.
+
+**Deduplication** — The table shows **at most one row per model name** (first occurrence when merging pricing and tiers). This avoids duplicate model names from multiple context tiers or providers.
+
+**Heatmap** — Each score cell (MMLU, Code, Reasoning, Arena) shows a **color indicator plus the numeric score** for quick scanning:
+
+| Level   | Range   | Color  |
+|---------|---------|--------|
+| Strong  | 70–100  | Green  |
+| Average | 40–69   | Yellow |
+| Weak    | 0–39    | Red    |
+
+Missing or invalid scores show a neutral indicator and "—". A **legend** above the table (right-aligned) explains **Strong (70–100)**, **Average (40–69)**, **Weak (0–39)** with colored dots. The exact number remains visible in each cell and in tooltips.
+
+**Sort by column** — The columns **MMLU**, **Code**, **Reasoning**, **Arena**, and **Cost** are **sortable**. Click a column header to sort by that column; click again to toggle **ascending** / **descending**. A **sort icon** is always visible in each sortable header: **↕** when that column is not active, **↑** when sorted ascending, **↓** when sorted descending. Score columns default to descending (best first) when first selected; Cost defaults to ascending (cheapest first). Ties are broken by model name.
+
+**Search** — A **Search models** field filters the table by model name. The sorted order applies to the filtered list.
+
+**Export (CSV / PDF)** — **Export: CSV** and **Export: PDF** download the full benchmark table (same data as the on-screen table, including heatmap values). CSV columns: Model, MMLU, Code, Reasoning, Arena, Cost tier. PDF uses the same data in a landscape table. Buttons are in the benchmark export toolbar (right-aligned with the header).
+
+### Benchmark Radar Comparison
+
+Below the table, **Benchmark Radar Comparison** lets you compare **2 or more models** on a radar chart (Reasoning, Code, Arena, MMLU). Select models from a **scrollable list** (all models are listed; search narrows the list). Each model is drawn as an **outline-only** polygon (no fill) in a **distinct color** so overlapping models stay distinguishable.
+
+**Hover tooltip** — Hovering over the chart shows a **tooltip** with the **actual scores** for each selected model on the benchmark axis under the cursor (e.g. Reasoning: model A 92, model B 96). Model names in the tooltip are colored to match the chart.
+
+**Legend** — Below the chart, a legend lists each selected model with its color. A short **How to read this chart** block explains axes and scale (0–100).
+
+**Export** — CSV/PDF export for the benchmarks section includes the same table data as above; the radar is for on-screen comparison only.
+
+### Benchmark pipeline and data
+
+**Benchmark pipeline** — The UI loads both `pricing.json` and `benchmarks.json` and merges by **model name** and **provider**. The benchmark script fetches **LMSYS Chatbot Arena** (arena.lmsys.org; overall quality / ELO) and **Hugging Face Open LLM Leaderboard** (MMLU, reasoning via datasets-server API), merges with pricing models, and writes `benchmarks.json`. When external data is missing, embedded scores from `getBenchmarkForModel()` in `src/calculator.js` are used. See [Benchmark pipeline](BENCHMARKS.md).
+
+**Update frequency** — **Pricing** updates **daily** (06:00 UTC); **benchmarks** update **weekly** (Sunday 03:00 UTC via `.github/workflows/update-benchmarks.yml`). The benchmark workflow reads `pricing.json`, assigns scores per model, and writes `benchmarks.json`; the frontend fetches both and merges by model.
 
 ---
 
@@ -246,10 +284,10 @@ The **📜 History** button in the header opens a **Pricing history** modal. Dai
 
 ## Data status (footer)
 
-The **footer** shows when each dataset was last updated: **Pricing: [date]; Benchmarks: [date]**. Timestamps are formatted with an **exact time zone** (e.g. **UTC**, **GMT**, **IST**) so you can see the precise time; raw ISO strings like `2026-03-10T15:41:13.242Z` are converted to a readable form such as *"Mar 10, 2026, 3:41:13 PM UTC (from site)"*. If the benchmark pipeline fails or runs less often than pricing, the benchmarks date may be older than the pricing date; seeing both helps you interpret partial or stale data. When benchmarks fail to load, the benchmarks date shows "—". **Implementation:** `render.setLastUpdated(result.updated)` and `render.setBenchmarksLastUpdated(benchPayload?.updated ?? '—')` in `src/app.js`; both use `formatLastUpdatedLabel()` in `src/render.js` to format ISO date strings with `toLocaleString(..., { dateStyle: 'medium', timeStyle: 'medium', timeZoneName: 'short' })`. Markup: `<span id="lastUpdated">` and `<span id="benchmarksLastUpdated">` in `index.html`.
+The **footer** shows when each dataset was last updated: **Pricing: [date]; Benchmarks: [date]**. Timestamps are formatted with an **exact time zone** (e.g. **UTC**, **GMT**, **IST**) so you can see the precise time; raw ISO strings like `2026-03-10T15:41:13.242Z` are converted to a readable form such as *"Mar 10, 2026, 3:41:13 PM UTC (from site)"*. If the benchmark pipeline fails or runs less often than pricing, the benchmarks date may be older than the pricing date; seeing both helps you interpret partial or stale data. When benchmarks fail to load, the benchmarks date shows "—". **Implementation:** **PricingContext** stores `lastUpdated` and `benchmarksLastUpdated`; **Footer** component reads them and formats with `formatLastUpdatedLabel()` (or equivalent) for display.
 
 ---
 
 ## Favicon
 
-The app provides a **favicon** so the browser does not request `/favicon.ico` (which would 404 on static hosts like GitHub Pages). The favicon is an inline SVG (🤖) in the document head via a `data:` URL: `<link rel="icon" href="data:image/svg+xml,..." type="image/svg+xml">` in `index.html`. No separate favicon file is required.
+The app provides a **favicon** so the browser does not request `/favicon.ico` (which would 404 on static hosts like GitHub Pages). The favicon is an inline SVG (🤖) in the document head via a `data:` URL in **`app/layout.js`**. No separate favicon file is required.

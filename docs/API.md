@@ -36,9 +36,10 @@ The UI does **not** call the API or `pricing.json` directly. It calls `fetchPric
 
 ## How the UI uses it
 
-1. **Load:** `pricing.loadPricingFromApi(pricingApi.fetchPricingData)` — loads via the service, then normalizes and applies cache/default fallbacks in the pricing module.
-2. **Refresh from web:** Calls `pricingApi.fetchPricingData()`, then `pricing.normalizeFetchedPricing(raw)` to get a payload the app can render.
-3. **Fill missing providers / daily capture:** Also use `fetchPricingData()` and `normalizeFetchedPricing()` so a single source drives all pricing updates.
+The **React/Next.js** app uses the pricing service in **PricingContext** (`context/PricingContext.js`):
+
+1. **Load:** `pricing.loadPricingFromApi(pricingApi.fetchPricingData)` — loads via the service, then normalizes and applies cache/default fallbacks; context then runs `applyOfficialOverlays()`, `mergeTiersIntoPayload()`, and `processPayload()` before setting state.
+2. **Refresh from web:** Same flow: `fetchPricingData()` then normalize and pipeline; components read updated data via `usePricing()` / `getData()`.
 
 Normalization (Vizra vs app format) is done in `pricingService.js` via `normalizeFetchedPricing(raw)` and `parseVizraResponse()`; the API service only fetches and returns raw data.
 

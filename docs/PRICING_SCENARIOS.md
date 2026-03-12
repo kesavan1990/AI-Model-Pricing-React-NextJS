@@ -2,24 +2,21 @@
 
 ## 1. First time page load
 
-**When:** User opens the app for the first time (no `pricing.json` available or no localStorage cache).
+**When:** User opens the app for the first time (no `pricing.json` in `public/` or no localStorage cache).
 
 **Flow:**
 
-1. **loadPricing()** runs (on `DOMContentLoaded`).
-2. **Try `pricing.json`:**
-   - If the file exists (e.g. from GitHub Action or deployed with the app): load it → set Gemini, OpenAI, Anthropic, Mistral from file → **Last updated:** value from file (e.g. `"2026-03-09"`).
-   - If the file is missing or invalid (404, bad JSON): go to step 3.
-3. **Try localStorage cache** (key `ai_pricing_cache`):
+1. **PricingContext** mounts and **loadPricing()** runs (e.g. in `useEffect`).
+2. **Try Vizra API then `pricing.json`** (via `fetchPricingData()`):
+   - If the API or file returns valid data: normalize, apply overlays, `processPayload()` → set state → **Last updated:** from result.
+   - If both fail: go to step 3.
+3. **Try localStorage cache** (via cache manager, e.g. key `ai_pricing_cache`):
    - If present and valid: load from cache → **Last updated:** e.g. `"cached (from web)"` → toast: *"Loaded pricing from local cache (file unavailable)."*
    - If missing or invalid: go to step 4.
-4. **Use embedded default:** `DEFAULT_PRICING` (hardcoded in `index.html`) → **Last updated:** `"embedded default"` → toast: *"Using embedded default pricing (no file or cache)."*
-5. **renderTables()** → pricing tables show the chosen source.
-6. **fillMissingProvidersFromVizra()** runs:
-   - If Anthropic + Mistral are already filled (from file/cache/default), it does nothing.
-   - If either is missing and there is a **fresh cache** (< 12 hours, with `cachedAt`): fill from that cache, re-render, **no API call**.
-   - Otherwise: **call Vizra API**. On success → fill missing providers, save to localStorage with `cachedAt`. On failure → try **pricing.json** again as fallback; if that works, apply and save to cache.
-7. **maybeRunDailyCapture()** may run later (daily history snapshot); it also uses cache when fresh to avoid an extra API call.
+4. **Use embedded default:** `DEFAULT_PRICING` from `src/pricingService.js` → **Last updated:** `"embedded default"` → toast: *"Using embedded default pricing (no file or cache)."*
+5. **PricingContext** sets state → React components (Overview, Pricing, etc.) re-render with the chosen source.
+6. Cache and fallback (Vizra → pricing.json → cache → default) are handled inside **loadPricingFromApi** and **PricingContext**; no separate fill step.
+7. Daily history snapshot (if implemented) may run later and can use cache when fresh.
 
 **What the user sees:**  
 Pricing from **pricing.json** (if present), or **cache**, or **embedded default**. Footer shows the corresponding “Last updated” and any toast. Tables show Gemini, OpenAI, and if available Anthropic/Mistral (from file, cache, or after a one-time Vizra or fallback fill).

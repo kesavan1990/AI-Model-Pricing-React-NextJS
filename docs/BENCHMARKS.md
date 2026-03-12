@@ -106,7 +106,7 @@ ai-model-pricing/
 ├── schemas/
 │   ├── pricing.schema.json
 │   └── benchmarks.schema.json
-└── index.html (frontend loads pricing.json + benchmarks.json, then merges)
+└── Next.js app (public/pricing.json, public/benchmarks.json; PricingContext loads both and merges)
 ```
 
 ## Script: update-benchmarks.js

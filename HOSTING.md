@@ -1,68 +1,38 @@
-# Hosting the AI Pricing App Online
+# Hosting the AI Pricing App
 
-This app is **static** (HTML, CSS, JavaScript only). You can host it on any static hosting service. No server or database is required.
+The app is a **Next.js** static export (no Node server at runtime). You can host the built output on any static hosting service. No database or backend is required.
 
-## What to upload
+## Build and output
 
-- **index.html** (required)
-- **pricing.json** (optional; provides fallback pricing if the file is present)
+- **Build:** `npm run build` produces the default Next.js output (no static export unless `GITHUB_PAGES=1`; see below for GitHub Pages).
+- **Data:** Ensure **`pricing.json`** and **`benchmarks.json`** are in **`public/`** before building so they are copied into the output and served at `/pricing.json` and `/benchmarks.json`.
 
-## Free hosting options
+### GitHub Pages (recommended)
 
-### 1. **GitHub Pages** (good if you use Git)
+For **GitHub Pages** (project site at `https://<user>.github.io/<repo>/`), the app is built with **static export** and a base path. Use the GitHub Actions workflow:
 
-1. Create a GitHub repository and push your project:
-   ```bash
-   cd AI_Pricing_App
-   git init
-   git add index.html pricing.json scripts
-   git commit -m "Initial commit"
-   git branch -M main
-   git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO.git
-   git push -u origin main
-   ```
-2. In the repo: **Settings → Pages → Source**: choose **main** branch, root folder.
-3. Your site will be at: `https://YOUR_USERNAME.github.io/YOUR_REPO/`
+1. Push code to GitHub. The workflow [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) runs on push to `main`.
+2. In the repo: **Settings → Pages → Build and deployment → Source:** **GitHub Actions**.
+3. The workflow runs `npm run build` with `GITHUB_PAGES=1`, which enables `output: 'export'` and `basePath` / `assetPrefix` in `next.config.js`. The built site is in the `out/` folder and is deployed to GitHub Pages.
 
-**Pricing:** The app loads `pricing.json`, which is updated automatically by a [GitHub Action](.github/workflows/update-pricing.yml) (daily or manual). "Refresh from web" reloads that file on GitHub Pages. See [PRICING_UPDATES.md](PRICING_UPDATES.md) and [docs/PRICING_UPDATES.md](docs/PRICING_UPDATES.md).
+See [docs/DEPLOY.md](docs/DEPLOY.md) for step-by-step push and deploy instructions.
 
-### 2. **Netlify** (drag-and-drop)
+## Other static hosts (Netlify, Vercel, Cloudflare Pages)
 
-1. Go to [netlify.com](https://www.netlify.com) and sign up (free).
-2. Drag the **AI_Pricing_App** folder (or a zip of it) into the Netlify drop zone.
-3. Netlify will give you a URL like `https://random-name-123.netlify.app`. You can set a custom name in Site settings.
+- **Netlify / Vercel:** Connect the repo; use build command `npm run build` and output directory `out` only if you configure Next.js for static export (e.g. set `output: 'export'` in `next.config.js` and optionally set `basePath` if you use a subpath). Otherwise use the default Next.js build and the host’s recommended output directory.
+- **Cloudflare Pages:** Same idea: connect repo, set build command and output directory to match your Next.js config (static export → `out`, or default Next.js build as per Cloudflare’s Next.js guide).
 
-### 3. **Vercel** (drag-and-drop or CLI)
+## Data updates
 
-1. Go to [vercel.com](https://vercel.com) and sign up (free).
-2. **Drag & drop**: Upload the folder containing `index.html` and `pricing.json`.
-3. Or use CLI: `npx vercel` in the project folder and follow the prompts.
-4. You get a URL like `https://your-project.vercel.app`.
-
-### 4. **Cloudflare Pages** (free)
-
-1. Go to [pages.cloudflare.com](https://pages.cloudflare.com) and sign up.
-2. **Create project → Direct Upload** → upload your project folder (or connect a Git repo).
-3. Your site will be at `https://your-project.pages.dev`.
-
-### 5. **Surge.sh** (quick CLI deploy)
-
-```bash
-# Install once: npm install -g surge
-cd AI_Pricing_App
-surge
-# Follow prompts; you'll get a URL like https://your-name.surge.sh
-```
-
----
+- **Pricing** is updated by the [GitHub Action](.github/workflows/update-pricing.yml) (daily or manual), which writes `pricing.json`. Commit and push so the deployed site serves the new file.
+- **Benchmarks** are updated by [.github/workflows/update-benchmarks.yml](.github/workflows/update-benchmarks.yml) (weekly), which writes `benchmarks.json`.
+- **Refresh from web** in the app reloads pricing (and benchmarks) from the deployed `/pricing.json` and `/benchmarks.json` (or from the Vizra API when applicable).
 
 ## Notes
 
-- **Pricing**: Kept up to date by a GitHub Action that fetches the Vizra API and updates `pricing.json`. The app loads that file (or cache/default). "Refresh from web" reloads pricing.
-- **Refresh from web**: Fetches the Vizra API to update pricing. (A CORS proxy is used only for the "Find the right model" documentation search.)
-- **History & cache**: Stored in the browser's `localStorage`. Each user's data stays on their device and is not shared across devices or browsers.
-- **HTTPS**: All options above serve over HTTPS, which is required for many browser features.
+- **History & cache:** Stored in the browser’s `localStorage`. Each user’s data stays on their device.
+- **HTTPS:** All options above serve over HTTPS, which is required for many browser features.
 
-## Custom domain (optional)
+## Custom domain
 
-On Netlify, Vercel, or Cloudflare Pages you can add your own domain (e.g. `pricing.yourdomain.com`) in the project's domain settings.
+On Netlify, Vercel, Cloudflare Pages, or GitHub Pages you can add a custom domain in the project’s domain settings.

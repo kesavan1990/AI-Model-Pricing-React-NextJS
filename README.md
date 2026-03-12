@@ -1,8 +1,6 @@
 # AI Model Pricing App
 
-A static web app to compare and calculate pricing for AI models (Google Gemini, OpenAI, Anthropic, Mistral). Includes KPI cards, pricing grid, model comparison table, cost-vs-performance chart, calculators (pricing, prompt cost, context window, production cost), benchmarks, recommend-by-use-case, pricing history, and export (CSV/PDF).
-
-**Two frontends:** (1) **Legacy:** open `index.html` or serve the repo (e.g. `npx serve .`) for the original HTML + vanilla JS app. (2) **React/Next.js:** run the React app (see [Running the React/Next.js app](#running-the-reactnextjs-app) below). Functionality is the same; the Next.js app uses the same data pipeline and business logic under `src/` and `lib/`.
+A **React/Next.js** web app to compare and calculate pricing for AI models (Google Gemini, OpenAI, Anthropic, Mistral). Includes KPI cards, pricing grid, model comparison table, cost-vs-performance chart, calculators (pricing, prompt cost, context window, production cost), benchmarks (with heatmap, sort, and radar comparison), recommend-by-use-case, pricing history, and export (CSV/PDF). The frontend is a **Next.js** app (App Router); business logic and data pipeline live under `src/` and `lib/`.
 
 ## Live pricing (automated)
 
@@ -61,15 +59,22 @@ External sources
       ├── Pricing API (Vizra) → update-pricing.js → pricing.json
       └── Benchmark sources (Arena, HF) → update-benchmarks.js → benchmarks.json
 
-Frontend (index.html + src/)
-   fetchPricingData() (Vizra API → pricing.json fallback) + benchmarks.json
-   → mergeModels() (pricing + benchmarks by model/provider)
-   → computeCostPerRequest() (e.g. 1k prompt + 500 output tokens)
-   → computeFrontier() (best performance at each cost level)
-   → renderQuadrantChart() (scatter: all models grey, frontier colored)
+Next.js app (React)
+   app/                    → App Router (layout, routes: /dashboard, /pricing, /calculator, etc.)
+   components/             → UI (Header, Sidebar, Footer, section components: Overview, Models, Benchmarks, …)
+   context/                → PricingContext (load pricing + benchmarks, filters, toast), ThemeContext
+   lib/dataPipeline.js      → applyOfficialOverlays(), processPayload() (reassign provider, allowlist, retired filter)
+   src/                    → Shared logic: api, pricingService, calculator, valueChart, render helpers, data overlays
+   public/                 → pricing.json, benchmarks.json (fetched at /pricing.json, /benchmarks.json)
+
+Data flow:
+   PricingContext.loadPricing() → fetchPricingData() (Vizra → pricing.json fallback) + getBenchmarks()
+   → applyOfficialOverlays() → mergeTiersIntoPayload() → processPayload() (allowlist + retired)
+   → setData() → components read via usePricing() / getData()
+   Cost vs Performance (Value Analysis) uses getAllModels(), getBenchmarkForModelMerged(), computeCostPerRequest(), computeFrontier()
 ```
 
-The **Cost vs Performance** quadrant is in the **Value Analysis** section and uses this merged dataset so you see value (cost per request vs Arena/MMLU/Code) in one view.
+The **Cost vs Performance** quadrant is in the **Value Analysis** section (`/value-analysis`) and uses this merged dataset so you see value (cost per request vs Arena/MMLU/Code) in one view.
 
 ---
 
@@ -82,7 +87,7 @@ The **Cost vs Performance** quadrant is in the **Value Analysis** section and us
 - **Model comparison table** — In the **Models** section: single table **Model | Provider | Input | Output | Context** (all models in one view). **Provider filter**: All, Google, OpenAI, Anthropic, Mistral. **Default sort**: grouped by provider with cheapest first in each group. **Sort by**: Default, Input price, Output price, or Context (largest first). **Export**: CSV and PDF of the current table (respects filter and sort). **Cheapest highlight**: row with lowest blended cost has green tint and 🟢 Cheapest badge. See [Model comparison table](docs/UI.md#model-comparison-table).
 - **Cost vs Performance quadrant** — In the **Value Analysis** section: scatter chart of **cost per request** (1k prompt + 500 output tokens) vs **performance** (Arena, MMLU, or Code). All models = grey dots; **frontier** models (best value at each cost) = colored by provider. **Performance metric** selector and **provider filter** for the chart. Chart colors are theme-aware (readable in both light and dark mode). **Frontier tooltips:** (?) in the section subtitle; a dedicated “Colored points = Frontier (best value) (?)” line above the chart with a custom CSS hover tooltip; and hover on frontier points for per-model details. Tooltips explain both what frontier is and how it is calculated (sort by cost low to high, then keep only models with strictly better performance than every cheaper model). See [Cost vs Performance quadrant chart](docs/UI.md#cost-vs-performance-quadrant-chart).
 - **Calculators** — **Cost calculator** (input: Prompt tokens, Output tokens, Model → output: Estimated cost; see [docs/UI.md](docs/UI.md#cost-calculator)), prompt cost from text, context-window check, **production cost simulator** (per request, daily, monthly, per annum; see [Production cost simulator](docs/UI.md#production-cost-simulator)). A **simulator note** states: *Cost estimates assume flat token pricing; tiered discounts and prompt caching are not included.* **Export**: CSV and PDF of the **current** calculator result (Pricing, Prompt cost, Context window, or Production cost, depending on the active sub-tab). **Hover tooltips (?)**: labels in all calculator sections have a (?) with brief explanations (e.g. prompt tokens, output tokens, context window). See [Calculator tooltips](docs/UI.md#calculator-tooltips).
-- **Benchmarks** — MMLU, code, reasoning, arena-style. Data from `benchmarks.json` (weekly pipeline); merged with pricing by model. **Export**: CSV and PDF of the full benchmark table. See [Model benchmark dashboard](docs/UI.md#model-benchmark-dashboard) and [Benchmark pipeline](docs/BENCHMARKS.md).
+- **Benchmarks** — Leaderboard cards (top 5 per category), **benchmark table** with **heatmap** (green/yellow/red by score range), **sort by** MMLU, Code, Reasoning, Arena, Cost (asc/desc, icons always visible), **search**, and **Benchmark Radar Comparison** (select 2+ models, scrollable full list, outline-only colored chart, **hover tooltip with actual scores**). One row per model (duplicates removed). **Export**: CSV and PDF. See [Model benchmark dashboard](docs/UI.md#model-benchmark-dashboard) and [Benchmark pipeline](docs/BENCHMARKS.md).
 - **Recommend** — Find the right model by use case (e.g. cheap summarization, best quality for code). Considers **all four providers** (Gemini, OpenAI, Anthropic, Mistral). Results are **diversified**: at most 2 models per provider, then top 6 by score, so you see a mix of providers rather than one. Doc search fetches official docs for all four. See [Recommend module](docs/UI.md#recommend-module).
 - **Pricing history** — Open via **📜 History** in the header. Modal shows daily snapshots (12:00 AM IST), **compare two dates** to see price changes, and **Export CSV/PDF**. After **Refresh from web**, a **Recent price changes** summary may appear in the footer. See [Pricing history](docs/UI.md#pricing-history).
 - **Refresh from web** — Reload pricing (from `pricing.json` on GitHub Pages, or from Vizra when run locally).
@@ -91,48 +96,36 @@ The **Cost vs Performance** quadrant is in the **Value Analysis** section and us
 
 ## Code structure
 
-Front-end logic is split into ES modules under `src/` for clearer code and easier debugging:
+The app is a **Next.js** (React) frontend. The **UI** lives in `app/` (routes), `components/` (Header, Sidebar, section components), and `context/` (PricingContext, ThemeContext). **Shared logic** is in `src/` and `lib/dataPipeline.js`; `PricingContext` loads data and runs `processPayload()` (allowlist + retired filter). Data files `pricing.json` and `benchmarks.json` go in `public/`. Key modules:
 
 | File | Role |
 |------|------|
 | **`src/api/pricingService.js`** | **Pricing API service:** `fetchPricingData()` tries Vizra API (`https://vizra.ai/api/llm-model-pricing`), then falls back to `pricing.json`. Isolates API logic from UI for easier debugging and API changes. See [docs/API.md](docs/API.md). |
 | **`src/utils/cacheManager.js`** | **Cache manager:** `getCachedPricing()` / `setCachedPricing(data)` with 12-hour TTL. Centralizes pricing cache in one place and reduces API calls. See [docs/CACHE.md](docs/CACHE.md). |
-| **`src/data/providerByModel.js`** | **Canonical provider by name:** `getProviderByModelName(name)` returns `gemini` \| `openai` \| `anthropic` \| `mistral` \| null. Used by `app.js` in `reassignByCanonicalProvider()` so every model appears under the correct provider. |
+| **`src/data/providerByModel.js`** | **Canonical provider by name:** `getProviderByModelName(name)` returns `gemini` \| `openai` \| `anthropic` \| `mistral` \| null. Used in `lib/dataPipeline.js` (reassignByCanonicalProvider) so every model appears under the correct provider. |
 | **`src/data/openaiOfficialOverlay.js`** | **OpenAI official overlay:** [OpenAI pricing](https://developers.openai.com/api/docs/pricing). `mergeOpenAIOfficialIntoPayload(payload)` adds missing official models (GPT-5 series, o3-deep-research, etc.). |
 | **`src/data/geminiOfficialOverlay.js`** | **Gemini official overlay:** [Gemini pricing](https://ai.google.dev/gemini-api/docs/pricing). `mergeGeminiOfficialIntoPayload(payload)` adds missing official models (2.5/3.x, embedding, Gemma). |
 | **`src/data/anthropicOfficialOverlay.js`** | **Anthropic official overlay:** [Claude pricing](https://docs.anthropic.com/en/docs/about-claude/pricing). `mergeAnthropicOfficialIntoPayload(payload)` adds missing official models (Opus/Sonnet/Haiku 4.x). |
 | **`src/data/mistralOfficialOverlay.js`** | **Mistral official overlay:** [Mistral pricing](https://mistral.ai/pricing). `mergeMistralOfficialIntoPayload(payload)` adds missing official models (Large 3, Medium 3.1, Ministral, etc.). |
-| **`src/data/allowedModels.js`** | **Official-only allowlist:** `isAllowedModel(providerKey, modelName)`. Only models listed as available on each provider’s official page are shown. Used by `app.js` (`filterToAllowedModels`) and `calculator.js` (`getAllModels`, `getUnifiedCalcModels`). See [docs/ALLOWED_MODELS.md](docs/ALLOWED_MODELS.md). |
+| **`src/data/allowedModels.js`** | **Official-only allowlist:** `isAllowedModel(providerKey, modelName)`. Only models listed as available on each provider’s official page are shown. Used in `lib/dataPipeline.js` (processPayload) and `calculator.js` (`getAllModels`, `getUnifiedCalcModels`). See [docs/ALLOWED_MODELS.md](docs/ALLOWED_MODELS.md). |
 | **`src/utils/retiredModels.js`** | **Retired model detection:** `isRetiredGeminiModel`, `isRetiredOpenAIModel`, `isRetiredAnthropicModel`, `isRetiredMistralModel`, and `isRetired(providerKey, name)`. Used with the allowlist so only official-available, non-retired models appear in **Overview, Models, Value Analysis, Calculators, Benchmarks, and Recommend**. |
 | **`src/data/pricingTiersOverlay.js`** | **Tiered pricing overlay:** `PRICING_TIERS_OVERLAY` (context-tier prices per model, e.g. ≤200K vs >200K). `mergeTiersIntoPayload(payload)` merges overlay into loaded pricing so the UI shows all tiers. |
 | **`src/api.js`** | Other fetch layer: `getPricing()` (pricing.json with cache-busting, used for file-only fallbacks), `getBenchmarks()`, `getPricingJsonUrl()`, `isGitHubPages()`, `fetchWithCors()` for doc search. |
 | **`src/pricingService.js`** | Load, cache, normalize: `loadPricingFromApi(fetchPricingData)` (primary), `loadPricing(getPricing)`, `getCachedPricingPayload()` (uses cache manager), `normalizeFetchedPricing()`, `DEFAULT_PRICING`, `parseVizraResponse()`, `comparePrices()`, history. |
 | **`src/calculator.js`** | Pure logic: cost (`calcCost`, `calcCostOpenAI`, `calcCostForEntry`), context windows, benchmarks, model lists (`getUnifiedCalcModels`, `getAllModels` — both require allowed + non-retired via `data/allowedModels.js` and `utils/retiredModels.js`), recommendations (`getRecommendations`, `scoreModelForUseCase`), doc search helpers, `estimatePromptTokens`. |
 | **`src/valueChart.js`** | Cost vs Performance quadrant: `mergeModels()` (pricing + benchmarks), `computeCostPerRequest()`, `computeFrontier()`, `renderQuadrantChart()` (Chart.js scatter), `updateValueChart()`. |
-| **`src/render.js`** | UI: `renderTables()`, `updateKPIs()` (KPI cards), `renderModelComparisonTable()`, `renderBenchmarkDashboard()`, `appendRowsWithFragment()` (DocumentFragment for table rows — fewer reflows, faster rendering for large lists), `renderHistoryList()`, `renderRecommendations()`, toasts, `setLastUpdated`, CSV/PDF export helpers, `formatHistoryDate`. See [Table rendering (DocumentFragment)](docs/UI.md#current-pricing-section). |
-| **`src/app.js`** | App entry: state (gemini/openai/anthropic/mistral), `loadPricing`, `refreshFromWeb`, daily capture, history compare, calculator handlers, event wiring; imports the modules above. |
+| **`src/render.js`** | CSV/PDF export helpers, `drawPdfBorderedTable`, `formatHistoryDate`; used by section components for export. |
+| **`lib/dataPipeline.js`** | `applyOfficialOverlays()`, `processPayload()` (reassign provider, allowlist, retired). Used by **PricingContext** when setting data. |
 
-`index.html` contains markup only: it links to **`css/styles.css`** for all styles and to **`src/app.js`** as the app entry (`<script type="module" src="src/app.js"></script>`). No inline CSS or app logic.
-
-### React/Next.js frontend (optional)
-
-The same app is also implemented as a **React/Next.js** frontend so you can run it with `npm run dev` or `npm run build` / `npm run start`. Functionality is unchanged: same data pipeline (`src/`, `lib/dataPipeline.js`), same calculators, exports, chart, and history.
-
-| Path | Role |
-|------|------|
-| **`app/`** | Next.js App Router: `layout.js`, `page.js`. |
-| **`components/`** | React components: `Dashboard`, `Header`, `Sidebar`, `Toast`, `Footer`, `HistoryModal`, and section components under `components/sections/` (Overview, Models, ValueAnalysis, Calculators, Benchmarks, Recommend). |
-| **`context/PricingContext.js`** | React context: load pricing (Vizra → overlays → setData), benchmarks, filters, toast, and export state. |
-| **`lib/dataPipeline.js`** | Shared pipeline: `applyOfficialOverlays()`, `processPayload()` (reassign provider, allowlist, retired filter). Used by the React app; mirrors `app.js` setData logic. |
-
-**Running the React/Next.js app:** From the repo root run `npm install` then `npm run dev`. Ensure **`pricing.json`** and **`benchmarks.json`** are in the **`public/`** folder so the app can fetch them at `/pricing.json` and `/benchmarks.json` (e.g. `cp pricing.json benchmarks.json public/` or copy manually). The legacy app (opening `index.html` or serving the repo) uses these files from the repo root.
+**Running the app:** From the repo root run `npm install`, copy `pricing.json` and `benchmarks.json` into **`public/`**, then `npm run dev`. Open http://localhost:3000 (redirects to `/dashboard`). For static export (e.g. GitHub Pages), see [docs/DEPLOY.md](docs/DEPLOY.md).
 
 ## Hosting
 
-Static only (HTML/CSS/JS). No server or database. See [HOSTING.md](HOSTING.md) for GitHub Pages, Netlify, Vercel, Cloudflare Pages, etc.
+The app is built as a **static export** (no Node server at runtime). See [HOSTING.md](HOSTING.md) and [docs/DEPLOY.md](docs/DEPLOY.md) for GitHub Pages, Netlify, Vercel, etc.
 
 ## Docs
 
+- [docs/FEATURES.md](docs/FEATURES.md) — **Application features checklist**: every user-facing feature (navigation, dashboard, pricing, models, value analysis, calculators, **benchmarks** (heatmap, sort, radar), recommend, history, data behaviour) and **Next.js routes** (`/dashboard`, `/pricing`, `/calculator`, `/comparison`, `/value-analysis`, `/benchmarks`, `/recommend`). Use for testing and to ensure nothing is missing from documentation.
 - [docs/UI.md](docs/UI.md) — UI overview: **Dashboard layout and sidebar navigation**; **retired models excluded** in Overview, Models, Value Analysis, Calculators, Benchmarks, and Recommend (see `src/utils/retiredModels.js` and Current pricing section). (header, sidebar, scrollable main; section order: Overview → Value Analysis → Recommend → Models → Calculators → Benchmarks; responsive sidebar at ≤ 900px), **Dark mode / light mode**, **KPI cards**, **Current pricing** (grid, search, export), **Calculator tooltips** (?), **Cost calculator** (Pricing), **Prompt cost estimator** (paste/import, token count, cost per model), **Context window calculator**, **Production cost simulator** (formula, per request/annum; **simulator note**: flat token pricing, no tiered discounts or prompt caching), **Calculators export** (CSV/PDF of current result), **Export toolbar alignment** (right-aligned), **Model comparison table** (provider filter, sort, cheapest highlight, export), **Cost vs Performance quadrant** (scatter, fixed baseline 1k/500 tokens, frontier, Arena/MMLU/Code, provider filter; theme-aware colors; mobile/responsive; lazy rendering and filtering for large datasets; frontier tooltips: subtitle (?), legend-hint (?) native title, point hover), **Model benchmark dashboard** (pipeline, export), **Recommend module** (all four providers, diversity, doc search), **Pricing history** (modal, compare two dates, export; recent price changes), **Data status (footer)** (Pricing and Benchmarks last-updated dates), **Favicon** (inline SVG).
 - [docs/API.md](docs/API.md) — **Pricing API service:** `fetchPricingData()`, Vizra → pricing.json fallback, how the UI uses it, and how to change the API.
 - [docs/CACHE.md](docs/CACHE.md) — **Cache manager:** `getCachedPricing()` / `setCachedPricing()`, 12-hour TTL, centralizes cache logic and reduces API calls.
@@ -141,3 +134,4 @@ Static only (HTML/CSS/JS). No server or database. See [HOSTING.md](HOSTING.md) f
 - [docs/RETIRED_MODELS.md](docs/RETIRED_MODELS.md) — Retired/deprecated models excluded; used together with allowlist. Implementation (`utils/retiredModels.js`, `filterRetiredModels`, `getAllModels`, `getUnifiedCalcModels`). Lists cross-checked with each provider’s official deprecation pages.
 - [docs/PRICING_UPDATES.md](docs/PRICING_UPDATES.md) — Pricing update architecture and flow.
 - [docs/PRICING_SCENARIOS.md](docs/PRICING_SCENARIOS.md) — How pricing is loaded in each scenario (first load, refresh, GitHub vs local).
+- [docs/DEPLOY.md](docs/DEPLOY.md) — Push to GitHub and deploy to GitHub Pages (static export, workflow, Pages source).

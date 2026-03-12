@@ -12,7 +12,7 @@ The app **displays only models that are listed as available** on each provider�
    - **Anthropic:** Only Claude 4.x (e.g. `claude-opus-4-*`, `claude-sonnet-4-*`, `claude-haiku-4-*`, `claude-4-opus*`, `claude-4-sonnet*`).
    - **Mistral:** Official patterns: `mistral-large-3`, `mistral-large-2512`, `mistral-medium-3*`, `mistral-small-3*`, `mistral-3.*`, `mistral-medium-2505`, `mistral-large-24*`, `ministral-3*`, `magistral-*`, `codestral-*`, `pixtral-*`, `devstral-*`, `labs-devstral-*`, `open-mistral-*`, `open-mixtral-*`, `open-codestral-*`, `mistral-tiny`, `mistral-7b`, `mixtral-8x22b`, and generic `mistral-small` / `mistral-medium` / `mistral-large` when still listed.
 
-3. **Filtering** — In `src/app.js`, `setData(data)` runs: `reassignByCanonicalProvider(data)` → `filterToAllowedModels(...)` → `filterRetiredModels(...)`. Only allowed, non-retired models are stored, and each model is in the correct provider array.
+3. **Filtering** — In the React app, **PricingContext** loads pricing and passes the payload to **`lib/dataPipeline.js`** `processPayload()`, which runs `reassignByCanonicalProvider()` → `filterToAllowedModels()` → `filterRetiredModels()`. Only allowed, non-retired models are stored in context, and each model is in the correct provider array.
 
 4. **Lists** — In `src/calculator.js`, `getAllModels(data)` and `getUnifiedCalcModels(data)` only include models for which `isAllowedModel(providerKey, m.name)` is true and the model is not retired.
 
