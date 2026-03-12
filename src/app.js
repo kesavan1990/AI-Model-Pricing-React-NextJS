@@ -22,11 +22,24 @@ function getData() {
   return { gemini: geminiData, openai: openaiData, anthropic: anthropicData, mistral: mistralData };
 }
 
+/** Filter out retired/deprecated models so they are not shown anywhere in the app. */
+function filterRetiredModels(data) {
+  if (!data || typeof data !== 'object') return data;
+  return {
+    ...data,
+    gemini: Array.isArray(data.gemini) ? data.gemini.filter((m) => m && !render.isRetiredGeminiModel(m.name)) : data.gemini,
+    openai: Array.isArray(data.openai) ? data.openai.filter((m) => m && !render.isRetiredOpenAIModel(m.name)) : data.openai,
+    anthropic: Array.isArray(data.anthropic) ? data.anthropic.filter((m) => m && !render.isRetiredAnthropicModel(m.name)) : data.anthropic,
+    mistral: Array.isArray(data.mistral) ? data.mistral.filter((m) => m && !render.isRetiredMistralModel(m.name)) : data.mistral,
+  };
+}
+
 function setData(data) {
-  if (data.gemini) geminiData = data.gemini;
-  if (data.openai) openaiData = data.openai;
-  if (data.anthropic) anthropicData = data.anthropic;
-  if (data.mistral) mistralData = data.mistral;
+  const filtered = filterRetiredModels(data);
+  if (filtered.gemini) geminiData = filtered.gemini;
+  if (filtered.openai) openaiData = filtered.openai;
+  if (filtered.anthropic) anthropicData = filtered.anthropic;
+  if (filtered.mistral) mistralData = filtered.mistral;
 }
 
 // Last result per calculator (for export)
