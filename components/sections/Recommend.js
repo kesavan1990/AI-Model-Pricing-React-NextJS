@@ -2,7 +2,50 @@
 
 import { useState } from 'react';
 import { usePricing } from '../../context/PricingContext';
-import { getRecommendations, getFallbackReason } from '../../src/calculator.js';
+import {
+  getRecommendations,
+  getFallbackReason,
+  inferUseCaseType,
+  extractKeywords,
+  searchDocContent,
+  cleanDocSnippetForDisplay,
+  getGeneratedDocNote,
+} from '../../src/calculator.js';
+import { fetchWithCors } from '../../src/api.js';
+
+const GEMINI_DOC_URL = 'https://ai.google.dev/gemini-api/docs/models/gemini';
+const OPENAI_DOC_URL = 'https://platform.openai.com/docs/models';
+const ANTHROPIC_DOC_URL = 'https://docs.anthropic.com/en/docs/build-with-claude/model-cards';
+const MISTRAL_DOC_URL = 'https://docs.mistral.ai/models/';
+
+async function fetchDocsAndSearch(description, data) {
+  const keywords = extractKeywords(description);
+  if (!keywords.length) return null;
+  const geminiNames = (data.gemini || []).map((m) => m.name).filter(Boolean);
+  const openaiNames = (data.openai || []).map((m) => m.name).filter(Boolean);
+  const anthropicNames = (data.anthropic || []).map((m) => m.name).filter(Boolean);
+  const mistralNames = (data.mistral || []).map((m) => m.name).filter(Boolean);
+  const [g, o, a, m] = await Promise.allSettled([
+    fetchWithCors(GEMINI_DOC_URL),
+    fetchWithCors(OPENAI_DOC_URL),
+    fetchWithCors(ANTHROPIC_DOC_URL),
+    fetchWithCors(MISTRAL_DOC_URL),
+  ]);
+  const geminiHtml = g.status === 'fulfilled' && g.value ? g.value : '';
+  const openaiHtml = o.status === 'fulfilled' && o.value ? o.value : '';
+  const anthropicHtml = a.status === 'fulfilled' && a.value ? a.value : '';
+  const mistralHtml = m.status === 'fulfilled' && m.value ? m.value : '';
+  const geminiMatches = geminiHtml.trim() ? searchDocContent(geminiHtml, geminiNames, keywords) : [];
+  const openaiMatches = openaiHtml.trim() ? searchDocContent(openaiHtml, openaiNames, keywords) : [];
+  const anthropicMatches = anthropicHtml.trim() ? searchDocContent(anthropicHtml, anthropicNames, keywords) : [];
+  const mistralMatches = mistralHtml.trim() ? searchDocContent(mistralHtml, mistralNames, keywords) : [];
+  return {
+    gemini: geminiMatches.map((x) => ({ ...x, providerKey: 'gemini', provider: 'Google Gemini' })),
+    openai: openaiMatches.map((x) => ({ ...x, providerKey: 'openai', provider: 'OpenAI' })),
+    anthropic: anthropicMatches.map((x) => ({ ...x, providerKey: 'anthropic', provider: 'Anthropic' })),
+    mistral: mistralMatches.map((x) => ({ ...x, providerKey: 'mistral', provider: 'Mistral' })),
+  };
+}
 
 function priceStr(m) {
   if (m.input === 0 && m.output === 0) return 'Free';
@@ -21,28 +64,51 @@ export function Recommend() {
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
-  const handleGetRecommendations = () => {
+  const handleGetRecommendations = async () => {
     setLoading(true);
     setHasSearched(true);
     const data = getData();
     const useCaseType = inferUseCaseType(description);
-    const recs = getRecommendations(data, useCaseType, description);
+    let recs = getRecommendations(data, useCaseType, description);
+    let docResults = null;
+    try {
+      docResults = await fetchDocsAndSearch(description, data);
+    } catch (_) {}
+    if (docResults) {
+      const docMap = new Map();
+      [
+        ...(docResults.gemini || []),
+        ...(docResults.openai || []),
+        ...(docResults.anthropic || []),
+        ...(docResults.mistral || []),
+      ].forEach((match) => {
+        const key = match.providerKey + ':' + match.modelName;
+        if (!docMap.has(key) || (match.snippet && match.snippet.length > (docMap.get(key).snippet || '').length)) {
+          docMap.set(key, match);
+        }
+      });
+      recs = recs.map((r) => {
+        const key = r.providerKey + ':' + r.name;
+        const match = docMap.get(key);
+        if (match?.snippet) {
+          const cleaned = cleanDocSnippetForDisplay(match.snippet);
+          const docSnippet = cleaned || getGeneratedDocNote(r, useCaseType);
+          return { ...r, docSnippet };
+        }
+        return r;
+      });
+      const hasAnyDoc =
+        docResults.gemini?.length ||
+        docResults.openai?.length ||
+        docResults.anthropic?.length ||
+        docResults.mistral?.length;
+      setFromDocs(!!hasAnyDoc);
+    } else {
+      setFromDocs(false);
+    }
     setResults(recs || []);
-    setFromDocs(false);
     setLoading(false);
   };
-
-  function inferUseCaseType(d) {
-    const desc = (d || '').toLowerCase();
-    if (/cheap|low cost|budget|minimize cost|cost effective|save money|affordable|lowest cost/i.test(desc)) return 'cost';
-    if (/accurate|best quality|complex|reasoning|precise|correct|quality|sophisticated/i.test(desc)) return 'accuracy';
-    if (/long document|pdf|context|cached|large file|many pages|high context|summariz/i.test(desc)) return 'long-doc';
-    if (/code|programming|developer|software|script|api/i.test(desc)) return 'code';
-    if (/high volume|throughput|real-time|realtime|batch|millions|scale|performance|fast|speed/i.test(desc)) return 'high-volume';
-    if (/balance|general|default|all purpose|multi|various/i.test(desc)) return 'general';
-    if (desc.trim().length > 0) return 'balanced';
-    return 'general';
-  }
 
   return (
     <section className="page-section recommend-section" id="section-recommend">

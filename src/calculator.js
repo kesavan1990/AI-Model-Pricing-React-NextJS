@@ -389,8 +389,8 @@ export function getFallbackReason(m) {
   return `${provider} — $${(m.blended || 0).toFixed(2)}/1M blended. Solid choice for most tasks.`;
 }
 
-/** Max recommendations per provider so results are diverse across Gemini, OpenAI, Anthropic, Mistral. */
-const MAX_PER_PROVIDER = 2;
+/** Ensure at least one model per provider when possible, then fill up to 6 by score. */
+const MAX_RECOMMENDATIONS = 6;
 
 export function getRecommendations(data, useCaseType, description) {
   const all = getAllModels(data);
@@ -399,18 +399,28 @@ export function getRecommendations(data, useCaseType, description) {
     return { ...m, _score: score, _dimensions: dimensions };
   });
   scored.sort((a, b) => (b._score || 0) - (a._score || 0));
-  // Ensure diversity: take up to MAX_PER_PROVIDER per provider, then top 6 by score
-  const byProvider = new Map();
+  // Guarantee at least one per provider (so e.g. Mistral always appears if they have models), then fill by score
+  const seen = new Set();
+  const byProviderBest = new Map();
   for (const m of scored) {
     const key = m.providerKey || m.provider || 'other';
-    if (!byProvider.has(key)) byProvider.set(key, []);
-    const arr = byProvider.get(key);
-    if (arr.length < MAX_PER_PROVIDER) arr.push(m);
+    if (!byProviderBest.has(key)) {
+      byProviderBest.set(key, m);
+      seen.add(m.name + '|' + key);
+    }
   }
-  const diversified = [];
-  byProvider.forEach((arr) => diversified.push(...arr));
-  diversified.sort((a, b) => (b._score || 0) - (a._score || 0));
-  const top = diversified.slice(0, 6);
+  const result = [...byProviderBest.values()];
+  result.sort((a, b) => (b._score || 0) - (a._score || 0));
+  for (const m of scored) {
+    if (result.length >= MAX_RECOMMENDATIONS) break;
+    const id = m.name + '|' + (m.providerKey || m.provider || 'other');
+    if (!seen.has(id)) {
+      result.push(m);
+      seen.add(id);
+    }
+  }
+  result.sort((a, b) => (b._score || 0) - (a._score || 0));
+  const top = result.slice(0, MAX_RECOMMENDATIONS);
   return top.map((m) => {
     const dims = m._dimensions && m._dimensions.length ? m._dimensions.join(' · ') : '';
     let reason = dims ? dims + ' — ' : '';
