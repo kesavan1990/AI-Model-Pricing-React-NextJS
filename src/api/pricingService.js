@@ -18,24 +18,48 @@ function fetchWithTimeout(url, ms, opts = {}) {
 }
 
 /**
- * Fetch pricing data: try Vizra API first (with timeout), fall back to pricing.json on error.
+ * Fetch pricing data.
+ * - On GitHub Pages (and other non-localhost origins): try pricing.json first so we never hit Vizra and avoid 404 in console.
+ * - On localhost: try Vizra first, then fall back to pricing.json.
  * Uses getPricingJsonUrl() so pricing.json is requested from the app root (correct on GitHub Pages with basePath).
- * Timeouts prevent the app from staying stuck on the loading skeleton if the API or fallback hangs.
+ * Timeouts prevent the app from staying stuck on the loading skeleton.
  * @returns {Promise<object>} Raw pricing data (Vizra format or pricing.json format).
  */
 export async function fetchPricingData() {
-  try {
+  const { getPricingJsonUrl, isGitHubPages } = await import('../api.js');
+  const url = getPricingJsonUrl();
+  const tryLocalFirst = typeof window !== 'undefined' && isGitHubPages();
+
+  async function fetchLocal() {
+    const res = await fetchWithTimeout(url, FALLBACK_TIMEOUT_MS, { cache: 'no-store' });
+    if (!res.ok) throw new Error('Fallback pricing.json failed');
+    return res.json();
+  }
+
+  async function fetchVizra() {
     const res = await fetchWithTimeout(VIZRA_API, VIZRA_TIMEOUT_MS, { cache: 'no-store' });
     if (!res.ok) throw new Error(`API ${res.status}`);
-    const data = await res.json();
-    return data;
+    return res.json();
+  }
+
+  if (tryLocalFirst) {
+    try {
+      return await fetchLocal();
+    } catch (err) {
+      console.warn('Local pricing.json failed, trying Vizra', err?.message || err);
+      try {
+        return await fetchVizra();
+      } catch (_) {
+        throw err;
+      }
+    }
+  }
+
+  try {
+    return await fetchVizra();
   } catch (err) {
     console.warn('Using fallback pricing', err?.message || err);
-    const { getPricingJsonUrl } = await import('../api.js');
-    const url = getPricingJsonUrl();
-    const local = await fetchWithTimeout(url, FALLBACK_TIMEOUT_MS, { cache: 'no-store' });
-    if (!local.ok) throw new Error('Fallback pricing.json failed');
-    return await local.json();
+    return await fetchLocal();
   }
 }
 
