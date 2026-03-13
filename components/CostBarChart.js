@@ -99,6 +99,7 @@ export function CostBarChart({ models, modelsForProviderSummary, selectedProvide
   const { theme } = useTheme();
   const isDark = theme !== 'light';
   const [costType, setCostType] = useState('blended');
+  const [costSortOrder, setCostSortOrder] = useState('asc');
   const [hoveredRow, setHoveredRow] = useState(null);
 
   const textColor = isDark ? '#e2e8f0' : '#334155';
@@ -108,16 +109,18 @@ export function CostBarChart({ models, modelsForProviderSummary, selectedProvide
     const list = [...(models || [])];
     const withCost = list.map((m) => ({ ...m, _cost: getCost(m, costType) }));
     const valid = withCost.filter((m) => m._cost >= 0);
-    const sorted = valid.sort((a, b) => a._cost - b._cost).slice(0, 10);
-    const minCost = sorted.length ? Math.min(...sorted.map((m) => m._cost)) : 0;
-    const maxCost = sorted.length ? Math.max(...sorted.map((m) => m._cost)) : 0;
+    // Rank is always by cost: 1 = cheapest, 2 = 2nd cheapest, etc.
+    const byCostAsc = [...valid].sort((a, b) => a._cost - b._cost);
+    const minCost = byCostAsc.length ? Math.min(...byCostAsc.map((m) => m._cost)) : 0;
+    const maxCost = byCostAsc.length ? Math.max(...byCostAsc.map((m) => m._cost)) : 0;
 
     const providerKey = (m) => m.providerKey || 'gemini';
-    const data = sorted.map((m, i) => {
+    const withRank = byCostAsc.map((m, i) => {
       const rank = i + 1;
       const medal = RANK_MEDALS[rank - 1];
       const initial = PROVIDER_INITIALS[providerKey(m)] || '?';
       const rankLabel = medal ? `${medal} #${rank} [${initial}] ${formatModelLabel(m.name)}` : `#${rank} [${initial}] ${formatModelLabel(m.name)}`;
+      const isCheapest = rank === 1;
       return {
         rank,
         rankLabel,
@@ -127,10 +130,12 @@ export function CostBarChart({ models, modelsForProviderSummary, selectedProvide
         provider: providerKey(m),
         providerLabel: PROVIDER_LABELS[providerKey(m)] || m.provider || '—',
         contextWindow: m.contextWindow || '—',
-        isCheapest: rank === 1,
-        barColor: costToGradientColor(m._cost, minCost, maxCost, rank === 1),
+        isCheapest,
+        barColor: costToGradientColor(m._cost, minCost, maxCost, isCheapest),
       };
     });
+    // Display order: ascending = cheapest first, descending = costliest first (ranks unchanged)
+    const data = costSortOrder === 'desc' ? [...withRank].reverse() : withRank;
 
     const summarySource = modelsForProviderSummary ?? models ?? [];
     const summaryByProvider = {};
@@ -149,8 +154,8 @@ export function CostBarChart({ models, modelsForProviderSummary, selectedProvide
       avg: summaryByProvider[key]?.count ? summaryByProvider[key].sum / summaryByProvider[key].count : 0,
     }));
 
-    const chartMinCost = sorted.length ? minCost : 0;
-    const chartMaxCost = sorted.length ? maxCost : 0;
+    const chartMinCost = byCostAsc.length ? minCost : 0;
+    const chartMaxCost = byCostAsc.length ? maxCost : 0;
     return {
       data,
       providerSummary,
@@ -158,7 +163,7 @@ export function CostBarChart({ models, modelsForProviderSummary, selectedProvide
       chartMinCost,
       chartMaxCost,
     };
-  }, [models, modelsForProviderSummary, costType]);
+  }, [models, modelsForProviderSummary, costType, costSortOrder]);
 
   const range = chartMaxCost - chartMinCost || 1;
   const getFillRatio = (cost) => Math.min(1, Math.max(0, (cost - chartMinCost) / range));
@@ -167,30 +172,29 @@ export function CostBarChart({ models, modelsForProviderSummary, selectedProvide
 
   return (
     <div className="cost-leaderboard-wrap">
-      <div className="cost-type-toggle" style={{ marginBottom: 8 }}>
-        <span style={{ marginRight: 8, color: textColor, fontWeight: 500, fontSize: '0.8125rem' }}>Cost type:</span>
-        {['blended', 'input', 'output'].map((type) => (
-          <button
-            key={type}
-            type="button"
-            title={COST_TYPE_TOOLTIPS[type]}
-            onClick={() => setCostType(type)}
-            className={'cost-type-btn' + (costType === type ? ' active' : '')}
-            style={{
-              marginRight: 6,
-              padding: '6px 12px',
-              borderRadius: 8,
-              border: `1px solid ${gridColor}`,
-              background: costType === type ? (isDark ? 'rgba(99, 102, 241, 0.3)' : 'rgba(99, 102, 241, 0.15)') : 'transparent',
-              color: textColor,
-              cursor: 'pointer',
-              fontSize: '0.8125rem',
-              textTransform: 'capitalize',
-            }}
-          >
-            {type === 'blended' ? 'Blended' : type === 'input' ? 'Input' : 'Output'}
-          </button>
-        ))}
+      <div className="cost-type-toggle" style={{ marginBottom: 8, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 6 }}>
+        <span style={{ color: textColor, fontWeight: 500, fontSize: '0.8125rem' }}>Cost type:</span>
+          {['blended', 'input', 'output'].map((type) => (
+            <button
+              key={type}
+              type="button"
+              title={COST_TYPE_TOOLTIPS[type]}
+              onClick={() => setCostType(type)}
+              className={'cost-type-btn' + (costType === type ? ' active' : '')}
+              style={{
+                padding: '6px 12px',
+                borderRadius: 8,
+                border: `1px solid ${gridColor}`,
+                background: costType === type ? (isDark ? 'rgba(99, 102, 241, 0.3)' : 'rgba(99, 102, 241, 0.15)') : 'transparent',
+                color: textColor,
+                cursor: 'pointer',
+                fontSize: '0.8125rem',
+                textTransform: 'capitalize',
+              }}
+            >
+              {type === 'blended' ? 'Blended' : type === 'input' ? 'Input' : 'Output'}
+            </button>
+          ))}
       </div>
 
       {providerSummary.length > 0 && (
@@ -253,13 +257,22 @@ export function CostBarChart({ models, modelsForProviderSummary, selectedProvide
         </div>
       )}
 
-      <div className="cost-leaderboard-table-wrap" style={{ position: 'relative', width: '100%' }}>
+      <div className="cost-leaderboard-table-wrap" style={{ position: 'relative', width: '100%', maxHeight: 360, overflowY: 'auto' }}>
         <table className="cost-leaderboard-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${gridColor}` }}>
               <th style={{ textAlign: 'left', padding: '6px 8px', color: textColor }}>Rank</th>
               <th style={{ textAlign: 'left', padding: '6px 8px', color: textColor }}>Model</th>
-              <th style={{ textAlign: 'left', padding: '6px 8px', color: textColor, width: '40%' }}>Cost ↓</th>
+              <th
+                role="button"
+                tabIndex={0}
+                onClick={() => setCostSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'))}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setCostSortOrder((o) => (o === 'asc' ? 'desc' : 'asc')); } }}
+                style={{ textAlign: 'left', padding: '6px 8px', color: textColor, width: '40%', cursor: 'pointer', userSelect: 'none' }}
+                title={costSortOrder === 'asc' ? 'Click for descending (highest first)' : 'Click for ascending (lowest first)'}
+              >
+                Cost {costSortOrder === 'asc' ? '↑' : '↓'}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -337,12 +350,14 @@ export function CostBarChart({ models, modelsForProviderSummary, selectedProvide
         </table>
       </div>
 
-      <div className="chart-legend-hint" style={{ color: textColor, fontSize: '0.875rem', marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: '8px 14px', alignItems: 'center' }}>
-        <span>🟢 Cheapest</span>
-        <span style={{ color: COST_GRADIENT.low }}>● Low cost</span>
-        <span style={{ color: COST_GRADIENT.mid }}>● Mid</span>
-        <span style={{ color: COST_GRADIENT.high }}>● High cost</span>
-      </div>
+      {data.length > 0 && (
+        <div className="chart-legend-hint" style={{ color: textColor, fontSize: '0.875rem', marginTop: 10, display: 'flex', flexWrap: 'wrap', gap: '8px 14px', alignItems: 'center' }}>
+          <span>🟢 Cheapest</span>
+          <span style={{ color: COST_GRADIENT.low }}>● Low cost</span>
+          <span style={{ color: COST_GRADIENT.mid }}>● Mid</span>
+          <span style={{ color: COST_GRADIENT.high }}>● High cost</span>
+        </div>
+      )}
         </>
       )}
     </div>

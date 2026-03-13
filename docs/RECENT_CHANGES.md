@@ -1,4 +1,4 @@
-# Recent changes
+﻿# Recent changes
 
 This document summarizes recent updates to the AI Model Pricing app (dashboard, calculator, pipelines, and data scope).
 
@@ -30,7 +30,7 @@ See [PRICING_UPDATES.md](PRICING_UPDATES.md) and [BENCHMARKS.md](BENCHMARKS.md) 
 
 ### Model type filter
 
-- **Model type** dropdown above the cost chart: **All**, **Chat / Text**, **Image**, **Audio**, **Video**.
+- **Model type** dropdown above the cost chart: **Chat / Text** (default), **All**, **Image**, **Audio**, **Video**.
 - Applies to both **Cost per 1M tokens (blended)** and **Model Intelligence** (cheapest, best quality, fastest, largest context). Changing the filter updates the chart and the right-hand panel together.
 
 ### Provider filter (clickable cards)
@@ -55,6 +55,14 @@ See [PRICING_UPDATES.md](PRICING_UPDATES.md) and [BENCHMARKS.md](BENCHMARKS.md) 
 - **Always shown:** Cost type toggles (Blended / Input / Output) and **all four provider cards**, so you can change provider or model type.
 - In place of the table, a short message appears: *"No model data yet. Try a different Model type above, or click a provider card to change filter. Click the selected card again to show all providers."*
 
+### Cost per 1M tokens table (compact, scroll, sticky header, sort)
+
+- **Compact layout** — Dashboard home uses reduced padding and spacing so it matches other pages.
+- **All results** — The cost table shows **all** matching models (not just top 10); the list lives in a **scrollable area** (fixed max-height, vertical scroll).
+- **Sticky header** — The table header (Rank, Model, Cost) stays visible at the top of the scroll area; header uses an opaque background so body rows do not show through.
+- **Sort by cost** — Click the **Cost** column header to toggle ascending (lowest first) or descending (highest first). Ranking is always by cost (rank 1 = cheapest) regardless of sort direction.
+- **Legend** — The cost legend (🟢 Cheapest, ● Low cost, ● Mid, ● High cost) is displayed **below** the table.
+
 ---
 
 ## 3. Calculator
@@ -66,6 +74,12 @@ See [PRICING_UPDATES.md](PRICING_UPDATES.md) and [BENCHMARKS.md](BENCHMARKS.md) 
 - **Compare all models** (Pricing) also runs over **chat models only**; image/audio/video models do not appear in the result table.
 - Implementation: `getUnifiedCalcModelsChat(data)` in `src/calculator.js`; used by `components/sections/Calculators.js` for Pricing and Prompt cost.
 
+### Sticky headers and no-gap scroll (Pricing, Prompt cost, Context window, Production cost)
+
+- **Sticky headers** — Result tables in **Calculator → Pricing** (Compare all models), **Prompt cost**, **Context window**, and **Production cost** use a sticky table header so column names stay visible while scrolling.
+- **No gap** — Scroll containers for these tables have **zero top padding** so the header sits flush at the top with no gap; this prevents the first data row from appearing to overlap the header when scrolling.
+- **Opaque header row** — Header cells use a solid background (dark and light theme) so scrolling body rows do not show through. Implementation: `css/styles.css` (e.g. `.calc-result.wrap-scroll`, `.prompt-cost-result`, `.context-window-result`, `.production-cost-result`).
+
 ---
 
 ## 4. Summary table
@@ -74,8 +88,8 @@ See [PRICING_UPDATES.md](PRICING_UPDATES.md) and [BENCHMARKS.md](BENCHMARKS.md) 
 |------|--------|
 | **Pricing pipeline** | Writes `public/pricing.json`; includes all model types and providers; preserves `modelType` and alternate pricing; allows 0/0 when type or alternate pricing present. |
 | **Benchmarks pipeline** | Reads/writes `public/pricing.json` and `public/benchmarks.json`; one entry per model (all types, all providers); chat uses Arena/HF, others use fallback. |
-| **Dashboard** | Model type filter (All / Chat / Image / Audio / Video); provider filter via clickable cards; 5 decimals for costs; empty state keeps cards and toggles visible. |
-| **Calculator** | Pricing and Prompt cost (including “Compare all models”) use chat-only models. |
+| **Dashboard** | Model type filter (Chat/Text default); provider filter via clickable cards; 5 decimals; empty state; compact layout; Cost per 1M: all results, scrollable, sticky header, sort by Cost header, legend below. |
+| **Calculator** | Chat-only models for Pricing and Prompt cost; sticky headers and no-gap scroll on result tables (Pricing, Prompt cost, Context window, Production cost). |
 
 ---
 

@@ -7,8 +7,8 @@ import { CostBarChart } from './CostBarChart';
 import ModelIntelligencePanel from './ModelIntelligencePanel';
 
 const MODEL_TYPE_OPTIONS = [
-  { value: '', label: 'All' },
   { value: 'chat', label: 'Chat / Text' },
+  { value: '', label: 'All' },
   { value: 'image', label: 'Image' },
   { value: 'audio', label: 'Audio' },
   { value: 'video', label: 'Video' },
@@ -17,7 +17,7 @@ const MODEL_TYPE_OPTIONS = [
 export default function DashboardHome() {
   const { getData } = usePricing();
   const data = getData();
-  const [modelTypeFilter, setModelTypeFilter] = useState('');
+  const [modelTypeFilter, setModelTypeFilter] = useState('chat');
   const [providerFilter, setProviderFilter] = useState('');
   const all = useMemo(() => getAllModels(data), [data]);
   const filteredByModelTypeOnly = useMemo(() => {

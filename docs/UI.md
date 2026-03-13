@@ -21,11 +21,13 @@ Clicking a sidebar link **displays only that section** (all others are hidden) a
 
 ## Dashboard home (Cost per 1M tokens and Model Intelligence)
 
-The **Dashboard** route (`/dashboard`) shows a **Cost per 1M tokens (blended)** chart and a **Model Intelligence** sidebar. Both respect the same filters.
+The **Dashboard** route (`/dashboard`) shows a **Cost per 1M tokens (blended)** chart and a **Model Intelligence** sidebar. Both respect the same filters. The dashboard uses a **compact layout** (reduced padding and spacing) consistent with other pages.
 
-**Model type filter** — A dropdown above the chart: **All**, **Chat / Text**, **Image**, **Audio**, **Video**. It filters the cost chart (top models list) and the Model Intelligence panel (Cheapest, Best Quality, Fastest, Largest Context) together.
+**Model type filter** — A dropdown above the chart: **Chat / Text** (default), **All**, **Image**, **Audio**, **Video**. It filters the cost chart and the Model Intelligence panel together.
 
 **Provider cards** — Four cards (Google Gemini, OpenAI, Anthropic, Mistral) show average cost per provider. They are **clickable**: click a card to show **only that provider’s models** in the chart and in Model Intelligence; click the same card again to **clear** the provider filter. All four cards remain visible in an equal-width grid; the selected card is highlighted (e.g. purple tint). Implementation: `CostBarChart` in `components/CostBarChart.js` receives `modelsForProviderSummary` (for card averages) and `models` (for the table); `DashboardHome` in `components/DashboardHome.js` manages `modelTypeFilter` and `providerFilter`.
+
+**Cost per 1M tokens table** — The table shows **all** matching models (not limited to top 10). The list is inside a **scrollable area** (fixed max-height, vertical scroll) so the page length stays bounded. The **header row (Rank, Model, Cost)** is **sticky**: it stays visible at the top of the scroll area while you scroll. **Sort by cost:** click the **Cost** column header to toggle **ascending** (↑, lowest first) or **descending** (↓, highest first). **Ranking** is always by cost: rank 1 = cheapest, rank 2 = second cheapest, etc., regardless of sort direction. A **cost legend** (🟢 Cheapest, ● Low cost, ● Mid, ● High cost) appears **below** the table.
 
 **Cost display** — All costs on the dashboard use **5 decimal places** (e.g. `$0.12345`): provider card averages, cost scale min/max, ranked table, and Model Intelligence values.
 
@@ -93,6 +95,22 @@ In the **Overview** section, the **Current pricing** block shows API pricing per
 **Official-only and retired (excluded in all sections)** — Only **official-available** models are shown (allowlist in **`src/data/allowedModels.js`**); **retired** models are also excluded (**`src/utils/retiredModels.js`**). **App state:** **PricingContext** calls `processPayload()` (in `lib/dataPipeline.js`) on every `setData()`, which runs `filterToAllowedModels()` then `filterRetiredModels()`, so `getData()` only sees allowed, non-retired models. **Model lists:** `src/calculator.js` uses `isAllowedModel()` and `isRetired()` in `getAllModels()` and `getUnifiedCalcModels()`, so **Models**, **Value Analysis**, **Calculators**, **Benchmarks**, and **Recommend** show only official-available, non-retired models. See [ALLOWED_MODELS.md](ALLOWED_MODELS.md) and [RETIRED_MODELS.md](RETIRED_MODELS.md).
 
 **Table rendering (DocumentFragment)** — To keep rendering fast and avoid multiple DOM updates, table rows are appended via a **DocumentFragment**. Instead of appending each row to the `tbody` in a loop (which would trigger a reflow per row), the app builds an array of row HTML strings, parses them into a temporary container, moves all `<tr>` nodes into a fragment, and appends the fragment to the `tbody` in a single operation. Benefits: fewer reflows, faster rendering, and better performance for large model lists. Used in **Current pricing** (four provider tables), **Model comparison** table, and **Benchmarks** dashboard. Implementation: `appendRowsWithFragment(tbody, rowHtmlArray)` in `src/render.js`; used by `renderTables()`, `renderModelComparisonTable()`, and `renderBenchmarkDashboard()`.
+
+---
+
+## Sticky headers on scrollable result tables
+
+Scrollable result tables use **sticky headers** so the column headers stay visible while you scroll. This applies to:
+
+| Location | Table | Behavior |
+|----------|--------|----------|
+| **Dashboard** | Cost per 1M tokens (Rank, Model, Cost) | Header sticks at top of scroll area; opaque background so body rows do not show through. |
+| **Calculator → Pricing** | Compare all models (Model, Est. cost) | Same: sticky header, no gap above table, opaque header row. |
+| **Calculator → Prompt cost** | Model, Est. cost | Sticky header; scroll container has no top padding so no gap. |
+| **Calculator → Context window** | Model, Provider, Context limit, etc. | Sticky header; opaque thead row (dark/light theme). |
+| **Calculator → Production cost** | Model, Provider, Cost/request, Daily, etc. | Sticky header; opaque thead row. |
+
+**No-gap behavior** — Scroll containers for these tables use **zero top padding** so the header sits flush at the top with no gap. This prevents the first data row from appearing to overlap the header when scrolling. Header cells use a **solid opaque background** (dark: `#1a1a2e`, light: `#ffffff`) and a bottom border/box-shadow so scrolling content does not show through. Implementation: `css/styles.css` (e.g. `.cost-leaderboard-table-wrap`, `.calc-result.wrap-scroll`, `.prompt-cost-result`, `.context-window-result`, `.production-cost-result`) with `padding-top: 0` on the scroll wrapper and sticky `thead th` (and `thead tr`) styles.
 
 ---
 

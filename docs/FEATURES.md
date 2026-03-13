@@ -1,4 +1,4 @@
-# Application features (checklist)
+﻿# Application features (checklist)
 
 This document lists all user-facing functionality for the **React/Next.js** app so nothing is missed when testing or documenting.
 
@@ -21,9 +21,9 @@ This document lists all user-facing functionality for the **React/Next.js** app 
 
 | Feature | Description | Where |
 |--------|-------------|--------|
-| **Model type filter** | All, Chat/Text, Image, Audio, Video. Filters both Cost per 1M tokens chart and Model Intelligence panel. | Dashboard home, above the cost chart. |
+| **Model type filter** | Chat/Text (default), All, Image, Audio, Video. Filters both Cost per 1M tokens chart and Model Intelligence panel. | Dashboard home, above the cost chart. |
 | **Provider cards (clickable)** | Four cards: Google Gemini, OpenAI, Anthropic, Mistral. Click one to show only that provider’s models; click again to clear. All four cards stay visible. | Dashboard home, Cost per 1M tokens section. |
-| **Cost per 1M tokens** | Top models by blended/input/output cost; provider summary cards; cost scale; ranked table. Costs shown with **5 decimals**. | Dashboard home. |
+| **Cost per 1M tokens** | All matching models in scrollable table; sticky header (Rank, Model, Cost); sort by clicking Cost header (asc/desc); legend below table; provider cards; cost scale. **5 decimals**. Compact layout. | Dashboard home. |
 | **Model Intelligence** | Cheapest, Best Quality, Fastest, Largest Context (driven by same model type + provider filter). Costs with 5 decimals. | Dashboard home, right sidebar. |
 | **Empty state** | When no models match the filter: message + hint; cost type toggles and all four provider cards remain so user can change filters. | Dashboard home. |
 | **KPI cards** | Total models, Cheapest (blended), Costliest, Largest context. | Overview / Pricing. |
@@ -70,10 +70,10 @@ This document lists all user-facing functionality for the **React/Next.js** app 
 
 | Feature | Description | Where |
 |--------|-------------|--------|
-| **Pricing calculator** | Prompt + output tokens, model select → estimated cost; optional second model compare. **Model list and “Compare all models” use chat/text models only.** | **Calculator** (`/calculator`) → Pricing. |
-| **Prompt cost** | Paste/import text → token estimate; set output tokens → cost per model. **Cost-per-model list uses chat/text models only.** | Calculator → Prompt cost. |
-| **Context window** | Enter prompt + output tokens → list of models that fit (or not). Chat models only. | Calculator → Context window. |
-| **Production cost** | Users/day, requests/user, tokens/request → per request, daily, monthly, per annum. Chat models only. | Calculator → Production cost. |
+| **Pricing calculator** | Prompt + output tokens, model select → estimated cost; optional second model compare. Chat/text models only. Result table: **sticky header**, no gap above. | **Calculator** (`/calculator`) → Pricing. |
+| **Prompt cost** | Paste/import text → token estimate; set output tokens → cost per model. Chat/text models only. Result table: **sticky header**, no gap. | Calculator → Prompt cost. |
+| **Context window** | Enter prompt + output tokens → list of models that fit (or not). Chat models only. Result table: **sticky header**, no gap, opaque header. | Calculator → Context window. |
+| **Production cost** | Users/day, requests/user, tokens/request → per request, daily, monthly, per annum. Chat models only. Result table: **sticky header**, no gap, opaque header. | Calculator → Production cost. |
 | **Calculator tooltips** | (?) on labels (prompt tokens, output tokens, context, etc.). | All calculator sub-tabs. |
 | **Export CSV/PDF** | Export result of the **active** calculator sub-tab. | Calculators export toolbar. |
 
