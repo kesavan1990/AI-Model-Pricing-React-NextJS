@@ -40,7 +40,7 @@ export default function Error({ error, reset }) {
           Try again
         </button>
         <Link
-          href="/dashboard"
+          href="/dashboard/"
           style={{
             padding: '0.5rem 1rem',
             background: 'var(--theme-card-border, rgba(255,255,255,0.2))',
@@ -52,6 +52,20 @@ export default function Error({ error, reset }) {
         >
           Go to Dashboard
         </Link>
+        <button
+          type="button"
+          onClick={() => { if (typeof window !== 'undefined') window.location.href = window.location.pathname || '/'; }}
+          style={{
+            padding: '0.5rem 1rem',
+            background: 'var(--theme-card-border, rgba(255,255,255,0.2))',
+            border: '1px solid var(--theme-card-border)',
+            borderRadius: '6px',
+            color: 'inherit',
+            cursor: 'pointer',
+          }}
+        >
+          Full page reload
+        </button>
       </div>
     </div>
   );

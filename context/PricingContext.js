@@ -98,6 +98,24 @@ export function PricingProvider({ children }) {
         setToast({ msg: 'Using embedded default pricing (no file or cache).', type: 'success', show: true });
         setTimeout(() => setToast((t) => ({ ...t, show: false })), 3500);
       }
+      // Daily snapshot for Pricing History (first visit of the day, per browser)
+      if (typeof window !== 'undefined' && merged?.gemini?.length) {
+        try {
+          const last = localStorage.getItem(pricing.LAST_DAILY_KEY);
+          const today = pricing.getTodayIST();
+          if (last !== today) {
+            pricing.saveToHistory(merged.gemini, merged.openai, {
+              daily: true,
+              date: pricing.getToday12AMIST(),
+              anthropic: merged.anthropic || [],
+              mistral: merged.mistral || [],
+            });
+            localStorage.setItem(pricing.LAST_DAILY_KEY, today);
+            setToast({ msg: 'Daily snapshot saved to History.', type: 'success', show: true });
+            setTimeout(() => setToast((t) => ({ ...t, show: false })), 3500);
+          }
+        } catch (_) {}
+      }
     } catch (err) {
       console.error('loadPricing failed:', err);
       clearTimeout(timeoutId);

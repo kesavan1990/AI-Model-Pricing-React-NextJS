@@ -8,6 +8,8 @@ function normalizePath(p) {
   return p.replace(/\/$/, '') || '/';
 }
 
+const basePath = typeof process !== 'undefined' && process.env.NEXT_PUBLIC_BASE_PATH ? process.env.NEXT_PUBLIC_BASE_PATH : '';
+
 export function Sidebar({ onOpenHistory }) {
   const pathname = usePathname() || '';
   const router = useRouter();
@@ -25,8 +27,11 @@ export function Sidebar({ onOpenHistory }) {
 
   const handleNavClick = (e, href) => {
     const isSameTab = !e.ctrlKey && !e.metaKey && !e.shiftKey && e.button === 0;
-    if (isSameTab) {
-      e.preventDefault();
+    if (!isSameTab) return;
+    e.preventDefault();
+    if (basePath) {
+      window.location.href = basePath + href;
+    } else {
       router.push(href);
     }
   };
