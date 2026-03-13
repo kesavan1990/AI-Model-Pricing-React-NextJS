@@ -26,6 +26,7 @@ export function Sidebar({ onOpenHistory }) {
           <Link
             key={href}
             href={href}
+            prefetch
             className={'sidebar-link' + (pathname === href ? ' active' : '')}
           >
             {label}

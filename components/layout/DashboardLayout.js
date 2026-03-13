@@ -6,10 +6,11 @@ import { Header } from '../Header';
 import { Toast } from '../Toast';
 import { Footer } from '../Footer';
 import { HistoryModal } from '../HistoryModal';
+import { DataLoadingSkeleton } from '../DataLoadingSkeleton';
 import { usePricing } from '../../context/PricingContext';
 
 export default function DashboardLayout({ children }) {
-  const { toast } = usePricing();
+  const { toast, loading } = usePricing();
   const [historyOpen, setHistoryOpen] = useState(false);
 
   return (
@@ -19,7 +20,7 @@ export default function DashboardLayout({ children }) {
         <Sidebar onOpenHistory={() => setHistoryOpen(true)} />
         <main className="dashboard-main">
           <Toast message={toast.msg} type={toast.type} show={toast.show} />
-          {children}
+          {loading ? <DataLoadingSkeleton /> : children}
           <Footer />
         </main>
       </div>

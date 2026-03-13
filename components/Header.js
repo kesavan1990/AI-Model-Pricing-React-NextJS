@@ -23,7 +23,7 @@ export function Header({ onOpenHistory }) {
   return (
     <header className="dashboard-header">
       <h1 className="dashboard-title">
-        <Link href="/dashboard" className="header-home-link" title="Go to dashboard">
+        <Link href="/dashboard" prefetch className="header-home-link" title="Go to dashboard">
           🤖
         </Link>{' '}
         AI Model Pricing Intelligence Dashboard
@@ -48,9 +48,14 @@ export function Header({ onOpenHistory }) {
           <span className={'refresh-icon' + (refreshing ? ' spinning' : '')}>🔄</span>
           <span>Refresh</span>
         </button>
-        <a href="#" className="history-btn" onClick={(e) => { e.preventDefault(); onOpenHistory(); }} title="View pricing history">
+        <button
+          type="button"
+          className="history-btn"
+          onClick={() => onOpenHistory()}
+          title="View pricing history"
+        >
           📜 History
-        </a>
+        </button>
       </div>
     </header>
   );

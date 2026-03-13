@@ -17,6 +17,18 @@ Clicking a sidebar link **displays only that section** (all others are hidden) a
 
 **Responsive** — At viewport ≤ 900px the sidebar moves to the top and becomes a horizontal nav; links wrap on small screens.
 
+**Client navigation and route prefetching** — All in-app links use the Next.js **`Link`** component (from `next/link`) so navigation is client-side and does not trigger full page reloads. **Prefetching** is enabled via the `prefetch` prop on every `Link`. Next.js preloads the target route in the background (e.g. when the link enters the viewport or on hover, depending on the Next.js version). When the user clicks, navigation feels instant because the page JS and data may already be loaded. This pattern is used by many production apps.
+
+- **Where it applies:** Sidebar links (Dashboard, Pricing, Calculator, Comparison, Value Analysis, Benchmarks, Recommend), header logo link to Dashboard, and Calculator sub-nav links (Pricing, Prompt cost, Context window, Production cost).
+- **Behavior:** User hovers or link becomes visible → route is prefetched in the background; user clicks → instant navigation.
+- **Implementation:** `components/Sidebar.js`, `components/Header.js`, and `components/sections/Calculators.js` use `<Link href="..." prefetch>`.
+
+**Navigation loading indicator** — When the user clicks an internal link and the app is loading the next page, a **top progress bar** (NProgress) is shown at the top of the viewport. The bar appears as soon as the user clicks an in-app link and disappears when the new page has loaded. This gives immediate feedback that navigation is in progress and is common in dashboards and SPAs.
+
+- **Library:** `nprogress` (see [nprogress](https://github.com/rstacruz/nprogress)).
+- **Behavior:** User clicks link → thin bar appears at top → page loads → bar disappears.
+- **Implementation:** `components/NavigationProgress.js` uses `usePathname()` from `next/navigation` to call `NProgress.done()` when the route changes; a document-level click listener calls `NProgress.start()` when the user clicks any internal `<a href="/...">` (including Next.js `Link` components). The component is rendered in the root layout (`app/layout.js`). The spinner is disabled so only the top bar is shown.
+
 ---
 
 ## Dashboard home (Cost per 1M tokens and Model Intelligence)
@@ -32,6 +44,23 @@ The **Dashboard** route (`/dashboard`) shows a **Cost per 1M tokens (blended)** 
 **Cost display** — All costs on the dashboard use **5 decimal places** (e.g. `$0.12345`): provider card averages, cost scale min/max, ranked table, and Model Intelligence values.
 
 **Empty state** — When the selected model type + provider has **no models** (e.g. Image + a provider with no image models), the chart does not hide the controls. The cost type toggles (Blended / Input / Output) and all four provider cards stay visible; only the table is replaced by a message: *"No model data yet. Try a different Model type above, or click a provider card to change filter. Click the selected card again to show all providers."* This avoids getting stuck when a filter combination returns no data.
+
+---
+
+## Skeleton loaders (loading state)
+
+While pricing (and benchmark) data is loading—on first visit or after **Refresh from web**—the app shows **skeleton placeholders** instead of a blank screen. This makes loading feel faster and gives clear feedback that content is coming.
+
+- **When they appear:** Whenever the global pricing context is loading (`loading === true`), the main content area shows a **data loading skeleton** that mirrors the Dashboard layout: a title bar, filter row, chart card (bar-shaped lines), and Model Intelligence–style panel with rows.
+- **Where:** The skeleton is rendered in the **dashboard layout** in place of the current page content. So on initial load or refresh, users see the skeleton until data is ready; then the real Dashboard (or other page) is shown.
+- **Theme-aware:** Skeleton blocks use the CSS variable `--theme-skeleton` (and a pulse animation) so they look correct in both **dark** and **light** mode.
+- **Implementation:**
+  - **`components/Skeleton.js`** — Reusable building block: a `div` with the `.skeleton` class. Use with Tailwind size/radius classes (e.g. `h-6 w-40 rounded`). Example: `<Skeleton className="h-6 w-40 rounded" />`.
+  - **`components/DataLoadingSkeleton.js`** — Full-page skeleton composed of `Skeleton` pieces, matching the Dashboard structure (title, filters, chart area, right panel).
+  - **`components/layout/DashboardLayout.js`** — Uses `usePricing().loading`; when `loading` is true, it renders `<DataLoadingSkeleton />` instead of `children` in the main area. Toast and Footer remain visible.
+- **CSS:** In `css/styles.css`, `:root` and `[data-theme="light"]` define `--theme-skeleton`. The `.skeleton` class sets `background: var(--theme-skeleton)`, `border-radius`, and a `skeleton-pulse` keyframe animation for a subtle pulse effect.
+
+No extra libraries are required; the implementation uses Tailwind for layout and a small amount of custom CSS for the skeleton style and animation.
 
 ---
 

@@ -1,10 +1,19 @@
-﻿# Recent changes
+# Recent changes
 
 This document summarizes recent updates to the AI Model Pricing app (dashboard, calculator, pipelines, and data scope).
 
 ---
 
-## 1. Pricing and benchmark pipelines
+## 1. Skeleton loaders (loading state)
+
+- **Behavior:** While pricing (and benchmark) data is loading—on first load or after **Refresh from web**—the main content area shows **skeleton placeholders** instead of a blank screen. The skeleton mirrors the Dashboard layout (title, filters, chart card, Model Intelligence panel) so loading feels faster and more predictable.
+- **Scope:** Skeleton is shown for any page when the global pricing context is loading (e.g. Dashboard, Pricing, Calculator). When loading finishes, the actual page content is rendered.
+- **Theme:** Skeleton blocks use `--theme-skeleton` and a pulse animation and respect dark/light mode.
+- **Implementation:** Reusable `Skeleton` component (`components/Skeleton.js`), full-page `DataLoadingSkeleton` (`components/DataLoadingSkeleton.js`), and `DashboardLayout` switching to the skeleton when `usePricing().loading` is true. No extra libraries; Tailwind + custom CSS. See [UI.md](UI.md#skeleton-loaders-loading-state).
+
+---
+
+## 2. Pricing and benchmark pipelines
 
 ### Output location and deploy
 
@@ -26,7 +35,7 @@ See [PRICING_UPDATES.md](PRICING_UPDATES.md) and [BENCHMARKS.md](BENCHMARKS.md) 
 
 ---
 
-## 2. Dashboard
+## 3. Dashboard
 
 ### Model type filter
 
@@ -65,7 +74,7 @@ See [PRICING_UPDATES.md](PRICING_UPDATES.md) and [BENCHMARKS.md](BENCHMARKS.md) 
 
 ---
 
-## 3. Calculator
+## 4. Calculator
 
 ### Pricing and Prompt cost: chat/text models only
 
@@ -82,7 +91,7 @@ See [PRICING_UPDATES.md](PRICING_UPDATES.md) and [BENCHMARKS.md](BENCHMARKS.md) 
 
 ---
 
-## 4. Summary table
+## 5. Summary table
 
 | Area | Change |
 |------|--------|
@@ -90,6 +99,17 @@ See [PRICING_UPDATES.md](PRICING_UPDATES.md) and [BENCHMARKS.md](BENCHMARKS.md) 
 | **Benchmarks pipeline** | Reads/writes `public/pricing.json` and `public/benchmarks.json`; one entry per model (all types, all providers); chat uses Arena/HF, others use fallback. |
 | **Dashboard** | Model type filter (Chat/Text default); provider filter via clickable cards; 5 decimals; empty state; compact layout; Cost per 1M: all results, scrollable, sticky header, sort by Cost header, legend below. |
 | **Calculator** | Chat-only models for Pricing and Prompt cost; sticky headers and no-gap scroll on result tables (Pricing, Prompt cost, Context window, Production cost). |
+| **Navigation** | Next.js **Link** for all in-app routes; **prefetch** enabled; **NProgress** top bar shown while route loads. See [UI.md](UI.md). |
+
+---
+
+## 6. Client navigation and route prefetching
+
+- **Next.js Link** — All in-app navigation uses the Next.js **`Link`** component instead of plain `<a>` tags, so navigation is client-side and does not cause full page reloads.
+- **Route prefetching** — Every `Link` has the **`prefetch`** prop enabled. Next.js preloads the target route in the background (when the link is in view or on hover). When the user clicks, navigation is instant.
+- **Where:** Sidebar (Dashboard, Pricing, Calculator, Comparison, Value Analysis, Benchmarks, Recommend), header logo link, and Calculator sub-nav (Pricing, Prompt cost, Context window, Production cost).
+- **Navigation loading indicator** — A top progress bar (NProgress) is shown when the user clicks an internal link and disappears when the new page has loaded. Implementation: `components/NavigationProgress.js`; wired in root layout.
+- **Docs:** See [UI.md](UI.md) → “Client navigation and route prefetching”.
 
 ---
 

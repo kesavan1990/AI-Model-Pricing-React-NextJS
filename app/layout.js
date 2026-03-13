@@ -4,6 +4,7 @@ import Script from 'next/script';
 import { ThemeProvider } from '../context/ThemeContext';
 import { PricingProvider } from '../context/PricingContext';
 import { ThemeInit } from '../components/ThemeInit';
+import { NavigationProgress } from '../components/NavigationProgress';
 
 export const metadata = {
   title: 'AI Model Pricing - Gemini, OpenAI, Anthropic, Mistral',
@@ -27,6 +28,7 @@ export default function RootLayout({ children }) {
           crossOrigin="anonymous"
         />
         <ThemeInit />
+        <NavigationProgress />
         <ThemeProvider>
           <PricingProvider>{children}</PricingProvider>
         </ThemeProvider>

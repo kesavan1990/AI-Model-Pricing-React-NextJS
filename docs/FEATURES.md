@@ -1,4 +1,4 @@
-﻿# Application features (checklist)
+# Application features (checklist)
 
 This document lists all user-facing functionality for the **React/Next.js** app so nothing is missed when testing or documenting.
 
@@ -9,7 +9,9 @@ This document lists all user-facing functionality for the **React/Next.js** app 
 | Feature | Description | Where |
 |--------|-------------|--------|
 | **Dashboard home** | Landing view with KPI cards and link to pricing. | `/` → redirects to `/dashboard`; sidebar **Dashboard**. |
-| **Sidebar navigation** | One section at a time: Dashboard, Pricing, Calculator, Comparison, Value Analysis, Benchmarks, Recommend. | All main pages. |
+| **Sidebar navigation** | One section at a time: Dashboard, Pricing, Calculator, Comparison, Value Analysis, Benchmarks, Recommend. Uses Next.js **Link** with **prefetch**. | All main pages. |
+| **Route prefetching** | All internal links use `<Link prefetch>` so target routes are preloaded in the background; clicks feel instant. | Sidebar, header logo, Calculator sub-nav. See [UI.md](UI.md). |
+| **Navigation loading indicator** | **NProgress** top progress bar shown while a new page loads after clicking an internal link. Bar appears on click and disappears when the route is ready. | Global; `components/NavigationProgress.js`, root layout. |
 | **Pricing History** | Opens history modal (daily snapshots, compare two dates, export). | Header **History** button. |
 | **Theme toggle** | Dark / light mode; persisted in `localStorage`. | Header ☀️/🌙. |
 | **Refresh from web** | Reload pricing (and benchmarks) from data source. | Header **Refresh**. |
@@ -26,6 +28,7 @@ This document lists all user-facing functionality for the **React/Next.js** app 
 | **Cost per 1M tokens** | All matching models in scrollable table; sticky header (Rank, Model, Cost); sort by clicking Cost header (asc/desc); legend below table; provider cards; cost scale. **5 decimals**. Compact layout. | Dashboard home. |
 | **Model Intelligence** | Cheapest, Best Quality, Fastest, Largest Context (driven by same model type + provider filter). Costs with 5 decimals. | Dashboard home, right sidebar. |
 | **Empty state** | When no models match the filter: message + hint; cost type toggles and all four provider cards remain so user can change filters. | Dashboard home. |
+| **Skeleton loaders** | While pricing data is loading (first visit or Refresh), the main content shows skeleton placeholders that mirror the Dashboard layout (title, filters, chart, Model Intelligence). Theme-aware; no blank screen. | Main content when `loading` is true; see [UI.md](UI.md#skeleton-loaders-loading-state). |
 | **KPI cards** | Total models, Cheapest (blended), Costliest, Largest context. | Overview / Pricing. |
 | **Current pricing** | Grid of all providers (Gemini, OpenAI, Anthropic, Mistral) with search and export CSV/PDF. | Dashboard or **Pricing** (`/pricing`). |
 | **Tiered pricing** | Rows per context tier (e.g. ≤200K vs >200K) where applicable. | Pricing grid, comparison, value chart. |

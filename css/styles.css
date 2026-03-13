@@ -17,6 +17,7 @@ html { scroll-behavior: smooth; }
     --theme-tab-bg: rgba(255,255,255,0.04);
     --theme-tab-border: rgba(255,255,255,0.08);
     --theme-modal-bg: linear-gradient(180deg, #1e2a3e 0%, #16213e 100%);
+    --theme-skeleton: rgba(255, 255, 255, 0.12);
 }
 
 [data-theme="light"] {
@@ -30,6 +31,18 @@ html { scroll-behavior: smooth; }
     --theme-tab-bg: rgba(255,255,255,0.8);
     --theme-tab-border: rgba(0,0,0,0.1);
     --theme-modal-bg: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    --theme-skeleton: rgba(0, 0, 0, 0.08);
+}
+
+/* Skeleton loaders: theme-aware placeholder while content loads */
+.skeleton {
+    background: var(--theme-skeleton);
+    border-radius: 0.25rem;
+    animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+@keyframes skeleton-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
 }
 
 body {
@@ -1946,6 +1959,7 @@ h1 {
     color: #fff;
     font-size: 0.9rem;
     font-weight: 500;
+    font-family: inherit;
     text-decoration: none;
     cursor: pointer;
     transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;

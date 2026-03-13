@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
+import Link from 'next/link';
 import { usePricing } from '../../context/PricingContext';
 import {
   getUnifiedCalcModels,
@@ -279,23 +280,28 @@ export function Calculators() {
     { id: 'production', label: '🏭 Production cost', hash: '#calc-production' },
   ];
 
+  // Sync active tab with URL hash (e.g. /calculator#calc-prompt) for Link navigation and bookmarks
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const hash = (window.location.hash || '').toLowerCase();
+    const tab = tabs.find((t) => t.hash.toLowerCase() === hash);
+    if (tab) setCalcSub(tab.id);
+  }, []);
+
   return (
     <div id="section-calculator">
       <div className="calculators-top-row">
         <nav className="calc-sub-nav" aria-label="Calculator tools">
           {tabs.map((t) => (
-            <a
+            <Link
               key={t.id}
-              href={t.hash}
+              href={`/calculator${t.hash}`}
+              prefetch
               className={'calc-sub-link' + (calcSub === t.id ? ' active' : '')}
-              onClick={(e) => {
-                e.preventDefault();
-                setCalcSub(t.id);
-                if (typeof window !== 'undefined') window.location.hash = t.hash;
-              }}
+              onClick={() => setCalcSub(t.id)}
             >
               {t.label}
-            </a>
+            </Link>
           ))}
         </nav>
         <div className="calculators-export-toolbar">
