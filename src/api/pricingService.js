@@ -7,6 +7,7 @@ const VIZRA_API = 'https://vizra.ai/api/llm-model-pricing';
 
 /**
  * Fetch pricing data: try Vizra API first, fall back to pricing.json on error.
+ * Uses getPricingJsonUrl() so pricing.json is requested from the app root (correct on GitHub Pages with basePath).
  * @returns {Promise<object>} Raw pricing data (Vizra format or pricing.json format).
  */
 export async function fetchPricingData() {
@@ -17,7 +18,9 @@ export async function fetchPricingData() {
     return data;
   } catch (err) {
     console.warn('Using fallback pricing', err?.message || err);
-    const local = await fetch('pricing.json');
+    const { getPricingJsonUrl } = await import('../api.js');
+    const url = getPricingJsonUrl();
+    const local = await fetch(url);
     if (!local.ok) throw new Error('Fallback pricing.json failed');
     return await local.json();
   }

@@ -11,13 +11,14 @@ const CORS_PROXIES = [
 
 /**
  * URL for pricing.json with cache-busting query (?t=timestamp) so the browser
- * does not serve stale cached pricing.
+ * does not serve stale cached pricing. On GitHub Pages (basePath), resolves to
+ * /repoName/pricing.json so the first load does not 404.
  */
 export function getPricingJsonUrl() {
   try {
-    const u = new URL('pricing.json', window.location.href);
-    u.searchParams.set('t', Date.now());
-    return u.href;
+    if (typeof window === 'undefined') return `pricing.json?t=${Date.now()}`;
+    const base = typeof process !== 'undefined' && process.env.NEXT_PUBLIC_BASE_PATH ? process.env.NEXT_PUBLIC_BASE_PATH : '';
+    return `${window.location.origin}${base}/pricing.json?t=${Date.now()}`;
   } catch (_) {
     return `pricing.json?t=${Date.now()}`;
   }
@@ -29,12 +30,13 @@ export function isGitHubPages() {
 
 /**
  * URL for benchmarks.json with cache-busting (same pattern as pricing).
+ * Uses same base-path logic as getPricingJsonUrl for GitHub Pages.
  */
 export function getBenchmarksJsonUrl() {
   try {
-    const u = new URL('benchmarks.json', window.location.href);
-    u.searchParams.set('t', Date.now());
-    return u.href;
+    if (typeof window === 'undefined') return `benchmarks.json?t=${Date.now()}`;
+    const base = typeof process !== 'undefined' && process.env.NEXT_PUBLIC_BASE_PATH ? process.env.NEXT_PUBLIC_BASE_PATH : '';
+    return `${window.location.origin}${base}/benchmarks.json?t=${Date.now()}`;
   } catch (_) {
     return `benchmarks.json?t=${Date.now()}`;
   }

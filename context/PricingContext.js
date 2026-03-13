@@ -62,7 +62,7 @@ export function PricingProvider({ children }) {
       setLastUpdated(result.updated || '—');
       setBenchmarksLastUpdated(benchPayload?.updated != null ? String(benchPayload.updated) : '—');
       if (result.usedFallback === 'cache') {
-        setToast({ msg: 'Loaded pricing from local cache (file unavailable).', type: 'success', show: true });
+        setToast({ msg: 'Using cached pricing. Click Refresh to load the latest from the server.', type: 'success', show: true });
         setTimeout(() => setToast((t) => ({ ...t, show: false })), 3500);
       }
       if (result.usedFallback === 'default') {

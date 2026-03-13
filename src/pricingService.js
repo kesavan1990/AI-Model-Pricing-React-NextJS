@@ -254,18 +254,27 @@ export function normalizeFetchedPricing(raw) {
  *   or pass the fetchPricingData function from api/pricingService.js
  * @returns {Promise<{ gemini, openai, anthropic, mistral, updated, usedFallback }>}
  */
+const RETRY_DELAY_MS = 2000;
+
 export async function loadPricingFromApi(fetchPricingData) {
   const existing = { gemini: [], openai: [], anthropic: [], mistral: [] };
   let updated = null;
   let usedFallback = null;
-  try {
+  const tryFetch = async () => {
     const raw = await fetchPricingData();
     const { payload, updated: u } = normalizeFetchedPricing(raw);
     if (!payload) throw new Error('Invalid data');
     const out = applyDataFromPayload(payload, existing);
     updated = u || 'from API';
     return { ...out, updated, usedFallback };
+  };
+  try {
+    return await tryFetch();
   } catch (_) {
+    try {
+      await new Promise((r) => setTimeout(r, RETRY_DELAY_MS));
+      return await tryFetch();
+    } catch (_) {}
     try {
       const cached = getCachedPricingPayload();
       if (cached) {

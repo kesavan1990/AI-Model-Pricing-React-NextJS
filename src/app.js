@@ -139,7 +139,7 @@ async function loadPricing() {
     pricing.cleanupHistoryToDailyOnly();
     if (!api.isGitHubPages()) await fillMissingProvidersFromVizra();
     maybeRunDailyCapture();
-    if (result.usedFallback === 'cache') render.showToast('Loaded pricing from local cache (file unavailable).', 'success');
+    if (result.usedFallback === 'cache') render.showToast('Using cached pricing. Click Refresh to load the latest from the server.', 'success');
     if (result.usedFallback === 'default') render.showToast('Using embedded default pricing (no file or cache).', 'success');
   } catch (err) {
     console.error('loadPricing failed:', err);
