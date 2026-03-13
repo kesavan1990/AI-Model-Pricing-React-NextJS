@@ -57,14 +57,19 @@ export async function getPricing() {
   }
 }
 
+const BENCHMARKS_TIMEOUT_MS = 10000;
+
 /**
  * Fetch benchmarks.json from the current origin. Merged with pricing in the UI by model + provider.
+ * Uses a timeout so the app never stays stuck loading if the request hangs (e.g. on deploy).
  * @returns {Promise<{ updated: string, benchmarks: Array }|null>} Parsed JSON or null on failure
  */
 export async function getBenchmarks() {
   const url = getBenchmarksJsonUrl();
   try {
-    const res = await fetch(url, { cache: 'no-store' });
+    const ac = new AbortController();
+    const t = setTimeout(() => ac.abort(), BENCHMARKS_TIMEOUT_MS);
+    const res = await fetch(url, { cache: 'no-store', signal: ac.signal }).finally(() => clearTimeout(t));
     if (!res.ok) return null;
     return await res.json();
   } catch (_) {
