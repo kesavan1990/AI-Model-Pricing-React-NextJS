@@ -3,7 +3,7 @@
  * Uses Chart.js for visualization. Depends on calculator for getAllModels and getBenchmarkForModelMerged.
  */
 
-import { getAllModels, getBenchmarkForModelMerged } from './calculator.js';
+import { getChatModels, getBenchmarkForModelMerged } from './calculator.js';
 
 /** Default tokens for cost-per-request (typical request). */
 const DEFAULT_PROMPT_TOKENS = 1000;
@@ -34,7 +34,7 @@ export function computeCostPerRequest(model, promptTokens = DEFAULT_PROMPT_TOKEN
  * @param {number} outputTokens
  */
 export function mergeModels(data, fileBenchmarks, performanceMetric = 'arena', promptTokens = DEFAULT_PROMPT_TOKENS, outputTokens = DEFAULT_OUTPUT_TOKENS) {
-  const all = getAllModels(data);
+  const all = getChatModels(data);
   return all
     .map((m) => {
       const bench = getBenchmarkForModelMerged(m.name, m.providerKey, fileBenchmarks);

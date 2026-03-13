@@ -2,14 +2,23 @@
 
 import { useMemo, useState, useCallback, Fragment } from 'react';
 import { usePricing } from '../../context/PricingContext';
-import { getAllModels, getBenchmarkForModelMerged } from '../../src/calculator.js';
+import { getAllModels, getChatModels, getBenchmarkForModelMerged } from '../../src/calculator.js';
+import { MODEL_TYPES, MODEL_TYPE_LABELS } from '../../lib/modelTypes.js';
 import { escapeCsvCell, drawPdfBorderedTable } from '../../src/render.js';
 
 const PROVIDER_ORDER = ['gemini', 'openai', 'anthropic', 'mistral'];
 const fmt = (v) => (v === 0 ? 'Free' : '$' + Number(v).toFixed(2));
 
-function getComparisonList(data, providerFilter, sortBy) {
-  let list = getAllModels(data);
+function formatPriceDisplay(m) {
+  if (m.modelType === 'image' && m.pricingPerImage != null) return { input: `$${Number(m.pricingPerImage).toFixed(2)}/img`, output: '—' };
+  if (m.modelType === 'audio' && m.pricingPerMinute != null) return { input: `$${Number(m.pricingPerMinute).toFixed(3)}/min`, output: '—' };
+  if (m.modelType === 'video' && m.pricingPerSecond != null) return { input: `$${Number(m.pricingPerSecond).toFixed(2)}/sec`, output: '—' };
+  return { input: fmt(m.input), output: fmt(m.output) };
+}
+
+function getComparisonList(data, providerFilter, sortBy, modelTypeFilter) {
+  const all = modelTypeFilter === MODEL_TYPES.CHAT ? getChatModels(data) : modelTypeFilter === 'all' ? getAllModels(data) : getAllModels(data).filter((m) => m.modelType === modelTypeFilter);
+  let list = all;
   if (providerFilter && providerFilter !== 'all') list = list.filter((m) => m.providerKey === providerFilter);
   const providerIndex = (m) => PROVIDER_ORDER.indexOf(m.providerKey);
   if (sortBy === 'input') list = [...list].sort((a, b) => (a.input ?? 0) - (b.input ?? 0));
@@ -20,13 +29,13 @@ function getComparisonList(data, providerFilter, sortBy) {
 }
 
 export function Models() {
-  const { getData, getBenchmarksData, comparisonProviderFilter, setComparisonProviderFilter, comparisonSortBy, setComparisonSortBy, showToast } = usePricing();
+  const { getData, getBenchmarksData, comparisonProviderFilter, setComparisonProviderFilter, comparisonSortBy, setComparisonSortBy, modelTypeFilter, setModelTypeFilter, showToast } = usePricing();
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedRow, setExpandedRow] = useState(null);
   const data = getData();
   const list = useMemo(
-    () => getComparisonList(data, comparisonProviderFilter, comparisonSortBy),
-    [data, comparisonProviderFilter, comparisonSortBy]
+    () => getComparisonList(data, comparisonProviderFilter, comparisonSortBy, modelTypeFilter),
+    [data, comparisonProviderFilter, comparisonSortBy, modelTypeFilter]
   );
   const filteredList = useMemo(() => {
     const q = (searchQuery || '').trim().toLowerCase();
@@ -103,6 +112,27 @@ export function Models() {
           ))}
         </div>
       </div>
+      <div className="provider-filter-wrap model-type-filter-wrap">
+        <span className="provider-filter-label">Model type:</span>
+        <div className="provider-filter-btns" role="group" aria-label="Filter by model type">
+          {[
+            { key: MODEL_TYPES.CHAT, label: MODEL_TYPE_LABELS[MODEL_TYPES.CHAT] },
+            { key: MODEL_TYPES.IMAGE, label: MODEL_TYPE_LABELS[MODEL_TYPES.IMAGE] },
+            { key: MODEL_TYPES.AUDIO, label: MODEL_TYPE_LABELS[MODEL_TYPES.AUDIO] },
+            { key: MODEL_TYPES.VIDEO, label: MODEL_TYPE_LABELS[MODEL_TYPES.VIDEO] },
+            { key: 'all', label: 'All' },
+          ].map((t) => (
+            <button
+              key={t.key}
+              type="button"
+              className={'provider-filter-btn' + (modelTypeFilter === t.key ? ' active' : '')}
+              onClick={() => setModelTypeFilter(t.key)}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
       <div className="comparison-search-wrap">
         <label htmlFor="comparison-search" className="comparison-search-label">Search:</label>
         <input
@@ -173,10 +203,10 @@ export function Models() {
                       {isCheapest && <span className="cheapest-badge" aria-label="Cheapest"> 🟢 Cheapest</span>}
                     </td>
                     <td className="provider-name" title={`Provider: ${m.provider}`}>{m.provider}</td>
-                    <td className="context-tier" title="Pricing tier or context tier">{m.contextTier || '—'}</td>
-                    <td className={'price price-input' + (isLowInput ? ' price-low' : '')} title={`Input: ${fmt(m.input)} per 1M tokens`}>{fmt(m.input)}</td>
-                    <td className={'price price-output' + (isLowOutput ? ' price-low' : '')} title={`Output: ${fmt(m.output)} per 1M tokens`}>{fmt(m.output)}</td>
-                    <td className="context-window" title={`Context window: ${m.contextWindow || '—'}`}>{m.contextWindow || '—'}</td>
+                    <td className="context-tier" title="Pricing tier or context tier">{m.contextTier || (m.modelType !== 'chat' ? m.modelType : '') || '—'}</td>
+                    <td className={'price price-input' + (isLowInput ? ' price-low' : '')} title={m.modelType === 'chat' ? `Input: ${fmt(m.input)} per 1M tokens` : undefined}>{formatPriceDisplay(m).input}</td>
+                    <td className={'price price-output' + (isLowOutput ? ' price-low' : '')} title={m.modelType === 'chat' ? `Output: ${fmt(m.output)} per 1M tokens` : undefined}>{formatPriceDisplay(m).output}</td>
+                    <td className="context-window" title={`Context window: ${m.contextWindow || '—'}`}>{m.contextWindow || (m.modelType !== 'chat' ? '—' : '—')}</td>
                   </tr>
                   {isExpanded && (() => {
                     const fileBenchmarks = getBenchmarksData();

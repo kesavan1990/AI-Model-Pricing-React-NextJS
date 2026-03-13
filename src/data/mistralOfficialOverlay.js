@@ -28,6 +28,10 @@ export const MISTRAL_OFFICIAL_MODELS = [
   { name: 'open-mixtral-8x22b', input: 2, output: 6 },
   { name: 'open-mixtral-8x7b', input: 0.7, output: 0.7 },
   { name: 'mistral-tiny', input: 0.25, output: 0.25 },
+  { name: 'mistral-small-creative-25-12', input: 0.1, output: 0.3 },
+  // Audio (Voxtral transcription). Per-minute pricing.
+  { name: 'voxtral-mini-2602', input: 0, output: 0, modelType: 'audio', pricingPerMinute: 0.003 },
+  { name: 'voxtral-mini-latest', input: 0, output: 0, modelType: 'audio', pricingPerMinute: 0.003 },
 ];
 
 /**
@@ -45,9 +49,13 @@ export function mergeMistralOfficialIntoPayload(payload) {
     names.add(key);
     mistral.push({
       name: entry.name,
-      input: entry.input,
-      output: entry.output,
+      input: entry.input ?? 0,
+      output: entry.output ?? 0,
       cachedInput: null,
+      modelType: entry.modelType ?? null,
+      pricingPerImage: entry.pricingPerImage != null ? entry.pricingPerImage : null,
+      pricingPerSecond: entry.pricingPerSecond != null ? entry.pricingPerSecond : null,
+      pricingPerMinute: entry.pricingPerMinute != null ? entry.pricingPerMinute : null,
     });
   }
   return { ...payload, mistral };

@@ -34,8 +34,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add benchmarks.json
-          if git diff --staged --quiet -- benchmarks.json; then
+          git add public/benchmarks.json
+          if git diff --staged --quiet -- public/benchmarks.json; then
             echo "No benchmark changes"
           else
             git commit -m "chore: update benchmarks.json"

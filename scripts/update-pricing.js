@@ -4,19 +4,24 @@
  * Used by GitHub Actions to avoid frontend rate limits.
  * Mirrors frontend normalization: provider (google→gemini), units (1k→per 1M), schema.
  *
+ * Scope: includes all model types (text/chat, image, audio, video) for all providers
+ * (gemini, openai, anthropic, mistral). No filtering by model type.
+ *
  * Failure handling: on API timeout, rate limit (429), non-OK status, empty response,
  * or malformed JSON, logs an error and exits with code 1 so the workflow does not commit.
  *
  * Validation: before writing, each model is validated (required name/input/output;
  * no NaN, no negative values; optional cachedInput must be valid if present).
- * Invalid models are skipped; if no valid Gemini/OpenAI remain, the script exits 1.
+ * Models with 0/0 token pricing are allowed when they have modelType or alternate
+ * pricing (pricingPerImage, pricingPerMinute, pricingPerSecond). Invalid models are
+ * skipped; if no valid Gemini/OpenAI remain, the script exits 1.
  *
  * JSON schema: payload is validated against schemas/pricing.schema.json before write.
  * Schema validation prevents corrupted datasets (wrong shape, extra keys, invalid types).
  */
 
 const VIZRA_URL = 'https://vizra.ai/api/v1/pricing/ai-models';
-const OUT_FILE = 'pricing.json';
+const OUT_FILE = 'public/pricing.json';
 const SCHEMA_PATH = 'schemas/pricing.schema.json';
 
 function normalizeProvider(p) {
@@ -52,15 +57,32 @@ function normalizePricing(models) {
         raw.cached_price_per_1m != null || raw.cached_price_per_million != null
           ? Number(raw.cached_price_per_1m ?? raw.cached_price_per_million ?? 0)
           : null;
+      const modelType = raw.model_type ?? raw.modelType ?? null;
+      const pricingPerImage = raw.pricing_per_image ?? raw.pricingPerImage;
+      const pricingPerMinute = raw.pricing_per_minute ?? raw.pricingPerMinute;
+      const pricingPerSecond = raw.pricing_per_second ?? raw.pricingPerSecond;
+      const hasAlternatePricing =
+        (typeof pricingPerImage === 'number' && pricingPerImage >= 0) ||
+        (typeof pricingPerMinute === 'number' && pricingPerMinute >= 0) ||
+        (typeof pricingPerSecond === 'number' && pricingPerSecond >= 0);
       return {
         name: raw.model || raw.name || '',
         provider: normalizeProvider(raw.provider),
         input: normalizePrice(inputRaw, inputUnit),
         output: normalizePrice(outputRaw, outputUnit),
         cachedInput: cachedRaw != null ? normalizePrice(cachedRaw, cachedUnit) : null,
+        modelType: modelType && String(modelType).trim() ? String(modelType).trim().toLowerCase() : null,
+        pricingPerImage: typeof pricingPerImage === 'number' && !Number.isNaN(pricingPerImage) ? pricingPerImage : undefined,
+        pricingPerMinute: typeof pricingPerMinute === 'number' && !Number.isNaN(pricingPerMinute) ? pricingPerMinute : undefined,
+        pricingPerSecond: typeof pricingPerSecond === 'number' && !Number.isNaN(pricingPerSecond) ? pricingPerSecond : undefined,
       };
     })
-    .filter((n) => n.name && (n.input > 0 || n.output > 0));
+    .filter((n) => {
+      if (!n.name) return false;
+      const hasToken = n.input > 0 || n.output > 0 || (n.cachedInput != null && n.cachedInput > 0);
+      const hasAlternate = n.modelType || n.pricingPerImage != null || n.pricingPerMinute != null || n.pricingPerSecond != null;
+      return hasToken || hasAlternate;
+    });
 }
 
 function dedupeModelsByName(arr) {
@@ -81,6 +103,7 @@ function isValidPrice(v) {
 
 /**
  * Validate a normalized model before writing. Skip if missing fields, NaN, or negative values.
+ * Allow 0/0 token pricing when model has modelType or alternate pricing (image/audio/video).
  * @returns {boolean} true if the model is valid and should be included
  */
 function validateModel(m) {
@@ -88,7 +111,13 @@ function validateModel(m) {
   if (!m.name || typeof m.name !== 'string' || !String(m.name).trim()) return false;
   if (!isValidPrice(m.input) || !isValidPrice(m.output)) return false;
   if (m.cachedInput != null && !isValidPrice(m.cachedInput)) return false;
-  if (m.input === 0 && m.output === 0) return false;
+  const hasTokenPricing = m.input > 0 || m.output > 0 || (m.cachedInput != null && m.cachedInput > 0);
+  const hasAlternate =
+    m.modelType ||
+    (typeof m.pricingPerImage === 'number' && m.pricingPerImage >= 0) ||
+    (typeof m.pricingPerMinute === 'number' && m.pricingPerMinute >= 0) ||
+    (typeof m.pricingPerSecond === 'number' && m.pricingPerSecond >= 0);
+  if (!hasTokenPricing && !hasAlternate) return false;
   return true;
 }
 
@@ -121,12 +150,17 @@ function parseVizraResponse(data) {
   for (const n of normalized) {
     const key = normalizeProvider(n.provider);
     if (!key || out[key] === undefined) continue;
-    out[key].push({
+    const entry = {
       name: n.name.replace(/^gemini\//, '').replace(/^mistral\//, '').replace(/^deepseek\//, ''),
       input: n.input,
       output: n.output,
       cachedInput: n.cachedInput,
-    });
+    };
+    if (n.modelType) entry.modelType = n.modelType;
+    if (n.pricingPerImage != null) entry.pricingPerImage = n.pricingPerImage;
+    if (n.pricingPerMinute != null) entry.pricingPerMinute = n.pricingPerMinute;
+    if (n.pricingPerSecond != null) entry.pricingPerSecond = n.pricingPerSecond;
+    out[key].push(entry);
   }
   out.gemini = dedupeModelsByName(out.gemini);
   out.openai = dedupeModelsByName(out.openai);

@@ -34,6 +34,7 @@ export function PricingProvider({ children }) {
   const [comparisonSortBy, setComparisonSortBy] = useState('default');
   const [valueChartProviderFilter, setValueChartProviderFilter] = useState('all');
   const [valueChartMetric, setValueChartMetric] = useState('arena');
+  const [modelTypeFilter, setModelTypeFilter] = useState('chat');
   const [calcLastResult, setCalcLastResult] = useState(null);
   const [calcSub, setCalcSub] = useState('pricing');
 
@@ -145,6 +146,8 @@ export function PricingProvider({ children }) {
     setValueChartProviderFilter,
     valueChartMetric,
     setValueChartMetric,
+    modelTypeFilter,
+    setModelTypeFilter,
     calcLastResult,
     setCalcLastResult,
     calcSub,

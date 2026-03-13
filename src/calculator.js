@@ -6,6 +6,7 @@
 
 import { isRetired } from './utils/retiredModels.js';
 import { isAllowedModel } from './data/allowedModels.js';
+import { getModelType, MODEL_TYPES } from '../lib/modelTypes.js';
 
 export const PROVIDER_DISPLAY_ORDER = { gemini: 0, openai: 1, anthropic: 2, mistral: 3 };
 
@@ -172,6 +173,11 @@ export function getUnifiedCalcModels(data) {
   return list;
 }
 
+/** Same shape as getUnifiedCalcModels but only chat/text models (for Pricing and Prompt cost calculators). */
+export function getUnifiedCalcModelsChat(data) {
+  return getUnifiedCalcModels(data).filter((u) => getModelType(u.provider, u.model) === MODEL_TYPES.CHAT);
+}
+
 export function getCalcModelByKey(key, data) {
   if (!key || key === '__all__') return null;
   const [provider, idxStr] = key.split(':');
@@ -188,9 +194,10 @@ const INPUT_WEIGHT = 0.7;
 const OUTPUT_WEIGHT = 0.3;
 
 function pushModel(list, provider, providerKey, m, input, output, cachedInput, contextTier) {
+  const modelType = getModelType(providerKey, m);
+  const ctx = modelType === MODEL_TYPES.CHAT ? getContextWindow(providerKey, m.name) : null;
   const blended = input * INPUT_WEIGHT + output * OUTPUT_WEIGHT;
   const tier = input === 0 && output === 0 ? 'budget' : blended >= 8 ? 'pro' : blended < 1 ? 'budget' : 'mid';
-  const ctx = getContextWindow(providerKey, m.name);
   list.push({
     provider,
     providerKey,
@@ -204,6 +211,10 @@ function pushModel(list, provider, providerKey, m, input, output, cachedInput, c
     contextWindow: ctx ? ctx.label : null,
     contextTokens: ctx ? ctx.tokens : 0,
     contextTier: contextTier ?? null,
+    modelType,
+    pricingPerImage: m.pricingPerImage != null ? Number(m.pricingPerImage) : null,
+    pricingPerSecond: m.pricingPerSecond != null ? Number(m.pricingPerSecond) : null,
+    pricingPerMinute: m.pricingPerMinute != null ? Number(m.pricingPerMinute) : null,
   });
 }
 
@@ -458,4 +469,10 @@ export function estimatePromptTokensWithOpenAIChatFormat(text) {
   const content = text.trim();
   const fullMessage = '<|im_start|>user<|im_sep|>' + content + '<|im_end|><|im_start|>assistant<|im_sep|>';
   return estimatePromptTokens(fullMessage);
+}
+
+/** Returns only chat models (for Value Analysis, Benchmarks, and default views). Keeps existing behavior unchanged. */
+export function getChatModels(data) {
+  const all = getAllModels(data);
+  return all.filter((m) => m.modelType === MODEL_TYPES.CHAT);
 }

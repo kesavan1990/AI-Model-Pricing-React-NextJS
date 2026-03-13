@@ -39,6 +39,23 @@ export const OPENAI_OFFICIAL_MODELS = [
   { name: 'computer-use-preview', input: 3, cachedInput: null, output: 12 },
   { name: 'gpt-realtime-1.5', input: 4, cachedInput: 0.4, output: 16 },
   { name: 'gpt-realtime-mini', input: 0.6, cachedInput: 0.06, output: 2.4 },
+  // Image (modelType + per-image pricing). GPT Image family; DALL·E 2/3 in retired list.
+  { name: 'gpt-image-1.5', input: 0, output: 0, cachedInput: null, modelType: 'image', pricingPerImage: 0.034 },
+  { name: 'gpt-image-1', input: 0, output: 0, cachedInput: null, modelType: 'image', pricingPerImage: 0.042 },
+  { name: 'gpt-image-1-mini', input: 0, output: 0, cachedInput: null, modelType: 'image', pricingPerImage: 0.011 },
+  { name: 'dall-e-3', input: 0, output: 0, cachedInput: null, modelType: 'image', pricingPerImage: 0.04 },
+  { name: 'dall-e-2', input: 0, output: 0, cachedInput: null, modelType: 'image', pricingPerImage: 0.02 },
+  // Audio (transcription and speech). Per-minute or per-1M chars where applicable.
+  { name: 'whisper-1', input: 0, output: 0, cachedInput: null, modelType: 'audio', pricingPerMinute: 0.006 },
+  { name: 'gpt-4o-transcribe', input: 0, output: 0, cachedInput: null, modelType: 'audio', pricingPerMinute: 0.006 },
+  { name: 'gpt-4o-transcribe-diarize', input: 0, output: 0, cachedInput: null, modelType: 'audio', pricingPerMinute: 0.006 },
+  { name: 'gpt-4o-mini-transcribe', input: 0, output: 0, cachedInput: null, modelType: 'audio', pricingPerMinute: 0.003 },
+  { name: 'gpt-4o-mini-tts', input: 0, output: 0, cachedInput: null, modelType: 'audio', pricingPerMinute: 0.015 },
+  { name: 'tts-1', input: 0, output: 0, cachedInput: null, modelType: 'audio', pricingPerMinute: 0.015 },
+  { name: 'tts-1-hd', input: 0, output: 0, cachedInput: null, modelType: 'audio', pricingPerMinute: 0.03 },
+  // Video (Sora). Per-second pricing.
+  { name: 'sora-2', input: 0, output: 0, cachedInput: null, modelType: 'video', pricingPerSecond: 0.1 },
+  { name: 'sora-2-pro', input: 0, output: 0, cachedInput: null, modelType: 'video', pricingPerSecond: 0.5 },
 ];
 
 /**
@@ -56,9 +73,13 @@ export function mergeOpenAIOfficialIntoPayload(payload) {
     names.add(key);
     openai.push({
       name: entry.name,
-      input: entry.input,
-      output: entry.output,
+      input: entry.input ?? 0,
+      output: entry.output ?? 0,
       cachedInput: entry.cachedInput != null ? entry.cachedInput : null,
+      modelType: entry.modelType ?? null,
+      pricingPerImage: entry.pricingPerImage != null ? entry.pricingPerImage : null,
+      pricingPerSecond: entry.pricingPerSecond != null ? entry.pricingPerSecond : null,
+      pricingPerMinute: entry.pricingPerMinute != null ? entry.pricingPerMinute : null,
     });
   }
   return { ...payload, openai };

@@ -2,7 +2,8 @@
 
 import { useState, useMemo } from 'react';
 import { usePricing } from '../../context/PricingContext';
-import { getAllModels } from '../../src/calculator.js';
+import { getAllModels, getChatModels } from '../../src/calculator.js';
+import { getModelType } from '../../lib/modelTypes.js';
 import { escapeCsvCell, drawPdfBorderedTable } from '../../src/render.js';
 
 const fmt = (v) => (v === 0 ? 'Free' : '$' + Number(v).toFixed(2));
@@ -164,7 +165,7 @@ function ProviderTable({ providerKey, title, logoClass, note, models, searchPlac
 }
 
 export function Overview({ showOnlyPricing = false }) {
-  const { getData } = usePricing();
+  const { getData, modelTypeFilter, setModelTypeFilter } = usePricing();
   const { exportCSV, exportPDF } = useExportPricing();
   const [geminiSearch, setGeminiSearch] = useState('');
   const [openaiSearch, setOpenaiSearch] = useState('');
@@ -172,7 +173,16 @@ export function Overview({ showOnlyPricing = false }) {
   const [mistralSearch, setMistralSearch] = useState('');
 
   const data = getData();
-  const all = useMemo(() => getAllModels(data), [data]);
+  const filteredData = useMemo(() => {
+    if (modelTypeFilter === 'all') return data;
+    return {
+      gemini: (data.gemini || []).filter((m) => getModelType('gemini', m) === modelTypeFilter),
+      openai: (data.openai || []).filter((m) => getModelType('openai', m) === modelTypeFilter),
+      anthropic: (data.anthropic || []).filter((m) => getModelType('anthropic', m) === modelTypeFilter),
+      mistral: (data.mistral || []).filter((m) => getModelType('mistral', m) === modelTypeFilter),
+    };
+  }, [data, modelTypeFilter]);
+  const all = useMemo(() => getChatModels(data), [data]);
   const kpis = useMemo(() => {
     const byBlended = [...all].filter((m) => m.blended >= 0).sort((a, b) => a.blended - b.blended);
     const cheapest = byBlended[0];
@@ -222,6 +232,16 @@ export function Overview({ showOnlyPricing = false }) {
         </p>
         <div className="pricing-section-header">
           <span className="section-label">Gemini · OpenAI · Anthropic · Mistral</span>
+          <div className="model-type-filter-inline">
+            <label htmlFor="overview-model-type" className="model-type-label">Model type:</label>
+            <select id="overview-model-type" className="model-type-select" value={modelTypeFilter} onChange={(e) => setModelTypeFilter(e.target.value)} aria-label="Filter by model type">
+              <option value="chat">Chat / Text</option>
+              <option value="image">Image</option>
+              <option value="audio">Audio</option>
+              <option value="video">Video</option>
+              <option value="all">All</option>
+            </select>
+          </div>
           <div className="export-toolbar">
             <span className="export-label">Export:</span>
             <button type="button" className="export-btn csv" onClick={exportCSV} title="Download pricing as CSV">📄 CSV</button>
@@ -234,7 +254,7 @@ export function Overview({ showOnlyPricing = false }) {
             title="Google Gemini"
             logoClass="provider-logo-gemini"
             note='Where available, <strong>all context tiers</strong> are shown (e.g. ≤200K vs &gt;200K). <a href="https://ai.google.dev/gemini-api/docs/pricing" target="_blank" rel="noopener">Official pricing</a>. Retired/deprecated models are excluded.'
-            models={data.gemini || []}
+            models={filteredData.gemini || []}
             searchPlaceholder="Search Gemini models…"
             hasCached={false}
             searchQuery={geminiSearch}
@@ -245,7 +265,7 @@ export function Overview({ showOnlyPricing = false }) {
             title="OpenAI"
             logoClass="provider-logo-openai-custom"
             note='Where available, <strong>all tiers</strong> are shown (e.g. standard vs extended context). <a href="https://platform.openai.com/docs/pricing" target="_blank" rel="noopener">Official pricing</a>. Retired/deprecated models are excluded.'
-            models={data.openai || []}
+            models={filteredData.openai || []}
             searchPlaceholder="Search OpenAI models…"
             hasCached
             searchQuery={openaiSearch}
@@ -256,7 +276,7 @@ export function Overview({ showOnlyPricing = false }) {
             title="Anthropic"
             logoClass="provider-logo-anthropic"
             note='Where available, <strong>all tiers</strong> are shown (e.g. ≤200K vs extended context). <a href="https://docs.anthropic.com/en/docs/about-claude/pricing" target="_blank" rel="noopener">Official pricing</a>. Retired/deprecated models are excluded.'
-            models={data.anthropic || []}
+            models={filteredData.anthropic || []}
             searchPlaceholder="Search Anthropic models…"
             hasCached={false}
             searchQuery={anthropicSearch}
@@ -267,7 +287,7 @@ export function Overview({ showOnlyPricing = false }) {
             title="Mistral"
             logoClass="provider-logo-mistral"
             note='Some legacy models are deprecated in favor of newer versions (e.g. Mistral Large → Large 24.11). <a href="https://mistral.ai/pricing" target="_blank" rel="noopener">Official pricing</a>. Retired/deprecated models are excluded.'
-            models={data.mistral || []}
+            models={filteredData.mistral || []}
             searchPlaceholder="Search Mistral models…"
             hasCached={false}
             searchQuery={mistralSearch}

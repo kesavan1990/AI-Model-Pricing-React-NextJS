@@ -30,13 +30,13 @@ jobs:
       - name: Fetch Vizra and write pricing.json
         run: node scripts/update-pricing.js
 
-      # Commit and push only when pricing.json content changed (avoids empty commits)
+      # Commit and push only when public/pricing.json content changed (avoids empty commits)
       - name: Commit and push if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add pricing.json
-          if git diff --staged --quiet -- pricing.json; then
+          git add public/pricing.json
+          if git diff --staged --quiet -- public/pricing.json; then
             echo "No pricing changes"
           else
             git commit -m "chore: update pricing.json from Vizra API"

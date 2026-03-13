@@ -1,22 +1,89 @@
 'use client';
 
 import { useState } from 'react';
+import Fuse from 'fuse.js';
 import { usePricing } from '../../context/PricingContext';
 import {
   getRecommendations,
   getFallbackReason,
   inferUseCaseType,
+  getAllModels,
+  normalizeModelName,
   extractKeywords,
   searchDocContent,
   cleanDocSnippetForDisplay,
   getGeneratedDocNote,
 } from '../../src/calculator.js';
 import { fetchWithCors } from '../../src/api.js';
+import { RECOMMEND_DOC_INDEX } from '../../data/recommendDocIndex.js';
 
-const GEMINI_DOC_URL = 'https://ai.google.dev/gemini-api/docs/models/gemini';
-const OPENAI_DOC_URL = 'https://platform.openai.com/docs/models';
-const ANTHROPIC_DOC_URL = 'https://docs.anthropic.com/en/docs/build-with-claude/model-cards';
+// Official API / model documentation URLs (used for live doc search in Recommend)
+// Gemini: https://ai.google.dev/gemini-api/docs/models
+// OpenAI: https://developers.openai.com/api/docs/models
+// Anthropic: https://docs.anthropic.com/en/docs/models-overview
+// Mistral: https://docs.mistral.ai/models/
+const GEMINI_DOC_URL = 'https://ai.google.dev/gemini-api/docs/models';
+const OPENAI_DOC_URL = 'https://developers.openai.com/api/docs/models';
+const ANTHROPIC_DOC_URL = 'https://docs.anthropic.com/en/docs/models-overview';
 const MISTRAL_DOC_URL = 'https://docs.mistral.ai/models/';
+
+const MAX_RECOMMENDATIONS = 6;
+
+/** Build a single searchable string per index entry so Fuse ranks by query-term matches. */
+function toSearchableRecord(item) {
+  const parts = [...(item.keywords || []), item.model, item.provider, item.source].filter(Boolean);
+  return { ...item, _searchable: parts.join(' ').toLowerCase() };
+}
+
+/** Search static doc index with Fuse.js; returns index entries sorted by relevance (best first). */
+function searchStaticIndex(query, index) {
+  if (!query || typeof query !== 'string' || !query.trim()) return [];
+  const withSearchable = index.map(toSearchableRecord);
+  const fuse = new Fuse(withSearchable, {
+    keys: ['_searchable'],
+    threshold: 0.35,
+    includeScore: true,
+    ignoreLocation: true,
+  });
+  const results = fuse.search(query.trim().toLowerCase());
+  return results.map((r) => ({ ...r.item, _score: r.score }));
+}
+
+/** Match index model name to a data model: exact, normalized exact, or prefix (index name is prefix of data name). */
+function indexHitMatchesDataModel(hitModel, dataModelName, normalizeModelNameFn) {
+  if (!hitModel || !dataModelName) return false;
+  const nHit = normalizeModelNameFn(hitModel);
+  const nData = normalizeModelNameFn(dataModelName);
+  if (nHit === nData) return true;
+  if (nData.startsWith(nHit)) return true;
+  if (nHit.startsWith(nData)) return true;
+  return false;
+}
+
+/** Resolve static index hits to full model objects from getAllModels(data). Uses flexible matching (exact + prefix). */
+function resolveIndexHitsToModels(indexHits, allModels) {
+  const seen = new Set();
+  const out = [];
+  for (const hit of indexHits) {
+    const hitKey = hit.providerKey + ':' + (hit.model || '').toLowerCase();
+    if (seen.has(hitKey)) continue;
+    const candidates = allModels.filter(
+      (m) =>
+        m.providerKey === hit.providerKey &&
+        indexHitMatchesDataModel(hit.model, m.name, normalizeModelName)
+    );
+    if (candidates.length === 0) continue;
+    seen.add(hitKey);
+    const exact = candidates.find((m) => normalizeModelName(m.name) === normalizeModelName(hit.model));
+    const model = exact || candidates.find((m) => m.name === hit.model) || candidates[0];
+    out.push({
+      ...model,
+      docSnippet: 'From ' + (hit.source || 'provider documentation') + '.',
+      _fromIndex: true,
+    });
+  }
+  return out;
+}
 
 async function fetchDocsAndSearch(description, data) {
   const keywords = extractKeywords(description);
@@ -69,7 +136,36 @@ export function Recommend() {
     setHasSearched(true);
     const data = getData();
     const useCaseType = inferUseCaseType(description);
-    let recs = getRecommendations(data, useCaseType, description);
+    const allModels = getAllModels(data);
+    const fallbackRecs = getRecommendations(data, useCaseType, description);
+
+    // Static documentation index (Fuse.js) for better coverage
+    const indexHits = searchStaticIndex(description, RECOMMEND_DOC_INDEX);
+    const fromIndex = resolveIndexHitsToModels(indexHits, allModels).slice(0, MAX_RECOMMENDATIONS);
+
+    let recs;
+    let usedFromIndex = false;
+    if (fromIndex.length > 0) {
+      usedFromIndex = true;
+      const seen = new Set(fromIndex.map((m) => m.providerKey + ':' + m.name));
+      recs = fromIndex.map((m) => ({
+        ...m,
+        reason: m.reason || getFallbackReason(m),
+      }));
+      // Fill up to MAX_RECOMMENDATIONS with fallback recs (no duplicates)
+      for (const r of fallbackRecs) {
+        if (recs.length >= MAX_RECOMMENDATIONS) break;
+        const id = r.providerKey + ':' + r.name;
+        if (!seen.has(id)) {
+          seen.add(id);
+          recs.push(r);
+        }
+      }
+    } else {
+      recs = fallbackRecs || [];
+    }
+
+    // Optional: enrich with live doc snippets when available
     let docResults = null;
     try {
       docResults = await fetchDocsAndSearch(description, data);
@@ -95,6 +191,7 @@ export function Recommend() {
           const docSnippet = cleaned || getGeneratedDocNote(r, useCaseType);
           return { ...r, docSnippet };
         }
+        if (r.docSnippet) return r;
         return r;
       });
       const hasAnyDoc =
@@ -102,12 +199,19 @@ export function Recommend() {
         docResults.openai?.length ||
         docResults.anthropic?.length ||
         docResults.mistral?.length;
-      setFromDocs(!!hasAnyDoc);
+      setFromDocs(!!hasAnyDoc || usedFromIndex);
     } else {
-      setFromDocs(false);
+      setFromDocs(usedFromIndex);
     }
     setResults(recs || []);
     setLoading(false);
+  };
+
+  const handleReset = () => {
+    setDescription('');
+    setResults([]);
+    setFromDocs(false);
+    setHasSearched(false);
   };
 
   return (
@@ -135,6 +239,16 @@ export function Recommend() {
               disabled={loading}
             >
               {loading ? 'Searching…' : 'Get recommendation'}
+            </button>
+            <button
+              type="button"
+              className="calc-btn reset"
+              id="recommendResetBtn"
+              onClick={handleReset}
+              disabled={loading}
+              aria-label="Clear description"
+            >
+              Reset
             </button>
           </div>
         </div>

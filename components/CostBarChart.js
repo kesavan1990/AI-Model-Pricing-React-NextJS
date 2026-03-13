@@ -92,7 +92,10 @@ function SegmentedBar({ fillRatio, height = 8, isDark }) {
   );
 }
 
-export function CostBarChart({ models }) {
+const COST_DECIMALS = 5;
+const PROVIDER_ORDER = ['gemini', 'openai', 'anthropic', 'mistral'];
+
+export function CostBarChart({ models, modelsForProviderSummary, selectedProvider = '', onSelectProvider }) {
   const { theme } = useTheme();
   const isDark = theme !== 'light';
   const [costType, setCostType] = useState('blended');
@@ -129,17 +132,21 @@ export function CostBarChart({ models }) {
       };
     });
 
+    const summarySource = modelsForProviderSummary ?? models ?? [];
     const summaryByProvider = {};
-    valid.forEach((m) => {
+    (summarySource || []).forEach((m) => {
       const key = m.providerKey || 'gemini';
       if (!summaryByProvider[key]) summaryByProvider[key] = { sum: 0, count: 0 };
-      summaryByProvider[key].sum += m._cost;
-      summaryByProvider[key].count += 1;
+      const cost = getCost(m, costType);
+      if (cost >= 0) {
+        summaryByProvider[key].sum += cost;
+        summaryByProvider[key].count += 1;
+      }
     });
-    const providerSummary = Object.entries(summaryByProvider).map(([key, { sum, count }]) => ({
+    const providerSummary = PROVIDER_ORDER.map((key) => ({
       providerKey: key,
       provider: PROVIDER_LABELS[key] || key,
-      avg: count ? sum / count : 0,
+      avg: summaryByProvider[key]?.count ? summaryByProvider[key].sum / summaryByProvider[key].count : 0,
     }));
 
     const chartMinCost = sorted.length ? minCost : 0;
@@ -151,12 +158,12 @@ export function CostBarChart({ models }) {
       chartMinCost,
       chartMaxCost,
     };
-  }, [models, costType]);
+  }, [models, modelsForProviderSummary, costType]);
 
   const range = chartMaxCost - chartMinCost || 1;
   const getFillRatio = (cost) => Math.min(1, Math.max(0, (cost - chartMinCost) / range));
 
-  if (!models?.length) return <p className="chart-empty-message">No model data yet.</p>;
+  const hasData = models?.length > 0;
 
   return (
     <div className="cost-leaderboard-wrap">
@@ -187,22 +194,30 @@ export function CostBarChart({ models }) {
       </div>
 
       {providerSummary.length > 0 && (
-        <div className="provider-summary-cards" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 8, marginBottom: 10 }}>
+        <div className="provider-summary-cards" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 8, marginBottom: 10 }}>
           {providerSummary.map((s) => {
             const maxAvg = Math.max(...providerSummary.map((x) => x.avg), 0.01);
             const barPct = maxAvg > 0 ? Math.min(100, (s.avg / maxAvg) * 100) : 0;
+            const isSelected = selectedProvider && s.providerKey === selectedProvider;
             return (
-              <div
+              <button
                 key={s.provider}
+                type="button"
                 className="provider-summary-card"
+                onClick={() => onSelectProvider?.(s.providerKey)}
                 style={{
+                  width: '100%',
+                  minWidth: 0,
                   padding: '10px 12px',
                   borderRadius: 10,
-                  background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
-                  border: `1px solid ${gridColor}`,
+                  background: isSelected ? (isDark ? 'rgba(99, 102, 241, 0.35)' : 'rgba(99, 102, 241, 0.2)') : (isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'),
+                  border: `1px solid ${isSelected ? 'rgba(99, 102, 241, 0.6)' : gridColor}`,
                   color: textColor,
                   fontSize: '0.875rem',
+                  cursor: onSelectProvider ? 'pointer' : 'default',
+                  textAlign: 'left',
                 }}
+                title={onSelectProvider ? (isSelected ? 'Click to show all providers' : 'Click to show only ' + s.provider) : undefined}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                   <div style={{ flexShrink: 0, lineHeight: 0 }} aria-hidden>
@@ -210,22 +225,31 @@ export function CostBarChart({ models }) {
                   </div>
                   <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>{s.provider}</div>
                 </div>
-                <div style={{ fontSize: '1rem', fontWeight: 700, marginBottom: 4 }}>${Number(s.avg).toFixed(2)}</div>
+                <div style={{ fontSize: '1rem', fontWeight: 700, marginBottom: 4 }}>${Number(s.avg).toFixed(COST_DECIMALS)}</div>
                 <SegmentedBar fillRatio={barPct / 100} height={6} isDark={isDark} />
-              </div>
+              </button>
             );
           })}
         </div>
       )}
 
+      {!hasData ? (
+        <div className="chart-empty-state" style={{ padding: '24px 16px', textAlign: 'center', color: textColor, fontSize: '0.9375rem' }}>
+          <p className="chart-empty-message" style={{ margin: '0 0 8px 0', fontWeight: 500 }}>No model data yet.</p>
+          <p style={{ margin: 0, opacity: 0.85, fontSize: '0.8125rem' }}>
+            Try a different <strong>Model type</strong> above, or click a provider card to change filter. Click the selected card again to show all providers.
+          </p>
+        </div>
+      ) : (
+        <>
       {data.length > 0 && (
         <div className="cost-scale-legend" style={{ marginBottom: 8, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
           <span style={{ fontSize: '0.85rem', color: textColor, fontWeight: 500 }}>Cost scale</span>
-          <span style={{ fontSize: '0.9rem', color: textColor, fontWeight: 600, minWidth: 44 }}>${Number(chartMinCost).toFixed(2)}</span>
+          <span style={{ fontSize: '0.9rem', color: textColor, fontWeight: 600, minWidth: 44 }}>${Number(chartMinCost).toFixed(COST_DECIMALS)}</span>
           <div style={{ flex: '1 1 200px', minWidth: 120, maxWidth: 280 }}>
             <SegmentedBar fillRatio={1} height={10} isDark={isDark} />
           </div>
-          <span style={{ fontSize: '0.9rem', color: textColor, fontWeight: 600, minWidth: 44 }}>${Number(chartMaxCost).toFixed(2)}</span>
+          <span style={{ fontSize: '0.9rem', color: textColor, fontWeight: 600, minWidth: 44 }}>${Number(chartMaxCost).toFixed(COST_DECIMALS)}</span>
         </div>
       )}
 
@@ -266,7 +290,7 @@ export function CostBarChart({ models }) {
                         <div style={{ flex: '1 1 100px', minWidth: 80, maxWidth: 180 }}>
                           <SegmentedBar fillRatio={getFillRatio(entry.cost)} height={8} isDark={isDark} />
                         </div>
-                        <span style={{ color: textColor, fontWeight: 600, minWidth: 48, fontSize: '0.875rem' }}>${Number(entry.cost).toFixed(2)}</span>
+                        <span style={{ color: textColor, fontWeight: 600, minWidth: 48, fontSize: '0.875rem' }}>${Number(entry.cost).toFixed(COST_DECIMALS)}</span>
                         {entry.isCheapest && <span style={{ color: COST_GRADIENT.low, fontSize: '0.8125rem' }}>🟢 Cheapest</span>}
                       </div>
                     </td>
@@ -299,7 +323,7 @@ export function CostBarChart({ models }) {
                           )}
                           <span style={{ fontWeight: 600 }}>{entry.fullName}</span>
                           <span>Provider: {entry.providerLabel}</span>
-                          <span>Cost: ${Number(entry.cost).toFixed(2)} / 1M {costType === 'blended' ? '(blended)' : costType}</span>
+                          <span>Cost: ${Number(entry.cost).toFixed(COST_DECIMALS)} / 1M {costType === 'blended' ? '(blended)' : costType}</span>
                           <span>Context: {entry.contextWindow}</span>
                           {entry.isCheapest && !isHighlighted && <span style={{ color: COST_GRADIENT.low }}>🟢 Cheapest</span>}
                         </div>
@@ -319,6 +343,8 @@ export function CostBarChart({ models }) {
         <span style={{ color: COST_GRADIENT.mid }}>● Mid</span>
         <span style={{ color: COST_GRADIENT.high }}>● High cost</span>
       </div>
+        </>
+      )}
     </div>
   );
 }

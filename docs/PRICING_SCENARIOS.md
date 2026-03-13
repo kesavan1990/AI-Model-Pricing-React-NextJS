@@ -1,5 +1,18 @@
 # How pricing is displayed in each scenario
 
+This doc describes **when** the UI uses pricing.json, cache, or the Vizra API. For **when** those files are updated by the backend, see the defined timelines below.
+
+## Update schedule (backend)
+
+| Dataset | When it updates | Where it’s defined |
+|---------|------------------|---------------------|
+| **Pricing** (`pricing.json`) | **Daily at 06:00 UTC** | [PRICING_UPDATES.md](PRICING_UPDATES.md); workflow `.github/workflows/update-pricing.yml` (`cron: '0 6 * * *'`). |
+| **Benchmarks** (`benchmarks.json`) | **Weekly, Sunday 03:00 UTC** | [BENCHMARKS.md](BENCHMARKS.md); workflow `.github/workflows/update-benchmarks.yml` (`cron: '0 3 * * 0'`). |
+
+Both workflows can also be run manually (Actions → workflow → Run workflow). The footer shows **Pricing: [date]** and **Benchmarks: [date]** so you can see how fresh each dataset is.
+
+---
+
 ## 1. First time page load
 
 **When:** User opens the app for the first time (no `pricing.json` in `public/` or no localStorage cache).

@@ -5,15 +5,20 @@
  * 2. Hugging Face Open LLM Leaderboard (MMLU, reasoning, etc.) — from datasets-server API
  * 3. Embedded fallback — when external data is missing or no match
  *
+ * Scope: one benchmark entry per model in pricing.json for all providers (gemini, openai,
+ * anthropic, mistral) and all model types (text/chat, image, audio, video). Chat models
+ * get Arena/HF data when available; image/audio/video and unknowns get embedded fallback.
+ * Only models with no fallback (e.g. text-embedding) are skipped.
+ *
  * Architecture: Arena + HF → update-benchmarks.js → benchmarks.json. UI loads pricing + benchmarks and merges by model.
  *
  * Run: node scripts/update-benchmarks.js
  * GitHub Action: .github/workflows/update-benchmarks.yml (weekly).
  */
 
-const OUT_FILE = 'benchmarks.json';
+const OUT_FILE = 'public/benchmarks.json';
 const SCHEMA_PATH = 'schemas/benchmarks.schema.json';
-const PRICING_FILE = 'pricing.json';
+const PRICING_FILE = 'public/pricing.json';
 const ARENA_URL = 'https://arena.lmsys.org/';
 const HF_ROWS_URL = 'https://datasets-server.huggingface.co/rows';
 const FETCH_TIMEOUT_MS = 25_000;
@@ -143,6 +148,7 @@ function findHFScores(pricingModelName, hfList) {
   return null;
 }
 
+/** Build benchmark entries for every model in pricing (all providers, all types: text/chat, image, audio, video). */
 function buildBenchmarksFromPricing(pricing, arenaList, hfList) {
   const entries = [];
   const providers = [
@@ -157,7 +163,7 @@ function buildBenchmarksFromPricing(pricing, arenaList, hfList) {
       const name = m && m.name ? String(m.name).trim() : '';
       if (!name) continue;
       const embedded = getScoresForModel(name, key);
-      if (!embedded) continue;
+      if (!embedded) continue; // e.g. text-embedding: no benchmark scores
       const arenaScore = findArenaScore(name, arenaList);
       const hfScores = findHFScores(name, hfList);
       entries.push({

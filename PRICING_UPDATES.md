@@ -1,10 +1,10 @@
 # Price update flow
 
-Pricing is **automated**: a GitHub Action runs daily (and on manual trigger), fetches the latest from the Vizra API, and updates `pricing.json` in the repo. The frontend then loads that file so pricing stays up to date without manual edits.
+Pricing is **automated**: a GitHub Action runs daily (and on manual trigger), fetches the latest from the Vizra API, and updates `public/pricing.json` in the repo. The frontend loads that file from the deployed site so pricing stays up to date without manual edits.
 
 ## Safeguards (all implemented)
 
-- **1. Commit only if pricing changed** — Workflow uses `git diff --staged --quiet -- pricing.json`; if no diff, it logs "No pricing changes" and does not commit. Keeps history clean on daily runs.
+- **1. Commit only if pricing changed** — Workflow uses `git diff --staged --quiet -- public/pricing.json`; if no diff, it logs "No pricing changes" and does not commit. Keeps history clean on daily runs.
 - **2. API failure protection** — If the pricing API fails (timeout, rate limit, empty/invalid response), the script logs an error and exits with code 1. No file is written, so bad data is never committed.
 - **3. Data validation before writing JSON** — Missing input/output price, NaN, and negative prices are rejected (invalid models skipped). Payload is also validated against `schemas/pricing.schema.json`. Only valid data is written.
 
@@ -17,11 +17,11 @@ GitHub Action (daily 06:00 UTC / manual)
      ↓
 scripts/update-pricing.js fetches Vizra API
      ↓
-Writes pricing.json (normalized, deduped)
+Writes public/pricing.json (normalized, deduped)
      ↓
 Commit and push if changed
      ↓
-App loads pricing.json on open (or cache / embedded default)
+App loads pricing.json from public/ on open (or cache / embedded default)
 ```
 
 ## How the app gets data
@@ -30,11 +30,11 @@ App loads pricing.json on open (or cache / embedded default)
 
 2. **"Refresh from web"**: On GitHub Pages, reloads `pricing.json`. Elsewhere, fetches the Vizra API and updates all providers.
 
-3. **pricing.json** is updated automatically by the workflow. The workflow **commits and pushes only when the file content has changed** (`git diff --staged --quiet`); otherwise it skips commit and logs "No pricing changes". You can also run the script locally (see below).
+3. **public/pricing.json** is updated automatically by the workflow. The workflow **commits and pushes only when the file content has changed** (`git diff --staged --quiet`); otherwise it skips commit and logs "No pricing changes". You can also run the script locally (see below).
 
 ## API failure handling
 
-The script exits with code 1 (and does not write `pricing.json`) on:
+The script exits with code 1 (and does not write `public/pricing.json`) on:
 
 - **API timeout** — request aborts after 30 seconds
 - **Rate limit** — HTTP 429 or any non-OK status
@@ -42,7 +42,7 @@ The script exits with code 1 (and does not write `pricing.json`) on:
 - **Malformed JSON** — invalid JSON from the API
 - **No usable data** — response parses but has no Gemini/OpenAI models, or no valid models remain after validation
 
-When the script fails, the workflow step fails too, so no bad `pricing.json` is committed. See [docs/PRICING_UPDATES.md](docs/PRICING_UPDATES.md) for the full table.
+When the script fails, the workflow step fails too, so no bad `public/pricing.json` is committed. See [docs/PRICING_UPDATES.md](docs/PRICING_UPDATES.md) for the full table.
 
 ## Validation (before writing)
 
@@ -61,14 +61,14 @@ The payload is validated against **`schemas/pricing.schema.json`** before write.
 
 ## Running the script locally
 
-To refresh `pricing.json` yourself (from repo root, after `npm ci` or `npm install`):
+To refresh `public/pricing.json` yourself (from repo root, after `npm ci` or `npm install`):
 
 ```bash
 npm run update-pricing
 # or: node scripts/update-pricing.js
 ```
 
-On success, commit and push `pricing.json` if needed. On failure the script exits 1 and does not overwrite the file. You can also use **Actions → Update pricing → Run workflow** in GitHub.
+On success, commit and push `public/pricing.json` if needed. On failure the script exits 1 and does not overwrite the file. You can also use **Actions → Update pricing → Run workflow** in GitHub.
 
 ## Vizra API
 

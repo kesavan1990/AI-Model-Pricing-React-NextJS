@@ -4,10 +4,11 @@ import { useState, useMemo, useRef } from 'react';
 import { usePricing } from '../../context/PricingContext';
 import {
   getUnifiedCalcModels,
+  getUnifiedCalcModelsChat,
   getCalcModelByKey,
   calcCostForEntry,
   getContextWindow,
-  getAllModels,
+  getChatModels,
   calcCost,
   calcCostOpenAI,
   estimatePromptTokens,
@@ -22,6 +23,7 @@ export function Calculators() {
   const { getData, calcSub, setCalcSub, calcLastResult, setCalcLastResult, showToast } = usePricing();
   const data = getData();
   const unified = useMemo(() => getUnifiedCalcModels(data), [data]);
+  const chatUnified = useMemo(() => getUnifiedCalcModelsChat(data), [data]);
 
   const [calcModel, setCalcModel] = useState('');
   const [calcCompare, setCalcCompare] = useState('');
@@ -55,7 +57,7 @@ export function Calculators() {
     const outputT = Number(calcOutputTokens) || 0;
 
     if (calcModel === '__all__') {
-      const list = getUnifiedCalcModels(data).map((u) => {
+      const list = getUnifiedCalcModelsChat(data).map((u) => {
         const cost = calcCostForEntry({ provider: u.provider, model: u.model }, inputT, cachedT, outputT);
         return { name: u.label, provider: u.provider, cost };
       });
@@ -93,7 +95,7 @@ export function Calculators() {
     const openAIChatPromptT = estimatePromptTokensWithOpenAIChatFormat(promptText || '') || 0;
     const outputT = Number(promptOutputTokens) || 0;
     setPromptTokenCount(contentPromptT);
-    const list = getUnifiedCalcModels(data).map((u) => {
+    const list = getUnifiedCalcModelsChat(data).map((u) => {
       const promptT = u.provider === 'openai' ? openAIChatPromptT : contentPromptT;
       const cost = calcCostForEntry({ provider: u.provider, model: u.model }, promptT, 0, outputT);
       return { name: u.label, provider: u.provider, cost };
@@ -155,7 +157,7 @@ export function Calculators() {
   const handleContextCheck = () => {
     const promptT = Number(contextPromptTokens) || 0;
     const outputT = Number(contextOutputTokens) || 0;
-    const all = getAllModels(data);
+    const all = getChatModels(data);
     const rows = all.map((m) => {
       const ctx = getContextWindow(m.providerKey, m.name);
       const limit = ctx ? ctx.tokens : 0;
@@ -173,7 +175,7 @@ export function Calculators() {
     const promptT = Number(prodPromptTokens) || 0;
     const outputT = Number(prodOutputTokens) || 0;
     const totalRequests = users * reqPerUser;
-    const all = getAllModels(data);
+    const all = getChatModels(data);
     const rows = all.map((m) => {
       const inp = Number(m.input) || 0;
       const out = Number(m.output) || 0;
@@ -319,7 +321,7 @@ export function Calculators() {
                   <select id="calc-model" value={calcModel} onChange={(e) => setCalcModel(e.target.value)}>
                     <option value="">-- Select model --</option>
                     <option value="__all__">Compare all models</option>
-                    {unified.map((u) => (
+                    {chatUnified.map((u) => (
                       <option key={u.key} value={u.key}>{u.label}</option>
                     ))}
                   </select>
@@ -331,7 +333,7 @@ export function Calculators() {
                   </label>
                   <select id="calc-compare" value={calcCompare} onChange={(e) => setCalcCompare(e.target.value)}>
                     <option value="">— None —</option>
-                    {unified.map((u) => (
+                    {chatUnified.map((u) => (
                       <option key={u.key} value={u.key}>{u.label}</option>
                     ))}
                   </select>
@@ -583,6 +585,7 @@ export function Calculators() {
           </section>
         </div>
       )}
+
     </div>
   );
 }

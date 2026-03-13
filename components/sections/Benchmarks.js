@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Legend, ResponsiveContainer, Tooltip } from 'recharts';
 import { usePricing } from '../../context/PricingContext';
-import { getAllModels, getBenchmarkForModelMerged, getCostTierLabel } from '../../src/calculator.js';
+import { getChatModels, getBenchmarkForModelMerged, getCostTierLabel } from '../../src/calculator.js';
 import { escapeCsvCell, drawPdfBorderedTable } from '../../src/render.js';
 
 const RADAR_COLORS = [
@@ -36,7 +36,7 @@ export function Benchmarks() {
   const { getData, getBenchmarksData, showToast } = usePricing();
   const data = getData();
   const fileBenchmarks = getBenchmarksData();
-  const all = useMemo(() => getAllModels(data), [data]);
+  const all = useMemo(() => getChatModels(data), [data]);
 
   const allUniqueByName = useMemo(() => {
     const seen = new Set();

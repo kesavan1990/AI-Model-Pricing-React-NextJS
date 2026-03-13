@@ -19,6 +19,20 @@ Clicking a sidebar link **displays only that section** (all others are hidden) a
 
 ---
 
+## Dashboard home (Cost per 1M tokens and Model Intelligence)
+
+The **Dashboard** route (`/dashboard`) shows a **Cost per 1M tokens (blended)** chart and a **Model Intelligence** sidebar. Both respect the same filters.
+
+**Model type filter** — A dropdown above the chart: **All**, **Chat / Text**, **Image**, **Audio**, **Video**. It filters the cost chart (top models list) and the Model Intelligence panel (Cheapest, Best Quality, Fastest, Largest Context) together.
+
+**Provider cards** — Four cards (Google Gemini, OpenAI, Anthropic, Mistral) show average cost per provider. They are **clickable**: click a card to show **only that provider’s models** in the chart and in Model Intelligence; click the same card again to **clear** the provider filter. All four cards remain visible in an equal-width grid; the selected card is highlighted (e.g. purple tint). Implementation: `CostBarChart` in `components/CostBarChart.js` receives `modelsForProviderSummary` (for card averages) and `models` (for the table); `DashboardHome` in `components/DashboardHome.js` manages `modelTypeFilter` and `providerFilter`.
+
+**Cost display** — All costs on the dashboard use **5 decimal places** (e.g. `$0.12345`): provider card averages, cost scale min/max, ranked table, and Model Intelligence values.
+
+**Empty state** — When the selected model type + provider has **no models** (e.g. Image + a provider with no image models), the chart does not hide the controls. The cost type toggles (Blended / Input / Output) and all four provider cards stay visible; only the table is replaced by a message: *"No model data yet. Try a different Model type above, or click a provider card to change filter. Click the selected card again to show all providers."* This avoids getting stuck when a filter combination returns no data.
+
+---
+
 ## Dark mode and light mode
 
 The app supports **dark mode** (default) and **light mode**. You can switch between them at any time.
@@ -98,13 +112,13 @@ Tooltips are implemented with a `title` attribute on a `<span class="calc-toolti
 
 ## Cost calculator
 
-In **Calculators → 💰 Pricing**, the cost calculator estimates API cost for a chosen model (and optionally compares two models).
+In **Calculators → 💰 Pricing**, the cost calculator estimates API cost for a chosen model (and optionally compares two models). **Model** and **Compare with** dropdowns list **only chat/text models** (same as Context window and Production cost). **Compare all models** also runs over chat models only; image/audio/video models do not appear in the result.
 
 | | Description |
 |---|-------------|
 | **Input** | **Prompt tokens** — number of input/prompt tokens. |
 | **Input** | **Output tokens** — number of output/completion tokens. |
-| **Input** | **Model** — select one model (Gemini, OpenAI, Anthropic, Mistral). Optional: **Compare with** a second model. |
+| **Input** | **Model** — select one model (chat/text only). Optional: **Compare with** a second model. |
 | **Output** | **Estimated cost** — cost in $ for the given prompt + output tokens for the selected model(s). |
 
 OpenAI models can also use **Cached input tokens** (tokens served from cache at a lower rate); use 0 for non-OpenAI. The result shows the estimated cost per request; with "Compare with" you see both models side by side.
@@ -113,7 +127,7 @@ OpenAI models can also use **Cached input tokens** (tokens served from cache at 
 
 ## Prompt cost estimator
 
-In **Calculators → 📝 Prompt cost**, you can paste text (or **Import file**: TXT, CSV, PDF, MD, JSON) to get an estimated **prompt token count** (using gpt-tokenizer / cl100k_base when available, else ≈4 chars per token). You set **Estimated output tokens**; then **Estimate cost** shows cost per model across Gemini, OpenAI, Anthropic, and Mistral (embedding-only models excluded). Use **Reset** to clear. The result can be exported via the Calculators export toolbar when this sub-tab is active.
+In **Calculators → 📝 Prompt cost**, you can paste text (or **Import file**: TXT, CSV, PDF, MD, JSON) to get an estimated **prompt token count** (using gpt-tokenizer / cl100k_base when available, else ≈4 chars per token). You set **Estimated output tokens**; then **Estimate cost** shows cost per **chat/text model** across Gemini, OpenAI, Anthropic, and Mistral (image/audio/video and embedding-only models excluded). Use **Reset** to clear. The result can be exported via the Calculators export toolbar when this sub-tab is active.
 
 ---
 
@@ -257,22 +271,13 @@ Below the table, **Benchmark Radar Comparison** lets you compare **2 or more mod
 
 ## Recommend module
 
-The **Recommend** tab helps users find a suitable model by describing their use case (e.g. “cheap summarization”, “best quality for code”, “long documents”). It considers **all four service providers**: **Google Gemini**, **OpenAI**, **Anthropic**, and **Mistral**.
+The **Recommend** tab helps users find a suitable model by describing their use case (e.g. “cheap summarization”, “best-in-class text and vision capabilities”, “long documents”). It considers **all four service providers**: **Google Gemini**, **OpenAI**, **Anthropic**, and **Mistral**. Full behaviour and implementation are documented in **[RECOMMEND.md](RECOMMEND.md)**. A **Reset** button next to **Get recommendation** clears the description text area and the recommended model results, returning the section to its initial state so the user can enter a new use case.
 
-**Model pool** — Recommendations are built from every model in the current pricing data. `getAllModels(data)` in `src/calculator.js` aggregates models from `data.gemini`, `data.openai`, `data.anthropic`, and `data.mistral`, so no provider is excluded. Each model is scored (cost, reasoning, context, performance).
+**Static documentation index (Fuse.js)** — A static index (`data/recommendDocIndex.js`) lists models with `keywords` and `source`. When the user clicks **Get recommendation**, **Fuse.js** searches this index with the user’s description (keys: `keywords`, `model`, `provider`, `source`; fuzzy threshold 0.45). Index hits are resolved to full model objects from `getAllModels(data)` by `providerKey` and model name. This gives **broader search coverage** (e.g. “best-in-class text and vision” matches Mistral and others) without depending on live doc fetches.
 
-**Provider diversity** — So that results are not dominated by a single provider (e.g. only Gemini), the top list is **diversified**: at most **2 models per provider** are considered, then the combined list is sorted by score and the **top 6** are returned. So you typically see models from two or more providers (Gemini, OpenAI, Anthropic, Mistral). The doc-snippet pass does not re-sort by “has snippet,” so this diversity is preserved.
+**Score-based recommendations and diversity** — If the index returns matches, up to 6 are shown (by Fuse score), and any remaining slots are filled from `getRecommendations(data, useCaseType, description)` in `src/calculator.js`. If the index returns none, the list comes entirely from `getRecommendations()`. That function scores all models by use-case type (cost, accuracy, long-doc, code, etc.) and **diversifies**: at least one model per provider when possible, then top 6 by score. So results are never dominated by a single provider.
 
-**Documentation search** — When the user clicks **Get recommendation**, the app also fetches official documentation pages and searches them for the user’s keywords. Doc search runs for **all four providers**:
-
-| Provider   | Documentation URL(s) used |
-|------------|----------------------------|
-| Google Gemini | `ai.google.dev` (pricing + models) |
-| OpenAI    | `developers.openai.com` + `platform.openai.com` (pricing + models) |
-| Anthropic  | `docs.anthropic.com` (model cards) |
-| Mistral    | `docs.mistral.ai` (models) |
-
-Matching snippets from any of these sources are attached to the recommended models when available. The note under the results says: “Results informed by official Gemini, OpenAI, Anthropic, and Mistral documentation.” Implementation: `fetchDocsAndSearch()` in `src/app.js` fetches all four in parallel, runs `calc.searchDocContent()` per provider with that provider’s model names, and merges matches into a single doc map keyed by `providerKey:modelName`. `runRecommendation()` then enriches each recommendation with doc snippets and passes the “fromDocs” flag to `render.renderRecommendations()` so the note is shown when any provider’s docs were searched.
+**Live documentation search (optional)** — After building the list, the React app may fetch **official API/model documentation** (one URL per provider) and search them for the user’s keywords. URLs used: [Gemini models](https://ai.google.dev/gemini-api/docs/models), [OpenAI API models](https://developers.openai.com/api/docs/models), [Anthropic models overview](https://docs.anthropic.com/en/docs/models-overview), [Mistral models](https://docs.mistral.ai/models/). Matching snippets are attached to recommended models when available. Implementation: `fetchDocsAndSearch()` in `components/sections/Recommend.js` uses `fetchWithCors()` from `src/api.js` and `searchDocContent()` / `cleanDocSnippetForDisplay()` from `src/calculator.js`; results are merged by `providerKey:modelName`. The note “Results informed by official Gemini, OpenAI, Anthropic, and Mistral documentation.” is shown when results used the static index or live doc search.
 
 ---
 

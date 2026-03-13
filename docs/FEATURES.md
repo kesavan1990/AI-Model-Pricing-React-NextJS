@@ -21,7 +21,12 @@ This document lists all user-facing functionality for the **React/Next.js** app 
 
 | Feature | Description | Where |
 |--------|-------------|--------|
-| **KPI cards** | Total models, Cheapest (blended), Costliest, Largest context. | Dashboard home. |
+| **Model type filter** | All, Chat/Text, Image, Audio, Video. Filters both Cost per 1M tokens chart and Model Intelligence panel. | Dashboard home, above the cost chart. |
+| **Provider cards (clickable)** | Four cards: Google Gemini, OpenAI, Anthropic, Mistral. Click one to show only that provider’s models; click again to clear. All four cards stay visible. | Dashboard home, Cost per 1M tokens section. |
+| **Cost per 1M tokens** | Top models by blended/input/output cost; provider summary cards; cost scale; ranked table. Costs shown with **5 decimals**. | Dashboard home. |
+| **Model Intelligence** | Cheapest, Best Quality, Fastest, Largest Context (driven by same model type + provider filter). Costs with 5 decimals. | Dashboard home, right sidebar. |
+| **Empty state** | When no models match the filter: message + hint; cost type toggles and all four provider cards remain so user can change filters. | Dashboard home. |
+| **KPI cards** | Total models, Cheapest (blended), Costliest, Largest context. | Overview / Pricing. |
 | **Current pricing** | Grid of all providers (Gemini, OpenAI, Anthropic, Mistral) with search and export CSV/PDF. | Dashboard or **Pricing** (`/pricing`). |
 | **Tiered pricing** | Rows per context tier (e.g. ≤200K vs >200K) where applicable. | Pricing grid, comparison, value chart. |
 
@@ -65,10 +70,10 @@ This document lists all user-facing functionality for the **React/Next.js** app 
 
 | Feature | Description | Where |
 |--------|-------------|--------|
-| **Pricing calculator** | Prompt + output tokens, model select → estimated cost; optional second model compare. | **Calculator** (`/calculator`) → Pricing. |
-| **Prompt cost** | Paste/import text → token estimate; set output tokens → cost per model. | Calculator → Prompt cost. |
-| **Context window** | Enter prompt + output tokens → list of models that fit (or not). | Calculator → Context window. |
-| **Production cost** | Users/day, requests/user, tokens/request → per request, daily, monthly, per annum. | Calculator → Production cost. |
+| **Pricing calculator** | Prompt + output tokens, model select → estimated cost; optional second model compare. **Model list and “Compare all models” use chat/text models only.** | **Calculator** (`/calculator`) → Pricing. |
+| **Prompt cost** | Paste/import text → token estimate; set output tokens → cost per model. **Cost-per-model list uses chat/text models only.** | Calculator → Prompt cost. |
+| **Context window** | Enter prompt + output tokens → list of models that fit (or not). Chat models only. | Calculator → Context window. |
+| **Production cost** | Users/day, requests/user, tokens/request → per request, daily, monthly, per annum. Chat models only. | Calculator → Production cost. |
 | **Calculator tooltips** | (?) on labels (prompt tokens, output tokens, context, etc.). | All calculator sub-tabs. |
 | **Export CSV/PDF** | Export result of the **active** calculator sub-tab. | Calculators export toolbar. |
 
@@ -97,9 +102,11 @@ See [UI.md – Model benchmark dashboard](UI.md#model-benchmark-dashboard) and [
 
 | Feature | Description | Where |
 |--------|-------------|--------|
-| **Use-case input** | Free text (e.g. "cheap summarization", "best for code"). | **Recommend** (`/recommend`). |
-| **Get recommendation** | Returns up to 6 models, **diversified** (at most 2 per provider). | Recommend section. |
-| **Doc search** | Fetches official docs (Gemini, OpenAI, Anthropic, Mistral) and shows matching snippets. | After recommendation. |
+| **Use-case input** | Free text (e.g. "cheap summarization", "best-in-class text and vision"). | **Recommend** (`/recommend`). |
+| **Get recommendation** | Returns up to **6 models**: index matches first, then filled by score-based recommendations (diversified, at least one per provider when possible). | Recommend section. |
+| **Reset** | Clears the use-case description and the recommended model results (returns section to initial state). | Recommend section; next to Get recommendation. |
+| **Static doc index + Fuse** | Search over a static index of models and keywords (Fuse.js) for **broader coverage**; results resolved to current pricing data. | Recommend section; see [RECOMMEND.md](RECOMMEND.md). |
+| **Live doc search** | Optionally fetches official docs (Gemini, OpenAI, Anthropic, Mistral) and attaches matching snippets to results. | After recommendation. |
 
 ---
 
@@ -120,9 +127,10 @@ See [UI.md – Model benchmark dashboard](UI.md#model-benchmark-dashboard) and [
 |--------|-------------|--------|
 | **Allowed models only** | Only models listed on each provider’s official page are shown. | All sections; see [ALLOWED_MODELS.md](ALLOWED_MODELS.md). |
 | **Retired models excluded** | Deprecated/retired models are hidden everywhere. | All sections; see [RETIRED_MODELS.md](RETIRED_MODELS.md). |
-| **Pricing pipeline** | Daily (06:00 UTC) update from Vizra → `pricing.json`. | [README](README.md), [PRICING_UPDATES.md](PRICING_UPDATES.md). |
-| **Benchmark pipeline** | Weekly (Sunday 03:00 UTC) Arena + HF → `benchmarks.json`. | [BENCHMARKS.md](BENCHMARKS.md). |
+| **Pricing pipeline** | Daily (06:00 UTC) update from Vizra → `public/pricing.json`; all providers and model types. | [README](README.md), [PRICING_UPDATES.md](PRICING_UPDATES.md). |
+| **Benchmark pipeline** | Weekly (Sunday 03:00 UTC) Arena + HF → `public/benchmarks.json`; one entry per model (all types). | [BENCHMARKS.md](BENCHMARKS.md). |
 | **Footer dates** | "Pricing: [date]; Benchmarks: [date]" with time zone. | Footer. |
+| **Recent changes** | Dashboard filters, 5-decimal costs, calculator chat-only, pipeline scope, empty state. | [RECENT_CHANGES.md](RECENT_CHANGES.md). |
 
 ---
 

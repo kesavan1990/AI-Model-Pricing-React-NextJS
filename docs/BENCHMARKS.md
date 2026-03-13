@@ -2,6 +2,17 @@
 
 The app uses a **second dataset** alongside pricing. The benchmark script fetches **LMSYS Chatbot Arena** (overall model quality) and **Hugging Face Open LLM Leaderboard** (technical benchmarks), merges them with pricing models, and writes `benchmarks.json`. The UI loads both files and merges by model name and provider.
 
+## Defined timeline
+
+| Item | Schedule | Details |
+|------|----------|---------|
+| **Automated run** | **Weekly, Sunday 03:00 UTC** | `.github/workflows/update-benchmarks.yml` uses `cron: '0 3 * * 0'`. |
+| **Manual run** | On demand | GitHub Actions → **Update benchmarks** → **Run workflow**. |
+| **Output** | After each run | `benchmarks.json` is updated and committed only if content changed. |
+| **Input** | From repo | Script reads `pricing.json` (from the pricing workflow or repo); ensure pricing has run at least once. |
+
+Benchmarks don’t change daily, so weekly is sufficient. Pricing runs daily (see [PRICING_UPDATES.md](PRICING_UPDATES.md)).
+
 ## Flow
 
 ```
@@ -83,30 +94,31 @@ Model name matching uses **normalized names** (lowercase, alphanumeric only: `na
 - **provider** — One of `gemini`, `openai`, `anthropic`, `mistral`.
 - **mmlu, code, reasoning, arena** — Numbers (0 if missing). Validated by `schemas/benchmarks.schema.json` before write.
 
-## Update frequency (recommended)
+## Update frequency (aligned with timeline)
 
-| Source                 | Frequency  | Notes                          |
-|------------------------|-----------|---------------------------------|
-| Pricing                | Daily     | 06:00 UTC                       |
-| Arena leaderboard      | Weekly    | With benchmark workflow         |
-| HF Open LLM Leaderboard| Weekly    | With benchmark workflow         |
-| Research benchmarks    | Monthly   | If you add a separate monthly job |
+| Source                  | Frequency | When (UTC)        | Implemented in                          |
+|-------------------------|-----------|-------------------|-----------------------------------------|
+| Pricing                 | Daily     | 06:00             | `.github/workflows/update-pricing.yml`   |
+| Arena leaderboard       | Weekly    | Sun 03:00         | Fetched inside update-benchmarks run    |
+| HF Open LLM Leaderboard | Weekly    | Sun 03:00         | Fetched inside update-benchmarks run    |
+| benchmarks.json         | Weekly    | Sun 03:00         | `.github/workflows/update-benchmarks.yml` |
 
-Benchmarks don’t change daily, so weekly is sufficient.
+Benchmarks don’t change daily, so weekly is sufficient. Research benchmarks (if added later) could use a separate monthly job.
 
 ## Final data architecture
 
 ```
 ai-model-pricing/
-├── pricing.json
-├── benchmarks.json
+├── public/
+│   ├── pricing.json   (written by update-pricing workflow)
+│   └── benchmarks.json (written by update-benchmarks workflow)
 ├── scripts/
 │   ├── update-pricing.js
 │   └── update-benchmarks.js
 ├── schemas/
 │   ├── pricing.schema.json
 │   └── benchmarks.schema.json
-└── Next.js app (public/pricing.json, public/benchmarks.json; PricingContext loads both and merges)
+└── Next.js app (serves public/* at /; PricingContext loads both and merges)
 ```
 
 ## Script: update-benchmarks.js
@@ -114,8 +126,9 @@ ai-model-pricing/
 - **Location:** `scripts/update-benchmarks.js`
 - **Run:** `npm run update-benchmarks` or `node scripts/update-benchmarks.js`
 - **Dependencies:** `cheerio` (for Arena HTML parsing), `ajv` (schema validation). Node 18+ (native `fetch`).
-- **Input:** Reads `pricing.json` from the repo. Fetches Arena (HTML) and HF (rows API).
-- **Output:** Writes `benchmarks.json`. Validates against `schemas/benchmarks.schema.json`; on validation failure, exits with code 1 and does not write.
+- **Input:** Reads `public/pricing.json` (from the pricing workflow or repo). Fetches Arena (HTML) and HF (rows API).
+- **Output:** Writes `public/benchmarks.json`. Validates against `schemas/benchmarks.schema.json`; on validation failure, exits with code 1 and does not write.
+- **Scope:** One benchmark entry per model in pricing for **all providers** (Gemini, OpenAI, Anthropic, Mistral) and **all model types** (text/chat, image, audio, video). Chat models get Arena/HF data when available; image/audio/video get embedded fallback scores. Only models with no fallback (e.g. text-embedding) are skipped.
 - **Empty-dataset protection:** If the built `benchmarks` array is empty (`!benchmarks || benchmarks.length === 0`), the script logs an error and exits with code 1 **without writing**, so a failed or partial run does not overwrite the file with empty data.
 - **Resilience:** If Arena or HF fetch fails, the script still runs and uses embedded scores for missing data.
 
@@ -124,9 +137,9 @@ ai-model-pricing/
 - **Workflow:** `.github/workflows/update-benchmarks.yml`
 - **Schedule:** `cron: '0 3 * * 0'` (Sunday 03:00 UTC)
 - **Manual:** `workflow_dispatch`
-- **Steps:** Checkout → npm ci → `npm run update-benchmarks` → commit and push `benchmarks.json` only if the file content changed.
+- **Steps:** Checkout → npm ci → `npm run update-benchmarks` → commit and push `public/benchmarks.json` only if the file content changed.
 
-The workflow depends on `pricing.json` being present (from the last run of the pricing workflow or from the repo).
+The workflow depends on `public/pricing.json` being present (from the last run of the pricing workflow or from the repo).
 
 ## Frontend
 

@@ -22,6 +22,10 @@ const GEMINI_ALLOWED_PATTERNS = [
   /^gemini-gemma-2-/,         // Gemma 2 (if still on official page)
   /^gemini-exp-/,             // Experimental (if listed)
   /^gemini-robotics-/,        // Robotics ER and related (official)
+  /^imagen-/,                 // Imagen (image generation)
+  /^nano-banana/,             // Nano Banana (Gemini image generation, e.g. nano-banana-2)
+  /^veo-/,                    // Veo (video generation)
+  /^lyria-/,                  // Lyria (audio/music)
 ];
 
 function isAllowedGeminiModel(name) {
@@ -74,9 +78,12 @@ const MISTRAL_ALLOWED_PATTERNS = [
   /^mistral-7b/,            // Mistral 7B
   /^mistral-tiny/,          // Mistral Tiny (if on official page)
   /^mistral-small$/,        // generic small (if on page)
+  /^mistral-small-creative/, // Mistral Small Creative (Labs, e.g. mistral-small-creative-25-12)
+  /^labs-mistral-small-creative/i, // Labs Small Creative
   /^mistral-medium$/,       // generic medium (if on page)
   /^mistral-large$/,        // generic large (if on page)
   /^mixtral-8x22b/,         // Mixtral 8x22B
+  /^voxtral-/,              // Voxtral (audio transcription, e.g. voxtral-mini-2602)
 ];
 
 function isAllowedMistralModel(name) {
