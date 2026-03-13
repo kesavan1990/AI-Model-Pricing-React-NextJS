@@ -36,7 +36,8 @@ jobs:
         run: npm ci
 
       - name: Build for GitHub Pages
-        run: npm run build
+        # Use Webpack instead of Turbopack to avoid E783 (document.currentScript) errors on static export
+        run: npx next build --webpack
         env:
           GITHUB_PAGES: '1'
 
