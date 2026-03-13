@@ -10,12 +10,21 @@ if (typeof window !== 'undefined') {
   NProgress.configure({ showSpinner: false });
 }
 
+// Defer to next tick so we don't block the event handler (avoids "[Violation] 'message' handler took Xms")
+function defer(fn) {
+  if (typeof requestAnimationFrame !== 'undefined') {
+    requestAnimationFrame(() => { fn(); });
+  } else {
+    setTimeout(fn, 0);
+  }
+}
+
 export function NavigationProgress() {
   const pathname = usePathname();
 
   // When route changes (navigation complete), finish the progress bar
   useEffect(() => {
-    NProgress.done();
+    defer(() => NProgress.done());
   }, [pathname]);
 
   // When user clicks an internal link, start the progress bar (App Router has no Router.events)
@@ -25,7 +34,7 @@ export function NavigationProgress() {
       if (!link || link.target === '_blank' || link.getAttribute('rel') === 'external') return;
       const href = link.getAttribute('href');
       if (href && href.startsWith('/') && !href.startsWith('//')) {
-        NProgress.start();
+        defer(() => NProgress.start());
       }
     };
     document.addEventListener('click', handleClick, true);
