@@ -16,7 +16,7 @@ const nextConfig = {
         output: 'export',
         trailingSlash: true,
         images: { unoptimized: true },
-        basePath,
+        basePath: '/AI-Model-Pricing-React-NextJS',
         assetPrefix: `${basePath}/`,
       }
       : {}),
