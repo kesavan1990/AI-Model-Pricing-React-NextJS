@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { usePricing } from '../../context/PricingContext';
 import {
   getUnifiedCalcModels,
@@ -280,13 +281,39 @@ export function Calculators() {
     { id: 'production', label: '🏭 Production cost', hash: '#calc-production' },
   ];
 
-  // Sync active tab with URL hash (e.g. /calculator#calc-prompt) for Link navigation and bookmarks
+  const pathname = usePathname() || '';
+
+  // Sync active tab from URL hash (on mount, when pathname is calculator, and when hash changes)
+  const syncSubFromHash = useMemo(() => {
+    return () => {
+      if (typeof window === 'undefined') return;
+      const hash = (window.location.hash || '').toLowerCase();
+      const tab = tabs.find((t) => t.hash.toLowerCase() === hash);
+      if (tab) setCalcSub(tab.id);
+    };
+  }, []);
+
+  useEffect(() => {
+    syncSubFromHash();
+  }, [pathname, syncSubFromHash]);
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const hash = (window.location.hash || '').toLowerCase();
-    const tab = tabs.find((t) => t.hash.toLowerCase() === hash);
-    if (tab) setCalcSub(tab.id);
-  }, []);
+    window.addEventListener('hashchange', syncSubFromHash);
+    return () => window.removeEventListener('hashchange', syncSubFromHash);
+  }, [syncSubFromHash]);
+
+  // Same-tab click: update state and URL so sub-tabs work without full navigation (works with basePath)
+  const handleSubTabClick = (e, t) => {
+    const isSameTabClick = !e.ctrlKey && !e.metaKey && !e.shiftKey && e.button === 0;
+    if (isSameTabClick) {
+      e.preventDefault();
+      setCalcSub(t.id);
+      const fullPath = typeof window !== 'undefined' ? window.location.pathname : (pathname || '/calculator');
+      const newUrl = fullPath + (t.hash || '');
+      window.history.pushState(null, '', newUrl);
+    }
+  };
 
   return (
     <div id="section-calculator">
@@ -298,7 +325,7 @@ export function Calculators() {
               href={`/calculator${t.hash}`}
               prefetch
               className={'calc-sub-link' + (calcSub === t.id ? ' active' : '')}
-              onClick={() => setCalcSub(t.id)}
+              onClick={(e) => handleSubTabClick(e, t)}
             >
               {t.label}
             </Link>

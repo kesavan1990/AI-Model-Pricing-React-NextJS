@@ -3,17 +3,23 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+function normalizePath(p) {
+  if (!p || typeof p !== 'string') return '';
+  return p.replace(/\/$/, '') || '/';
+}
+
 export function Sidebar({ onOpenHistory }) {
   const pathname = usePathname() || '';
+  const pathNorm = normalizePath(pathname);
 
   const links = [
-    { href: '/dashboard', label: 'Dashboard' },
-    { href: '/pricing', label: 'Pricing' },
-    { href: '/calculator', label: 'Calculator' },
-    { href: '/comparison', label: 'Comparison' },
-    { href: '/value-analysis', label: 'Value Analysis' },
-    { href: '/benchmarks', label: 'Benchmarks' },
-    { href: '/recommend', label: 'Recommend' },
+    { href: '/dashboard/', label: 'Dashboard' },
+    { href: '/pricing/', label: 'Pricing' },
+    { href: '/calculator/', label: 'Calculator' },
+    { href: '/comparison/', label: 'Comparison' },
+    { href: '/value-analysis/', label: 'Value Analysis' },
+    { href: '/benchmarks/', label: 'Benchmarks' },
+    { href: '/recommend/', label: 'Recommend' },
   ];
 
   return (
@@ -27,7 +33,7 @@ export function Sidebar({ onOpenHistory }) {
             key={href}
             href={href}
             prefetch
-            className={'sidebar-link' + (pathname === href ? ' active' : '')}
+            className={'sidebar-link' + (pathNorm === normalizePath(href) ? ' active' : '')}
           >
             {label}
           </Link>
