@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 function normalizePath(p) {
   if (!p || typeof p !== 'string') return '';
@@ -10,6 +10,7 @@ function normalizePath(p) {
 
 export function Sidebar({ onOpenHistory }) {
   const pathname = usePathname() || '';
+  const router = useRouter();
   const pathNorm = normalizePath(pathname);
 
   const links = [
@@ -22,6 +23,14 @@ export function Sidebar({ onOpenHistory }) {
     { href: '/recommend/', label: 'Recommend' },
   ];
 
+  const handleNavClick = (e, href) => {
+    const isSameTab = !e.ctrlKey && !e.metaKey && !e.shiftKey && e.button === 0;
+    if (isSameTab) {
+      e.preventDefault();
+      router.push(href);
+    }
+  };
+
   return (
     <aside className="dashboard-sidebar" aria-label="Dashboard navigation">
       <div className="dashboard-sidebar-title">
@@ -32,7 +41,8 @@ export function Sidebar({ onOpenHistory }) {
           <Link
             key={href}
             href={href}
-            prefetch
+            prefetch={false}
+            onClick={(e) => handleNavClick(e, href)}
             className={'sidebar-link' + (pathNorm === normalizePath(href) ? ' active' : '')}
           >
             {label}
