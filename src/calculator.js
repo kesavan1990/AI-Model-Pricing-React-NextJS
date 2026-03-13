@@ -158,6 +158,7 @@ function isEmbeddingOnlyModel(provider, modelName) {
 }
 
 export function getUnifiedCalcModels(data) {
+  if (!data || typeof data !== 'object') return [];
   const { gemini = [], openai = [], anthropic = [], mistral = [] } = data;
   const list = [];
   gemini.forEach((m, i) => {
@@ -180,6 +181,7 @@ export function getUnifiedCalcModelsChat(data) {
 
 export function getCalcModelByKey(key, data) {
   if (!key || key === '__all__') return null;
+  if (!data || typeof data !== 'object') return null;
   const [provider, idxStr] = key.split(':');
   const i = parseInt(idxStr, 10);
   const { gemini = [], openai = [], anthropic = [], mistral = [] } = data;
@@ -219,6 +221,7 @@ function pushModel(list, provider, providerKey, m, input, output, cachedInput, c
 }
 
 export function getAllModels(data) {
+  if (!data || typeof data !== 'object') return [];
   const { gemini = [], openai = [], anthropic = [], mistral = [] } = data;
   const list = [];
   gemini.forEach((m) => {

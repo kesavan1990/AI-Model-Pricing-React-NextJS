@@ -22,7 +22,7 @@ const fmt = (v) => (v === 0 ? '$0.00000' : '$' + Number(v).toFixed(5));
 
 export function Calculators() {
   const { getData, calcSub, setCalcSub, calcLastResult, setCalcLastResult, showToast } = usePricing();
-  const data = getData();
+  const data = getData() || {};
   const unified = useMemo(() => getUnifiedCalcModels(data), [data]);
   const chatUnified = useMemo(() => getUnifiedCalcModelsChat(data), [data]);
 
