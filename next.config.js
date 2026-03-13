@@ -19,6 +19,7 @@ const nextConfig = {
         basePath,
         assetPrefix: `${basePath}/`,
       }
+      module.exports = nextConfig
     : {}),
 };
 
