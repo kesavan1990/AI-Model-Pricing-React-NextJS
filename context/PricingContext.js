@@ -48,13 +48,42 @@ export function PricingProvider({ children }) {
     });
   }, []);
 
+  const applyDefaultFallback = useCallback(() => {
+    const fallback = {
+      gemini: pricing.DEFAULT_PRICING.gemini.slice(),
+      openai: pricing.DEFAULT_PRICING.openai.slice(),
+      anthropic: (pricing.DEFAULT_PRICING.anthropic || []).slice(),
+      mistral: (pricing.DEFAULT_PRICING.mistral || []).slice(),
+    };
+    let merged = applyOfficialOverlays(fallback);
+    mergeTiersIntoPayload(merged);
+    setData(merged);
+    setBenchmarksData(null);
+    setLastUpdated('embedded default');
+    setBenchmarksLastUpdated('—');
+    setToast({ msg: 'Using embedded default pricing.', type: 'success', show: true });
+    setTimeout(() => setToast((t) => ({ ...t, show: false })), 3500);
+  }, [setData]);
+
+  const LOAD_TIMEOUT_MS = 12000;
+
   const loadPricing = useCallback(async () => {
     setLoading(true);
+    const timeoutId = setTimeout(() => {
+      setLoading((prev) => {
+        if (prev) {
+          applyDefaultFallback();
+          return false;
+        }
+        return prev;
+      });
+    }, LOAD_TIMEOUT_MS);
     try {
       const [result, benchPayload] = await Promise.all([
         pricing.loadPricingFromApi(pricingApi.fetchPricingData),
         api.getBenchmarks(),
       ]);
+      clearTimeout(timeoutId);
       let merged = applyOfficialOverlays(result);
       mergeTiersIntoPayload(merged);
       setData(merged);
@@ -71,24 +100,12 @@ export function PricingProvider({ children }) {
       }
     } catch (err) {
       console.error('loadPricing failed:', err);
-      const fallback = {
-        gemini: pricing.DEFAULT_PRICING.gemini.slice(),
-        openai: pricing.DEFAULT_PRICING.openai.slice(),
-        anthropic: (pricing.DEFAULT_PRICING.anthropic || []).slice(),
-        mistral: (pricing.DEFAULT_PRICING.mistral || []).slice(),
-      };
-      let merged = applyOfficialOverlays(fallback);
-      mergeTiersIntoPayload(merged);
-      setData(merged);
-      setBenchmarksData(null);
-      setLastUpdated('embedded default');
-      setBenchmarksLastUpdated('—');
-      setToast({ msg: 'Using embedded default pricing.', type: 'success', show: true });
-      setTimeout(() => setToast((t) => ({ ...t, show: false })), 3500);
+      clearTimeout(timeoutId);
+      applyDefaultFallback();
     } finally {
       setLoading(false);
     }
-  }, [setData]);
+  }, [setData, applyDefaultFallback]);
 
   useEffect(() => {
     loadPricing();

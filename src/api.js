@@ -10,6 +10,21 @@ const CORS_PROXIES = [
 ];
 
 /**
+ * Base path for static assets on GitHub Pages. Uses NEXT_PUBLIC_BASE_PATH when set (build-time),
+ * or derives from pathname (e.g. /AI-Model-Pricing-React-NextJS) when on github.io so pricing.json works.
+ */
+function getBasePath() {
+  if (typeof window === 'undefined') return '';
+  const fromEnv = typeof process !== 'undefined' && process.env.NEXT_PUBLIC_BASE_PATH ? process.env.NEXT_PUBLIC_BASE_PATH : '';
+  if (fromEnv) return fromEnv;
+  if (/github\.io$/i.test(window.location.hostname || '')) {
+    const seg = (window.location.pathname || '').split('/').filter(Boolean)[0];
+    return seg ? `/${seg}` : '';
+  }
+  return '';
+}
+
+/**
  * URL for pricing.json with cache-busting query (?t=timestamp) so the browser
  * does not serve stale cached pricing. On GitHub Pages (basePath), resolves to
  * /repoName/pricing.json so the first load does not 404.
@@ -17,7 +32,7 @@ const CORS_PROXIES = [
 export function getPricingJsonUrl() {
   try {
     if (typeof window === 'undefined') return `pricing.json?t=${Date.now()}`;
-    const base = typeof process !== 'undefined' && process.env.NEXT_PUBLIC_BASE_PATH ? process.env.NEXT_PUBLIC_BASE_PATH : '';
+    const base = getBasePath();
     return `${window.location.origin}${base}/pricing.json?t=${Date.now()}`;
   } catch (_) {
     return `pricing.json?t=${Date.now()}`;
@@ -35,7 +50,7 @@ export function isGitHubPages() {
 export function getBenchmarksJsonUrl() {
   try {
     if (typeof window === 'undefined') return `benchmarks.json?t=${Date.now()}`;
-    const base = typeof process !== 'undefined' && process.env.NEXT_PUBLIC_BASE_PATH ? process.env.NEXT_PUBLIC_BASE_PATH : '';
+    const base = getBasePath();
     return `${window.location.origin}${base}/benchmarks.json?t=${Date.now()}`;
   } catch (_) {
     return `benchmarks.json?t=${Date.now()}`;
