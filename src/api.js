@@ -58,6 +58,37 @@ export function getBenchmarksJsonUrl() {
 }
 
 /**
+ * URL for pricing-history.json (automated daily snapshots from GitHub Actions).
+ */
+export function getHistoryJsonUrl() {
+  try {
+    if (typeof window === 'undefined') return `pricing-history.json?t=${Date.now()}`;
+    const base = getBasePath();
+    return `${window.location.origin}${base}/pricing-history.json?t=${Date.now()}`;
+  } catch (_) {
+    return `pricing-history.json?t=${Date.now()}`;
+  }
+}
+
+/**
+ * Fetch server-side pricing history (daily snapshots from workflow). Returns [] on failure.
+ * @returns {Promise<Array<{ date: string, gemini, openai, anthropic, mistral, daily?: boolean }>>}
+ */
+export async function getServerHistory() {
+  const url = getHistoryJsonUrl();
+  try {
+    const ac = new AbortController();
+    const t = setTimeout(() => ac.abort(), 8000);
+    const res = await fetch(url, { cache: 'no-store', signal: ac.signal }).finally(() => clearTimeout(t));
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch (_) {
+    return [];
+  }
+}
+
+/**
  * Fetch pricing.json from the current origin (e.g. same host or GitHub Pages).
  * @returns {Promise<object|null>} Parsed JSON or null on failure
  */

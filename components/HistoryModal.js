@@ -2,11 +2,25 @@
 
 import { useState, useEffect } from 'react';
 import { usePricing } from '../context/PricingContext';
+import { getServerHistory } from '../src/api.js';
 import { formatHistoryDate } from '../src/render.js';
 import { dedupeModelsByName } from '../src/pricingService.js';
 import { escapeCsvCell, drawPdfBorderedTable } from '../src/render.js';
 
 const fmt = (v) => (v === 0 ? 'Free' : '$' + Number(v).toFixed(2));
+
+function mergeHistory(serverList, localList) {
+  const byDate = new Map();
+  for (const e of serverList || []) {
+    const key = e.date ? new Date(e.date).toISOString().slice(0, 10) : '';
+    if (key && !byDate.has(key)) byDate.set(key, { ...e, source: 'server' });
+  }
+  for (const e of localList || []) {
+    const key = e.date ? new Date(e.date).toISOString().slice(0, 10) : '';
+    if (key && !byDate.has(key)) byDate.set(key, { ...e, source: 'local' });
+  }
+  return Array.from(byDate.values()).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+}
 
 export function HistoryModal({ open, onClose }) {
   const { pricing, showToast } = usePricing();
@@ -14,11 +28,20 @@ export function HistoryModal({ open, onClose }) {
   const [fromIdx, setFromIdx] = useState(0);
   const [toIdx, setToIdx] = useState(0);
   const [compareResult, setCompareResult] = useState(null);
+  const [loadingHistory, setLoadingHistory] = useState(false);
 
   useEffect(() => {
-    if (open && pricing) {
-      setHistoryList(pricing.getHistory() || []);
-    }
+    if (!open || !pricing) return;
+    setLoadingHistory(true);
+    const local = pricing.getHistory() || [];
+    getServerHistory()
+      .then((server) => {
+        setHistoryList(mergeHistory(server, local));
+      })
+      .catch(() => {
+        setHistoryList(local);
+      })
+      .finally(() => setLoadingHistory(false));
   }, [open, pricing]);
 
   useEffect(() => {
@@ -72,7 +95,7 @@ export function HistoryModal({ open, onClose }) {
   };
 
   const exportHistoryCSV = () => {
-    const list = pricing.getHistory();
+    const list = historyList;
     if (!list.length) {
       showToast('No history to export.', 'error');
       return;
@@ -95,7 +118,7 @@ export function HistoryModal({ open, onClose }) {
   };
 
   const exportHistoryPDF = async () => {
-    const list = pricing.getHistory();
+    const list = historyList;
     if (!list.length) {
       showToast('No history to export.', 'error');
       return;
@@ -130,7 +153,7 @@ export function HistoryModal({ open, onClose }) {
       <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2 className="modal-title">Pricing history</h2>
-          <p className="modal-subtitle">Daily snapshots (12:00 AM IST) are kept. History is stored in this browser only.</p>
+          <p className="modal-subtitle">Daily snapshots at 12:00 AM IST (automated on GitHub) plus any saved when you open the app. Server history is merged with this browser&apos;s history.</p>
           <div className="modal-header-actions">
             <button type="button" className="export-btn csv modal-export" onClick={exportHistoryCSV} title="Export all history as CSV">📄 Export CSV</button>
             <button type="button" className="export-btn pdf modal-export" onClick={exportHistoryPDF} title="Export all history as PDF">📕 Export PDF</button>
@@ -266,10 +289,13 @@ export function HistoryModal({ open, onClose }) {
               </div>
             )}
           </div>
-          {historyList.length === 0 && (
-            <p className="history-empty">No daily history yet. A snapshot is saved automatically when you first open the app each day (12:00 AM IST).</p>
+          {loadingHistory && (
+            <p className="history-empty">Loading history…</p>
           )}
-          {historyList.length > 0 && (
+          {!loadingHistory && historyList.length === 0 && (
+            <p className="history-empty">No daily history yet. Snapshots are saved automatically at 12:00 AM IST (GitHub Actions) and when you open the app each day.</p>
+          )}
+          {!loadingHistory && historyList.length > 0 && (
             <div className="history-entries">
               {historyList.map((entry, idx) => {
                 const d = new Date(entry.date);

@@ -140,8 +140,9 @@ export function PricingProvider({ children }) {
       mergeTiersIntoPayload(merged);
       setData(merged);
       setBenchmarksData(benchPayload?.benchmarks ?? null);
-      setLastUpdated(result.updated || '—');
-      setBenchmarksLastUpdated(benchPayload?.updated != null ? String(benchPayload.updated) : '—');
+      const now = new Date().toISOString();
+      setLastUpdated(now);
+      setBenchmarksLastUpdated(benchPayload?.updated != null ? String(benchPayload.updated) : now);
       setToast({ msg: 'Pricing updated.', type: 'success', show: true });
       const hideToast = () => setToast((t) => ({ ...t, show: false }));
       setTimeout(hideToast, 3500);
