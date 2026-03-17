@@ -9,7 +9,7 @@ This doc describes **when** the UI uses pricing.json, cache, or the Vizra API. F
 | **Pricing** (`pricing.json`) | **Daily at 06:00 UTC** | [PRICING_UPDATES.md](PRICING_UPDATES.md); workflow `.github/workflows/update-pricing.yml` (`cron: '0 6 * * *'`). |
 | **Benchmarks** (`benchmarks.json`) | **Weekly, Sunday 03:00 UTC** | [BENCHMARKS.md](BENCHMARKS.md); workflow `.github/workflows/update-benchmarks.yml` (`cron: '0 3 * * 0'`). |
 
-Both workflows can also be run manually (Actions → workflow → Run workflow). The footer shows **Pricing: [date]** and **Benchmarks: [date]** so you can see how fresh each dataset is.
+Both workflows can also be run manually (Actions → workflow → Run workflow). The footer shows **Pricing: [date]** and **Benchmarks: [date]** — these reflect **when the app last loaded the data** (on initial load, F5, or Refresh from web), not the file’s “updated” field.
 
 ---
 
@@ -21,7 +21,7 @@ Both workflows can also be run manually (Actions → workflow → Run workflow).
 
 1. **PricingContext** mounts and **loadPricing()** runs (e.g. in `useEffect`).
 2. **Try Vizra API then `pricing.json`** (via `fetchPricingData()`):
-   - If the API or file returns valid data: normalize, apply overlays, `processPayload()` → set state → **Last updated:** from result.
+   - If the API or file returns valid data: normalize, apply overlays, `processPayload()` → set state → **Footer (Last updated):** set to the time the data was loaded (same for F5 and Refresh).
    - If both fail: go to step 3.
 3. **Try localStorage cache** (via cache manager, e.g. key `ai_pricing_cache`):
    - If present and valid: load from cache → **Last updated:** e.g. `"cached (from web)"` → toast: *"Loaded pricing from local cache (file unavailable)."*

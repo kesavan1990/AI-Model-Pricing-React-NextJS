@@ -4,7 +4,14 @@ This document summarizes recent updates to the AI Model Pricing app (dashboard, 
 
 ---
 
-## 1. Skeleton loaders (loading state)
+## 1. Footer date: when data was last loaded
+
+- **Behavior:** The footer **Pricing** and **Benchmarks** dates show **when the app last loaded the data**, not the “updated” field from the JSON files. This applies to both **initial load** (including a full page refresh, e.g. F5) and **Refresh from web** — in both cases the footer reflects the current date/time of the load.
+- **Rationale:** Users see a consistent “last loaded” time whether they use the in-app Refresh button or reload the page, so the footer always indicates when the data they’re viewing was fetched.
+
+---
+
+## 2. Skeleton loaders (loading state)
 
 - **Behavior:** While pricing (and benchmark) data is loading—on first load or after **Refresh from web**—the main content area shows **skeleton placeholders** instead of a blank screen. The skeleton mirrors the Dashboard layout (title, filters, chart card, Model Intelligence panel) so loading feels faster and more predictable.
 - **Scope:** Skeleton is shown for any page when the global pricing context is loading (e.g. Dashboard, Pricing, Calculator). When loading finishes, the actual page content is rendered.
@@ -13,7 +20,7 @@ This document summarizes recent updates to the AI Model Pricing app (dashboard, 
 
 ---
 
-## 2. Pricing and benchmark pipelines
+## 3. Pricing and benchmark pipelines
 
 ### Output location and deploy
 
@@ -35,7 +42,7 @@ See [PRICING_UPDATES.md](PRICING_UPDATES.md) and [BENCHMARKS.md](BENCHMARKS.md) 
 
 ---
 
-## 3. Dashboard
+## 4. Dashboard
 
 ### Model type filter
 
@@ -74,7 +81,7 @@ See [PRICING_UPDATES.md](PRICING_UPDATES.md) and [BENCHMARKS.md](BENCHMARKS.md) 
 
 ---
 
-## 4. Calculator
+## 5. Calculator
 
 ### Pricing and Prompt cost: chat/text models only
 
@@ -91,7 +98,7 @@ See [PRICING_UPDATES.md](PRICING_UPDATES.md) and [BENCHMARKS.md](BENCHMARKS.md) 
 
 ---
 
-## 5. Summary table
+## 6. Summary table
 
 | Area | Change |
 |------|--------|
@@ -103,7 +110,7 @@ See [PRICING_UPDATES.md](PRICING_UPDATES.md) and [BENCHMARKS.md](BENCHMARKS.md) 
 
 ---
 
-## 6. Client navigation and route prefetching
+## 7. Client navigation and route prefetching
 
 - **Next.js Link** — All in-app navigation uses the Next.js **`Link`** component instead of plain `<a>` tags, so navigation is client-side and does not cause full page reloads.
 - **Route prefetching** — Every `Link` has the **`prefetch`** prop enabled. Next.js preloads the target route in the background (when the link is in view or on hover). When the user clicks, navigation is instant.

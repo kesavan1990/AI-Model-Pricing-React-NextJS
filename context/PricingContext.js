@@ -88,8 +88,9 @@ export function PricingProvider({ children }) {
       mergeTiersIntoPayload(merged);
       setData(merged);
       setBenchmarksData(benchPayload?.benchmarks ?? null);
-      setLastUpdated(result.updated || '—');
-      setBenchmarksLastUpdated(benchPayload?.updated != null ? String(benchPayload.updated) : '—');
+      const now = new Date().toISOString();
+      setLastUpdated(now);
+      setBenchmarksLastUpdated(benchPayload?.updated != null ? String(benchPayload.updated) : now);
       if (result.usedFallback === 'cache') {
         setToast({ msg: 'Using cached pricing. Click Refresh to load the latest from the server.', type: 'success', show: true });
         setTimeout(() => setToast((t) => ({ ...t, show: false })), 3500);

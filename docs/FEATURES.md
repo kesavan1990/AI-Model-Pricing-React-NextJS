@@ -132,7 +132,7 @@ See [UI.md – Model benchmark dashboard](UI.md#model-benchmark-dashboard) and [
 | **Retired models excluded** | Deprecated/retired models are hidden everywhere. | All sections; see [RETIRED_MODELS.md](RETIRED_MODELS.md). |
 | **Pricing pipeline** | Daily (06:00 UTC) update from Vizra → `public/pricing.json`; all providers and model types. | [README](README.md), [PRICING_UPDATES.md](PRICING_UPDATES.md). |
 | **Benchmark pipeline** | Weekly (Sunday 03:00 UTC) Arena + HF → `public/benchmarks.json`; one entry per model (all types). | [BENCHMARKS.md](BENCHMARKS.md). |
-| **Footer dates** | "Pricing: [date]; Benchmarks: [date]" with time zone. | Footer. |
+| **Footer dates** | "Pricing: [date]; Benchmarks: [date]" — when the app last loaded the data (same for initial load/F5 and Refresh). Time zone shown. | Footer. |
 | **Recent changes** | Dashboard filters, 5-decimal costs, calculator chat-only, pipeline scope, empty state. | [RECENT_CHANGES.md](RECENT_CHANGES.md). |
 
 ---
