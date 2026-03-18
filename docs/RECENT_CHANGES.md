@@ -11,7 +11,15 @@ This document summarizes recent updates to the AI Model Pricing app (dashboard, 
 
 ---
 
-## 2. Skeleton loaders (loading state)
+## 2. Value Analysis chart tooltip (cost and performance)
+
+- **Behavior:** In the **Value Analysis** tab, hovering a scatter point shows the correct **model name**, **Cost/request** (e.g. $0.0123), and **performance** (Arena, MMLU, or Code). Previously the tooltip could show "undefined" and "$0.0000" when the chart dataset only passed `{ x, y }` to Chart.js.
+- **Fix:** The scatter dataset `data` now uses **full point objects** (with `x`, `y`, `name`, `cost`, `performance`, `provider`, etc.) so the tooltip callback can read model name, cost, and performance from `context.raw`. Both "All models" and "Frontier" datasets use full objects; the tooltip formats missing values as "—".
+- **Implementation:** `components/sections/ValueAnalysis.js` — `data: allPoints` and `data: frontierPoints`; tooltip `label` callback uses `ctx.raw` for all fields. See [UI.md](UI.md) § Cost vs Performance quadrant chart → **Point tooltip**.
+
+---
+
+## 3. Skeleton loaders (loading state)
 
 - **Behavior:** While pricing (and benchmark) data is loading—on first load or after **Refresh from web**—the main content area shows **skeleton placeholders** instead of a blank screen. The skeleton mirrors the Dashboard layout (title, filters, chart card, Model Intelligence panel) so loading feels faster and more predictable.
 - **Scope:** Skeleton is shown for any page when the global pricing context is loading (e.g. Dashboard, Pricing, Calculator). When loading finishes, the actual page content is rendered.
@@ -20,7 +28,7 @@ This document summarizes recent updates to the AI Model Pricing app (dashboard, 
 
 ---
 
-## 3. Pricing and benchmark pipelines
+## 4. Pricing and benchmark pipelines
 
 ### Output location and deploy
 
@@ -42,7 +50,7 @@ See [PRICING_UPDATES.md](PRICING_UPDATES.md) and [BENCHMARKS.md](BENCHMARKS.md) 
 
 ---
 
-## 4. Dashboard
+## 5. Dashboard
 
 ### Model type filter
 
@@ -81,7 +89,7 @@ See [PRICING_UPDATES.md](PRICING_UPDATES.md) and [BENCHMARKS.md](BENCHMARKS.md) 
 
 ---
 
-## 5. Calculator
+## 6. Calculator
 
 ### Pricing and Prompt cost: chat/text models only
 
@@ -98,7 +106,7 @@ See [PRICING_UPDATES.md](PRICING_UPDATES.md) and [BENCHMARKS.md](BENCHMARKS.md) 
 
 ---
 
-## 6. Summary table
+## 7. Summary table
 
 | Area | Change |
 |------|--------|
@@ -110,7 +118,7 @@ See [PRICING_UPDATES.md](PRICING_UPDATES.md) and [BENCHMARKS.md](BENCHMARKS.md) 
 
 ---
 
-## 7. Client navigation and route prefetching
+## 8. Client navigation and route prefetching
 
 - **Next.js Link** — All in-app navigation uses the Next.js **`Link`** component instead of plain `<a>` tags, so navigation is client-side and does not cause full page reloads.
 - **Route prefetching** — Every `Link` has the **`prefetch`** prop enabled. Next.js preloads the target route in the background (when the link is in view or on hover). When the user clicks, navigation is instant.

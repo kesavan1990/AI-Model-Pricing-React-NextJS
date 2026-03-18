@@ -41,7 +41,7 @@ export function ValueAnalysis() {
       datasets: [
         {
           label: 'All models',
-          data: allPoints.map((p) => ({ x: p.x, y: p.y })),
+          data: allPoints,
           backgroundColor: allFill,
           borderColor: allBorder,
           borderWidth: isLarge ? 0 : 1,
@@ -51,7 +51,7 @@ export function ValueAnalysis() {
         },
         {
           label: 'Frontier (best value)',
-          data: frontierPoints.map((p) => ({ x: p.x, y: p.y })),
+          data: frontierPoints,
           backgroundColor: frontierPoints.map((m) => PROVIDER_COLORS[m.providerKey] || 'rgba(239, 68, 68, 0.9)'),
           borderColor: frontierPoints.map((m) => (PROVIDER_COLORS[m.providerKey] || 'rgba(239, 68, 68, 0.9)').replace(/[\d.]+\)$/, '1)')),
           borderWidth: 2,
@@ -77,14 +77,13 @@ export function ValueAnalysis() {
           filter: (tooltipItem) => tooltipItem?.raw != null,
           callbacks: {
             label(ctx) {
-              const p = ctx.raw;
-              const m = chartData.datasets[0].data?.find((_, i) => i === ctx.dataIndex) || chartData.datasets[1]?.data?.find((_, i) => i === ctx.dataIndex);
-              if (!m) return `${p.x?.toFixed(4)} $, ${p.y}`;
-              const nameLabel = m.contextTier ? `${m.name} (${m.contextTier})` : m.name;
+              const m = ctx.raw;
+              if (!m || typeof m.x !== 'number' || typeof m.y !== 'number') return [];
+              const nameLabel = m.contextTier ? `${m.name} (${m.contextTier})` : (m.name ?? '—');
               return [
-                nameLabel + ' · ' + (m.provider || ''),
-                `Cost/request: $${(m.cost || 0).toFixed(4)}`,
-                `${chartData.metricLabel}: ${m.performance}`,
+                nameLabel + ' · ' + (m.provider || '—'),
+                `Cost/request: $${(m.cost != null && Number.isFinite(m.cost) ? m.cost : 0).toFixed(4)}`,
+                `${chartData.metricLabel}: ${m.performance != null && Number.isFinite(m.performance) ? m.performance : '—'}`,
               ];
             },
           },
