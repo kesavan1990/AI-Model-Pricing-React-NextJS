@@ -1902,6 +1902,65 @@ h1 {
 .recommend-doc-note { color: #a0a0a0; font-size: 0.85rem; margin-bottom: 12px; padding: 8px 0; }
 .recommend-item .model-price { color: #4ade80; font-size: 0.85rem; margin-top: 6px; font-family: 'Courier New', monospace; }
 
+/* Recommend section: mobile alignment */
+@media (max-width: 768px) {
+    .recommend-section .section-title { font-size: 1.35rem; }
+    .recommend-section .section-subtitle { font-size: 0.9rem; margin-bottom: 20px; line-height: 1.4; }
+    .recommend-card {
+        max-width: 100%;
+        padding: 20px 16px;
+        margin-left: 0;
+        margin-right: 0;
+        border-radius: 12px;
+    }
+    .recommend-form .calc-row { margin-bottom: 12px; }
+    .recommend-form .calc-row label { font-size: 0.9rem; }
+    .recommend-form .calc-row textarea {
+        padding: 10px 12px;
+        font-size: 0.95rem;
+        min-height: 72px;
+    }
+    .recommend-actions {
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 14px;
+    }
+    .recommend-actions .calc-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 12px 16px;
+        font-size: 0.95rem;
+    }
+    .recommend-result { margin-top: 20px; padding-top: 20px; }
+    .recommend-result-title { font-size: 1rem; margin-bottom: 12px; }
+    .recommend-list { gap: 10px; }
+    .recommend-item {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 12px 14px;
+    }
+    .recommend-item .provider-tag { font-size: 0.75rem; padding: 3px 8px; }
+    .recommend-item .model-name-rec { font-size: 0.95rem; word-break: break-word; }
+    .recommend-item .model-reason { font-size: 0.85rem; }
+    .recommend-doc-snippet { font-size: 0.8rem; padding: 6px 8px; margin-top: 6px; }
+    .recommend-doc-note { font-size: 0.8rem; padding: 6px 0; }
+    .recommend-item .model-price { font-size: 0.8rem; margin-top: 4px; }
+}
+@media (max-width: 480px) {
+    .recommend-section .section-title { font-size: 1.2rem; }
+    .recommend-section .section-subtitle { font-size: 0.85rem; margin-bottom: 16px; }
+    .recommend-card { padding: 16px 12px; border-radius: 10px; }
+    .recommend-form .calc-row textarea { min-height: 64px; padding: 8px 10px; }
+    .recommend-actions .calc-btn { padding: 11px 14px; }
+    .recommend-item {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px 12px;
+        gap: 8px;
+    }
+    .recommend-item .provider-tag { align-self: flex-start; }
+}
+
 .pricing-section-header {
     display: flex;
     justify-content: space-between;

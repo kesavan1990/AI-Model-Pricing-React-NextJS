@@ -330,6 +330,10 @@ The **Recommend** tab helps users find a suitable model by describing their use 
 
 ---
 
+**Mobile and responsive behavior (Recommend)** — The Recommend section is aligned for mobile view: at **≤768px** the card uses full width and reduced padding, the **Get recommendation** and **Reset** buttons stack vertically and are full width for easier tapping, and result items use tighter spacing and `word-break` so long model names don't overflow. At **≤480px** the card padding is reduced further and each recommendation item stacks in a column (provider tag above, model name and reason below). Styles in `css/styles.css` under `@media (max-width: 768px)` and `@media (max-width: 480px)`. See [RECOMMEND.md](RECOMMEND.md#mobile-and-responsive-layout) for details.
+
+---
+
 ## Pricing history
 
 The **📜 History** button in the header opens a **Pricing history** modal. Daily snapshots (12:00 AM IST) are saved when you first open the app each day; one snapshot per day is kept. History is stored in this browser only (separate for local file vs GitHub Pages). In the modal you can **compare two dates**: select two snapshots and see which models had price changes (drops and increases) between those dates. **Export CSV** and **Export PDF** download the full history list. After you click **Refresh from web**, a **Recent price changes** summary may appear in the footer showing which provider/model/field dropped or increased compared with the previous snapshot.

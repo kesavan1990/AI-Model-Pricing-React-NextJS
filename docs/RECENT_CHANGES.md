@@ -11,7 +11,16 @@ This document summarizes recent updates to the AI Model Pricing app (dashboard, 
 
 ---
 
-## 2. Value Analysis chart tooltip (cost and performance)
+## 2. Recommend section: mobile alignment
+
+- **Behavior:** The **Recommend** section is laid out for mobile view so it stays readable and usable on phones and small tablets.
+- **At ≤768px:** Card full width with reduced padding (20px 16px); **Get recommendation** and **Reset** buttons stack in a column and are full width for easier tapping; result items use tighter padding and `word-break: break-word` on model names to avoid overflow.
+- **At ≤480px:** Card padding 16px 12px; each recommendation item stacks in a column (provider tag above, model name and reason below).
+- **Implementation:** `css/styles.css` — `@media (max-width: 768px)` and `@media (max-width: 480px)` for `.recommend-section`, `.recommend-card`, `.recommend-actions`, `.recommend-item`, and related classes. See [RECOMMEND.md](RECOMMEND.md#mobile-and-responsive-layout) and [UI.md](UI.md) (Recommend module → Mobile and responsive behavior).
+
+---
+
+## 3. Value Analysis chart tooltip (cost and performance)
 
 - **Behavior:** In the **Value Analysis** tab, hovering a scatter point shows the correct **model name**, **Cost/request** (e.g. $0.0123), and **performance** (Arena, MMLU, or Code). Previously the tooltip could show "undefined" and "$0.0000" when the chart dataset only passed `{ x, y }` to Chart.js.
 - **Fix:** The scatter dataset `data` now uses **full point objects** (with `x`, `y`, `name`, `cost`, `performance`, `provider`, etc.) so the tooltip callback can read model name, cost, and performance from `context.raw`. Both "All models" and "Frontier" datasets use full objects; the tooltip formats missing values as "—".
@@ -19,7 +28,7 @@ This document summarizes recent updates to the AI Model Pricing app (dashboard, 
 
 ---
 
-## 3. Skeleton loaders (loading state)
+## 4. Skeleton loaders (loading state)
 
 - **Behavior:** While pricing (and benchmark) data is loading—on first load or after **Refresh from web**—the main content area shows **skeleton placeholders** instead of a blank screen. The skeleton mirrors the Dashboard layout (title, filters, chart card, Model Intelligence panel) so loading feels faster and more predictable.
 - **Scope:** Skeleton is shown for any page when the global pricing context is loading (e.g. Dashboard, Pricing, Calculator). When loading finishes, the actual page content is rendered.
@@ -28,7 +37,7 @@ This document summarizes recent updates to the AI Model Pricing app (dashboard, 
 
 ---
 
-## 4. Pricing and benchmark pipelines
+## 5. Pricing and benchmark pipelines
 
 ### Output location and deploy
 
@@ -50,7 +59,7 @@ See [PRICING_UPDATES.md](PRICING_UPDATES.md) and [BENCHMARKS.md](BENCHMARKS.md) 
 
 ---
 
-## 5. Dashboard
+## 6. Dashboard
 
 ### Model type filter
 
@@ -89,7 +98,7 @@ See [PRICING_UPDATES.md](PRICING_UPDATES.md) and [BENCHMARKS.md](BENCHMARKS.md) 
 
 ---
 
-## 6. Calculator
+## 7. Calculator
 
 ### Pricing and Prompt cost: chat/text models only
 
@@ -106,7 +115,7 @@ See [PRICING_UPDATES.md](PRICING_UPDATES.md) and [BENCHMARKS.md](BENCHMARKS.md) 
 
 ---
 
-## 7. Summary table
+## 8. Summary table
 
 | Area | Change |
 |------|--------|
@@ -118,7 +127,7 @@ See [PRICING_UPDATES.md](PRICING_UPDATES.md) and [BENCHMARKS.md](BENCHMARKS.md) 
 
 ---
 
-## 8. Client navigation and route prefetching
+## 9. Client navigation and route prefetching
 
 - **Next.js Link** — All in-app navigation uses the Next.js **`Link`** component instead of plain `<a>` tags, so navigation is client-side and does not cause full page reloads.
 - **Route prefetching** — Every `Link` has the **`prefetch`** prop enabled. Next.js preloads the target route in the background (when the link is in view or on hover). When the user clicks, navigation is instant.

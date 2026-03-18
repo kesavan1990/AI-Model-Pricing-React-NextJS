@@ -81,6 +81,18 @@ To improve coverage:
 
 ---
 
+## Mobile and responsive layout
+
+The Recommend section uses the same breakpoints as the rest of the app so it stays readable and usable on phones and small tablets. All overrides are in **`css/styles.css`**.
+
+**At 768px and below (tablets / large phones):** Section title and subtitle use slightly smaller font sizes and reduced margin. The card (`.recommend-card`) is full width with padding 20px 16px and border-radius 12px. The form textarea has min-height 72px. The **Get recommendation** and **Reset** buttons stack in a column, each full width with comfortable tap height (12px 16px padding). Result items have tighter padding (12px 14px); model name uses `word-break: break-word`; reason, doc snippet, and price use slightly smaller font sizes.
+
+**At 480px and below (small phones):** Title and subtitle are further reduced. Card padding is 16px 12px. Textarea min-height 64px. Each recommendation item uses a column layout: provider tag on top, model name and reason below (`flex-direction: column`, `align-items: flex-start`), padding 10px 12px, gap 8px.
+
+These rules align with the rest of the dashboard (Value Analysis chart, pricing header, calculator) and avoid horizontal overflow or cramped tap targets on small screens.
+
+---
+
 ## Testing (multiple rounds)
 
 A **test script** runs the same recommendation logic (static index + score-based fallback) against real pricing data and multiple use-case descriptions, so you can verify behavior without opening the UI.
