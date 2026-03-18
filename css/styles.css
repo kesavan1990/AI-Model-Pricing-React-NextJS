@@ -2283,27 +2283,51 @@ h1 {
 
 /* Mobile-friendly layout: stack and resize for phones and small tablets */
 @media (max-width: 900px) {
-    .dashboard-body { flex-direction: column; }
-    .dashboard-sidebar {
+    .dashboard-layout .dashboard-body {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .dashboard-layout .dashboard-sidebar {
         width: 100%;
+        max-width: 100%;
         border-right: none;
         border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         padding: 12px 16px;
         display: flex;
         flex-direction: column;
         align-items: flex-start;
+        align-self: stretch;
         text-align: left;
+        margin: 0;
+        box-sizing: border-box;
     }
-    .sidebar-nav {
+    .dashboard-layout .dashboard-sidebar .dashboard-sidebar-title {
+        align-self: flex-start;
+        margin: 0 0 8px 0;
+        padding: 0 0 4px 0;
+    }
+    .dashboard-layout .dashboard-sidebar .sidebar-nav {
         flex-direction: row;
         flex-wrap: wrap;
         gap: 6px;
         justify-content: flex-start;
+        align-content: flex-start;
         width: 100%;
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
     }
-    .sidebar-link { padding: 8px 14px; border-left: none; border-bottom: 3px solid transparent; }
-    .sidebar-link.active { border-left: none; border-bottom-color: rgba(102, 126, 234, 0.8); }
-    .dashboard-main { padding: 20px 16px 36px; }
+    .dashboard-layout .sidebar-nav .sidebar-link,
+    .dashboard-layout .sidebar-nav a.sidebar-link,
+    .dashboard-layout .sidebar-nav button.sidebar-link {
+        flex: 0 0 auto;
+        margin: 0;
+        text-align: left;
+    }
+    .dashboard-layout .sidebar-link { padding: 8px 14px; border-left: none; border-bottom: 3px solid transparent; }
+    .dashboard-layout .sidebar-link.active { border-left: none; border-bottom-color: rgba(102, 126, 234, 0.8); }
+    .dashboard-layout .dashboard-main { padding: 20px 16px 36px; }
 }
 @media (max-width: 900px) {
     [data-theme="light"] .dashboard-sidebar { border-color: rgba(0, 0, 0, 0.08); }
