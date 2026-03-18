@@ -81,6 +81,33 @@ To improve coverage:
 
 ---
 
+## Testing (multiple rounds)
+
+A **test script** runs the same recommendation logic (static index + score-based fallback) against real pricing data and multiple use-case descriptions, so you can verify behavior without opening the UI.
+
+- **Run:** From project root: `npm run test:recommend` or `node scripts/test-recommend.js`.
+- **Data:** Uses `public/pricing.json` plus the full pipeline (`applyOfficialOverlays` → `mergeTiersIntoPayload` → `processPayload`) so model counts and filters match the app.
+- **Scenarios:** The script runs 10 fixed test cases and prints inferred use-case type and up to 6 recommendations per case.
+
+| Scenario | Sample input | Expected use-case type |
+|----------|--------------|-------------------------|
+| Empty description | *(empty)* | `general` |
+| Cost / cheap | "cheap model for high volume" | `cost` |
+| Accuracy / quality | "best quality for complex reasoning" | `accuracy` |
+| Long document | "long documents and PDF summarization" | `long-doc` |
+| Code | "code generation and developer API" | `code` |
+| High volume | "fast throughput and high volume batch" | `high-volume` |
+| General / balance | "balanced general purpose" | `general` |
+| Budget keywords | "low cost budget affordable" | `cost` |
+| Vision (static index) | "best-in-class text and vision" | `balanced` |
+| Summarize + context | "summarize PDFs with large context" | `long-doc` |
+
+**What is checked:** For each scenario the script asserts that `inferUseCaseType(description)` returns the expected type, then builds the recommendation list (static index hits resolved to `getAllModels(data)` + fill from `getRecommendations`). Output shows model name, provider, and reason snippet. When the static index contributes results, the script prints “(includes static index matches)”.
+
+**Interpretation:** All scenarios should return 6 recommendations (when the dataset has enough models) and use-case types should match the table. Cost-focused inputs should surface cheaper models first (e.g. mistral-tiny, haiku) when the index or scoring does so; accuracy/long-doc inputs should surface high-capability models. Re-run after changing `RECOMMEND_DOC_INDEX`, scoring in `scoreModelForUseCase`, or `inferUseCaseType` to confirm behavior.
+
+---
+
 ## Implementation reference (React app)
 
 | Piece | Location |

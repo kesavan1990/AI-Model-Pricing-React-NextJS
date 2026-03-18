@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "update-pricing": "node scripts/update-pricing.js",
-    "update-benchmarks": "node scripts/update-benchmarks.js"
+    "update-benchmarks": "node scripts/update-benchmarks.js",
+    "test:recommend": "node scripts/test-recommend.js"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.16",
