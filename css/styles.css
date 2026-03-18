@@ -2086,6 +2086,82 @@ h1 {
 .history-compare-result .model-added { color: #4ade80; }
 .history-compare-result .model-removed { color: #f87171; }
 
+/* Pricing History modal: mobile alignment (no horizontal scroll, close always visible) */
+@media (max-width: 900px) {
+    .modal-overlay {
+        padding: 0;
+        align-items: stretch;
+    }
+    .modal-panel {
+        max-width: 100%;
+        max-height: 100vh;
+        max-height: 100dvh;
+        border-radius: 0;
+        overflow: hidden;
+    }
+    .modal-header {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: linear-gradient(180deg, #1e2a3e 0%, #16213e 100%);
+        flex-wrap: wrap;
+        padding: 14px 16px;
+        gap: 10px;
+    }
+    .modal-header .modal-title { font-size: 1.15rem; margin: 0; }
+    .modal-header .modal-subtitle {
+        order: 3;
+        width: 100%;
+        font-size: 0.75rem;
+        margin: 0;
+    }
+    .modal-header-actions {
+        order: 2;
+        margin-left: auto;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+    .modal-close {
+        flex-shrink: 0;
+        padding: 4px 8px;
+        font-size: 1.5rem;
+    }
+    .modal-body {
+        padding: 14px 16px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        min-height: 0;
+        -webkit-overflow-scrolling: touch;
+    }
+    .history-compare-section { margin-bottom: 16px; padding-bottom: 14px; }
+    .history-compare-section h3 { font-size: 0.95rem; margin-bottom: 10px; }
+    .history-compare-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    .history-compare-controls label { width: 100%; }
+    .history-compare-controls select { min-width: 0; width: 100%; max-width: 100%; }
+    .history-compare-result {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        max-width: 100%;
+        margin-top: 12px;
+    }
+    .history-compare-result .model-table { font-size: 0.8rem; min-width: 480px; }
+    .history-entry-header {
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 12px 14px;
+    }
+    .history-entry-date,
+    .history-entry-summary { word-break: break-word; }
+    .history-entry-body { padding: 0 14px 14px; }
+    .history-entry-body .model-table { font-size: 0.8rem; overflow-x: auto; display: block; }
+    .history-entry-body .model-table table { min-width: 320px; }
+    [data-theme="light"] .modal-header { background: var(--theme-modal-bg); }
+}
+
 /* --- Light theme overrides --- */
 [data-theme="light"] h1,
 [data-theme="light"] .section-title,
