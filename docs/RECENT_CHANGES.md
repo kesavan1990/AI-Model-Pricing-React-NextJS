@@ -47,7 +47,15 @@ This document summarizes recent updates to the AI Model Pricing app (dashboard, 
 - **Workflows** commit and push these paths:
   - `.github/workflows/update-pricing.yml` → `public/pricing.json`
   - `.github/workflows/update-benchmarks.yml` → `public/benchmarks.json`
+  - `.github/workflows/update-pricing-history.yml` → `public/pricing-history.json` (daily snapshots for the **Pricing History** modal; merged in the UI with browser `localStorage`)
 - After a workflow run, the next deploy uses the updated files from `public/`, so the live site always reflects the latest pricing and benchmarks.
+
+### Pricing history workflow and CI (Node 22)
+
+- **Update pricing history** runs on **`workflow_run`** after **Update pricing** completes on **`main`**, plus a daily **12:00 AM IST** cron and **workflow_dispatch**. Workflow name matching is exact: `Update pricing`.
+- **`concurrency: update-pricing-history`** avoids overlapping commits to `pricing-history.json`. If the default branch is not `main`, adjust `workflow_run.branches` in the YAML.
+- **Update pricing** uses **Node.js 22** in Actions (aligned with **Update pricing history** and **Deploy to GitHub Pages**).
+- **Docs:** [README](../README.md) (pipelines table + data-flow), [PRICING_UPDATES.md](PRICING_UPDATES.md) (timeline + **Pricing history** troubleshooting).
 
 ### Scope: all model types and all providers
 
@@ -119,7 +127,8 @@ See [PRICING_UPDATES.md](PRICING_UPDATES.md) and [BENCHMARKS.md](BENCHMARKS.md) 
 
 | Area | Change |
 |------|--------|
-| **Pricing pipeline** | Writes `public/pricing.json`; includes all model types and providers; preserves `modelType` and alternate pricing; allows 0/0 when type or alternate pricing present. |
+| **Pricing pipeline** | Writes `public/pricing.json`; includes all model types and providers; preserves `modelType` and alternate pricing; allows 0/0 when type or alternate pricing present. **Actions use Node 22.** |
+| **Pricing history pipeline** | `update-pricing-history.yml`: `workflow_run` after **Update pricing** + IST cron + manual → `public/pricing-history.json`; concurrency group; documented in PRICING_UPDATES.md + README. |
 | **Benchmarks pipeline** | Reads/writes `public/pricing.json` and `public/benchmarks.json`; one entry per model (all types, all providers); chat uses Arena/HF, others use fallback. |
 | **Dashboard** | Model type filter (Chat/Text default); provider filter via clickable cards; 5 decimals; empty state; compact layout; Cost per 1M: all results, scrollable, sticky header, sort by Cost header, legend below. |
 | **Calculator** | Chat-only models for Pricing and Prompt cost; sticky headers and no-gap scroll on result tables (Pricing, Prompt cost, Context window, Production cost). |
@@ -137,4 +146,4 @@ See [PRICING_UPDATES.md](PRICING_UPDATES.md) and [BENCHMARKS.md](BENCHMARKS.md) 
 
 ---
 
-For full pipeline and validation details, see [PRICING_UPDATES.md](PRICING_UPDATES.md), [BENCHMARKS.md](BENCHMARKS.md), and [PRICING_SCENARIOS.md](PRICING_SCENARIOS.md).
+For full pipeline and validation details, see [PRICING_UPDATES.md](PRICING_UPDATES.md) (includes **pricing history** server snapshots and Actions troubleshooting), [BENCHMARKS.md](BENCHMARKS.md), and [PRICING_SCENARIOS.md](PRICING_SCENARIOS.md).

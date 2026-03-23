@@ -49,6 +49,7 @@ The app loads **two datasets**: `pricing.json` (daily) and `benchmarks.json` (we
 | Pricing          | Daily (06:00 UTC) |
 | Arena leaderboard| Weekly (Sun 03:00 UTC) |
 | HF leaderboard   | Weekly (Sun 03:00 UTC) |
+| **Pricing history** (server snapshots) | After **Update pricing** completes + daily 00:00 IST fallback | `public/pricing-history.json` via [`.github/workflows/update-pricing-history.yml`](.github/workflows/update-pricing-history.yml) — see [docs/PRICING_UPDATES.md#pricing-history-daily-snapshots-without-opening-the-app](docs/PRICING_UPDATES.md#pricing-history-daily-snapshots-without-opening-the-app) |
 
 ---
 
@@ -57,6 +58,7 @@ The app loads **two datasets**: `pricing.json` (daily) and `benchmarks.json` (we
 ```
 External sources
       ├── Pricing API (Vizra) → update-pricing.js → pricing.json
+      ├── After pricing workflow → update-pricing-history.js → pricing-history.json (daily snapshots for History UI)
       └── Benchmark sources (Arena, HF) → update-benchmarks.js → benchmarks.json
 
 Next.js app (React)
@@ -65,7 +67,7 @@ Next.js app (React)
    context/                → PricingContext (load pricing + benchmarks, filters, toast), ThemeContext
    lib/dataPipeline.js      → applyOfficialOverlays(), processPayload() (reassign provider, allowlist, retired filter)
    src/                    → Shared logic: api, pricingService, calculator, valueChart, render helpers, data overlays
-   public/                 → pricing.json, benchmarks.json (fetched at /pricing.json, /benchmarks.json)
+   public/                 → pricing.json, benchmarks.json, pricing-history.json (History modal merges server + browser)
 
 Data flow:
    PricingContext.loadPricing() → fetchPricingData() (Vizra → pricing.json fallback) + getBenchmarks()

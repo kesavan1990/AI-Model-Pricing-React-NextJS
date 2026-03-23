@@ -1,12 +1,20 @@
 # Fetches Vizra pricing and updates pricing.json in the repo.
 # Architecture: GitHub Action → pricing.json → frontend (avoids browser rate limits).
+#
+# Scheduled runs execute on GitHub only (not when users open the app). Cron uses the
+# repository DEFAULT branch. Enable Actions in repo Settings; forks often start with Actions off.
+# Commit happens only when public/pricing.json content changes (see "Commit and push if changed").
 name: Update pricing
 
 on:
   schedule:
-    # Run daily at 06:00 UTC
+    # Run daily at 06:00 UTC (may be slightly delayed by GitHub load)
     - cron: '0 6 * * *'
   workflow_dispatch:
+
+concurrency:
+  group: update-pricing
+  cancel-in-progress: false
 
 jobs:
   update:
@@ -21,7 +29,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies

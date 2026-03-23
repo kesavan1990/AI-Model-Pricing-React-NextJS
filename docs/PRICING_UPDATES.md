@@ -8,7 +8,10 @@ To avoid API rate limits from the frontend, pricing is updated via the repo inst
 |------|----------|---------|
 | **Automated run** | **Daily at 06:00 UTC** | `.github/workflows/update-pricing.yml` triggers at `cron: '0 6 * * *'`. |
 | **Manual run** | On demand | GitHub Actions → **Update pricing** → **Run workflow**. |
-| **Output** | After each run | `pricing.json` is updated and committed only if content changed. |
+| **Output** | After each run | `public/pricing.json` is updated and committed only if content changed. |
+| **Pricing history (server)** | **After Update pricing completes** (`workflow_run` on `main`) **+** daily **12:00 AM IST** (`30 18 * * *` UTC) **+** manual | `.github/workflows/update-pricing-history.yml` appends to `public/pricing-history.json`. Uses **`concurrency: update-pricing-history`** so overlapping runs don’t race. See [Pricing history (daily snapshots)](#pricing-history-daily-snapshots-without-opening-the-app). |
+
+**CI runtime:** The **Update pricing**, **Update pricing history**, and **Deploy to GitHub Pages** workflows all use **Node.js 22** in Actions so `npm ci` / build behavior matches.
 
 The frontend loads `pricing.json` (with cache-busting); it does not call the Vizra API on normal page load. See [PRICING_SCENARIOS.md](PRICING_SCENARIOS.md) for when the UI uses this file vs cache vs API.
 
@@ -104,3 +107,91 @@ This overwrites `pricing.json` with the current Vizra response. On API failure t
 ## Manual workflow run
 
 In GitHub: **Actions → Update pricing → Run workflow**.
+
+---
+
+## Where daily updates actually run (important)
+
+**Opening or closing the app on your computer does not update prices.**  
+Daily updates happen only when **GitHub Actions** runs the **Update pricing** workflow on **GitHub’s servers** (see `.github/workflows/update-pricing.yml`). That workflow:
+
+1. Checks out your repo on GitHub  
+2. Runs `node scripts/update-pricing.js` (fetches Vizra)  
+3. Commits `public/pricing.json` **only if the file content changed**  
+4. Pushing to `main` triggers **Deploy to GitHub Pages** (if you use that workflow), so the live site can pick up new data  
+
+So for “daily without opening the app” to work, **all** of the following must be true on **GitHub** (not only on your laptop):
+
+---
+
+## Troubleshooting: daily pricing not updating
+
+### 1. GitHub Actions must be enabled
+
+- Repo → **Settings** → **Actions** → **General** → allow Actions (not “Disable actions”).  
+- **Forks:** Actions are often **off** until you turn them on. Enable Actions for the fork, then re-save.
+
+### 2. The workflow file must be on the **default branch**
+
+Scheduled runs use the **default branch** (usually `main`). If `.github/workflows/update-pricing.yml` exists only locally or on another branch, **cron will never run**. Push `main` (or your default) so the workflow is on GitHub.
+
+### 3. Check whether the job ran or failed
+
+- Repo → **Actions** → **Update pricing**  
+- Open the latest run (scheduled or manual).  
+- If it’s **red**: open the failed step — often **API timeout**, **429**, or **schema validation**; the script exits without writing/committing (by design).  
+- If it’s **green** but you see **“No pricing changes”**: Vizra returned the same data as the repo; **no new commit** is normal (prices didn’t change).
+
+### 4. “No commit” ≠ broken
+
+The workflow **does not** create an empty commit every day. It only commits when `public/pricing.json` **differs** from the previous version. If prices are unchanged, the site still serves the correct file; the “updated” date in JSON may stay the same until something changes upstream.
+
+### 5. Scheduled runs can be delayed
+
+GitHub may delay `cron` jobs during high load. The schedule is **06:00 UTC** (`0 6 * * *`), not necessarily exactly 06:00:00.
+
+### 6. Deploy / live site
+
+After a successful commit to `main`, **Deploy to GitHub Pages** should run (see `.github/workflows/deploy-pages.yml`). If Pages is set to deploy from **GitHub Actions**, confirm the deploy workflow also succeeds. If you host elsewhere, you must deploy or copy `public/pricing.json` yourself.
+
+### 7. Local folder not connected to GitHub
+
+If this project folder is **not** a clone of the GitHub repo (or you never push), **only your machine** has changes; GitHub will not run anything. Push to the remote that hosts the live app.
+
+### Quick verification
+
+1. **Actions → Update pricing → Run workflow** (manual).  
+2. If it succeeds and changes exist, you should see a new commit `chore: update pricing.json from Vizra API`.  
+3. If manual works but schedule never appears, re-check **Actions enabled**, **default branch**, and **workflow file on that branch**.
+
+---
+
+## Pricing history (daily snapshots without opening the app)
+
+The **Pricing History** modal merges two sources:
+
+| Source | When it fills | Where it lives |
+|--------|----------------|----------------|
+| **Server** | Automated; no need to open the site | `public/pricing-history.json` on the deployed host (e.g. GitHub Pages) |
+| **Browser** | When someone loads the app in that browser | `localStorage` (per device) |
+
+If you only see history **after** you’ve opened the app, the **server file** is missing, not deployed, or the workflow never committed it. The UI calls `getServerHistory()` in `src/api.js` (fetches `pricing-history.json` with the same base path as `pricing.json` on GitHub Pages). A failed or missing fetch yields `[]`, so you only see **local** snapshots.
+
+### Automated server history
+
+- **Workflow:** [`.github/workflows/update-pricing-history.yml`](../.github/workflows/update-pricing-history.yml) — runs **`workflow_run`** after **[Update pricing](../.github/workflows/update-pricing.yml)** completes on `main` (so the snapshot uses the repo’s current `public/pricing.json`), plus a **daily cron** at **12:00 AM IST** (`30 18 * * *` UTC) as a fallback, and **workflow_dispatch**.
+- **Script:** `scripts/update-pricing-history.js` — appends one entry per IST calendar day (deduped), caps at 90 days, writes `public/pricing-history.json`.
+- **Deploy:** A push to `main` (including the history commit) should run **Deploy to GitHub Pages** so the live site serves the updated JSON.
+
+### Troubleshooting (no daily rows until I open the app)
+
+1. **GitHub → Actions → Update pricing history** — confirm runs are **green**. Fix failures (e.g. no pricing data, script error).
+2. **Repo file** — ensure `public/pricing-history.json` exists on `main` and grows over time (workflow commits `chore: add daily pricing snapshot to history`).
+3. **Live URL** — open `https://<user>.github.io/<repo>/pricing-history.json` (e.g. `…/AI-Model-Pricing-React-NextJS/pricing-history.json`). If this **404s** or is empty `[]`, the deployed build doesn’t include the file or Actions aren’t updating it.
+4. **Actions on fork** — forks often have Actions disabled; enable them for scheduled and `workflow_run` triggers.
+5. **Not the same as local folder** — pushing from your machine is required; GitHub cannot run workflows on code that never reached the remote.
+
+### Manual recovery
+
+- **Actions → Update pricing history → Run workflow** to append today’s snapshot (if not already present), then confirm deploy succeeded.
+- Or run locally: `node scripts/update-pricing-history.js`, commit `public/pricing-history.json`, push.
