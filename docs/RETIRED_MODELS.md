@@ -1,12 +1,12 @@
 # Retired and deprecated models (excluded)
 
-Retired/deprecated models are **excluded from the app**: they do not appear in any section. **Deprecated model lists are taken from each provider’s official deprecation page** (see table below). The logic in `src/utils/retiredModels.js` is aligned with those official sources. In addition, only models listed as available on each provider’s official page are shown (see [ALLOWED_MODELS.md](ALLOWED_MODELS.md)).
+Retired/deprecated models are **excluded from the app**: they do not appear in any section. **Deprecated model lists are taken from each provider’s official deprecation page** (see table below). The logic in `src/utils/retiredModels.js` is aligned with those official sources. **Provider/bucket rules** (which rows appear under each vendor) are described in [ALLOWED_MODELS.md](ALLOWED_MODELS.md).
 
 ## Where they are excluded
 
 | Section | How |
 |--------|-----|
-| **Overview** | Uses `getData()`, filtered in `setData()` by **allowlist** (`filterToAllowedModels`) then **retired** (`filterRetiredModels()`). |
+| **Overview** | Uses `getData()`, filtered by **`filterToAllowedModels`** (provider/bucket rules) then **`filterRetiredModels`**. |
 | **Models** | Comparison table uses `getAllModels(data)`; only **allowed** and **non-retired** models are included. |
 | **Value Analysis** | Cost vs performance chart uses `getAllModels(data)`; only allowed and non-retired models appear. |
 | **Calculators** | Model dropdown uses `getUnifiedCalcModels(data)` (allowed + non-retired only). |
@@ -26,7 +26,7 @@ Retired/deprecated models are **excluded from the app**: they do not appear in a
 2. **`lib/dataPipeline.js`** (used by **PricingContext**)  
    - `filterToAllowedModels(data)` keeps only models that pass `isAllowedModel(provider, name)` (see [ALLOWED_MODELS.md](ALLOWED_MODELS.md)).  
    - `filterRetiredModels(data)` filters out retired models using the helpers above.  
-   - `processPayload(data)` runs `reassignByCanonicalProvider()` → `filterToAllowedModels()` → `filterRetiredModels()` before the result is stored in context, so `getData()` returns only official-available, non-retired models.
+   - `processPayload(data)` runs `reassignByCanonicalProvider()` → `filterToAllowedModels()` → `filterRetiredModels()` before the result is stored in context, so `getData()` returns only provider-valid, non-retired models.
 
 3. **`src/calculator.js`**  
    - `getAllModels(data)` and `getUnifiedCalcModels(data)` include a model only when `isAllowedModel(providerKey, m.name)` is true and `!isRetired(providerKey, m.name)`.

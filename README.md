@@ -65,13 +65,13 @@ Next.js app (React)
    app/                    → App Router (layout, routes: /dashboard, /pricing, /calculator, etc.)
    components/             → UI (Header, Sidebar, Footer, section components: Overview, Models, Benchmarks, …)
    context/                → PricingContext (load pricing + benchmarks, filters, toast), ThemeContext
-   lib/dataPipeline.js      → applyOfficialOverlays(), processPayload() (reassign provider, allowlist, retired filter)
+   lib/dataPipeline.js      → applyOfficialOverlays(), processPayload() (reassign provider, bucket filter, retired)
    src/                    → Shared logic: api, pricingService, calculator, valueChart, render helpers, data overlays
    public/                 → pricing.json, benchmarks.json, pricing-history.json (History modal merges server + browser)
 
 Data flow:
    PricingContext.loadPricing() → fetchPricingData() (Vizra → pricing.json fallback) + getBenchmarks()
-   → applyOfficialOverlays() → mergeTiersIntoPayload() → processPayload() (allowlist + retired)
+   → applyOfficialOverlays() → mergeTiersIntoPayload() → processPayload() (bucket filter + retired)
    → setData() → components read via usePricing() / getData()
    Cost vs Performance (Value Analysis) uses getAllModels(), getBenchmarkForModelMerged(), computeCostPerRequest(), computeFrontier()
 ```
@@ -109,15 +109,15 @@ The app is a **Next.js** (React) frontend. The **UI** lives in `app/` (routes), 
 | **`src/data/geminiOfficialOverlay.js`** | **Gemini official overlay:** [Gemini pricing](https://ai.google.dev/gemini-api/docs/pricing). `mergeGeminiOfficialIntoPayload(payload)` adds missing official models (2.5/3.x, embedding, Gemma). |
 | **`src/data/anthropicOfficialOverlay.js`** | **Anthropic official overlay:** [Claude pricing](https://docs.anthropic.com/en/docs/about-claude/pricing). `mergeAnthropicOfficialIntoPayload(payload)` adds missing official models (Opus/Sonnet/Haiku 4.x). |
 | **`src/data/mistralOfficialOverlay.js`** | **Mistral official overlay:** [Mistral pricing](https://mistral.ai/pricing). `mergeMistralOfficialIntoPayload(payload)` adds missing official models (Large 3, Medium 3.1, Ministral, etc.). |
-| **`src/data/allowedModels.js`** | **Official-only allowlist:** `isAllowedModel(providerKey, modelName)`. Only models listed as available on each provider’s official page are shown. Used in `lib/dataPipeline.js` (processPayload) and `calculator.js` (`getAllModels`, `getUnifiedCalcModels`). See [docs/ALLOWED_MODELS.md](docs/ALLOWED_MODELS.md). |
-| **`src/utils/retiredModels.js`** | **Retired model detection:** `isRetiredGeminiModel`, `isRetiredOpenAIModel`, `isRetiredAnthropicModel`, `isRetiredMistralModel`, and `isRetired(providerKey, name)`. Used with the allowlist so only official-available, non-retired models appear in **Overview, Models, Value Analysis, Calculators, Benchmarks, and Recommend**. |
+| **`src/data/allowedModels.js`** | **`isAllowedModel(providerKey, modelName)`:** drops rows that clearly belong to another provider (`getProviderByModelName`); trusts the source bucket for unknown names so new SKUs are not hidden; OpenAI also uses deprecations (`isRetiredOpenAIModel`). Used in `lib/dataPipeline.js` and `calculator.js`. See [docs/ALLOWED_MODELS.md](docs/ALLOWED_MODELS.md). |
+| **`src/utils/retiredModels.js`** | **Retired model detection:** `isRetiredGeminiModel`, `isRetiredOpenAIModel`, `isRetiredAnthropicModel`, `isRetiredMistralModel`, and `isRetired(providerKey, name)`. Used after provider/bucket filtering so deprecated models are excluded from **Overview, Models, Value Analysis, Calculators, Benchmarks, and Recommend**. |
 | **`src/data/pricingTiersOverlay.js`** | **Tiered pricing overlay:** `PRICING_TIERS_OVERLAY` (context-tier prices per model, e.g. ≤200K vs >200K). `mergeTiersIntoPayload(payload)` merges overlay into loaded pricing so the UI shows all tiers. |
 | **`src/api.js`** | Other fetch layer: `getPricing()` (pricing.json with cache-busting, used for file-only fallbacks), `getBenchmarks()`, `getPricingJsonUrl()`, `isGitHubPages()`, `fetchWithCors()` for doc search. |
 | **`src/pricingService.js`** | Load, cache, normalize: `loadPricingFromApi(fetchPricingData)` (primary), `loadPricing(getPricing)`, `getCachedPricingPayload()` (uses cache manager), `normalizeFetchedPricing()`, `DEFAULT_PRICING`, `parseVizraResponse()`, `comparePrices()`, history. |
 | **`src/calculator.js`** | Pure logic: cost (`calcCost`, `calcCostOpenAI`, `calcCostForEntry`), context windows, benchmarks, model lists (`getUnifiedCalcModels`, `getAllModels` — both require allowed + non-retired via `data/allowedModels.js` and `utils/retiredModels.js`), recommendations (`getRecommendations`, `scoreModelForUseCase`), doc search helpers, `estimatePromptTokens`. |
 | **`src/valueChart.js`** | Cost vs Performance quadrant: `mergeModels()` (pricing + benchmarks), `computeCostPerRequest()`, `computeFrontier()`, `renderQuadrantChart()` (Chart.js scatter), `updateValueChart()`. |
 | **`src/render.js`** | CSV/PDF export helpers, `drawPdfBorderedTable`, `formatHistoryDate`; used by section components for export. |
-| **`lib/dataPipeline.js`** | `applyOfficialOverlays()`, `processPayload()` (reassign provider, allowlist, retired). Used by **PricingContext** when setting data. |
+| **`lib/dataPipeline.js`** | `applyOfficialOverlays()`, `processPayload()` (reassign provider, `isAllowedModel`, retired). Used by **PricingContext** when setting data. |
 
 **Running the app:** From the repo root run `npm install`, copy `pricing.json` and `benchmarks.json` into **`public/`**, then `npm run dev`. Open http://localhost:3000 (redirects to `/dashboard`). For static export (e.g. GitHub Pages), see [docs/DEPLOY.md](docs/DEPLOY.md).
 
@@ -134,7 +134,7 @@ The app is built as a **static export** (no Node server at runtime). See [HOSTIN
 - [docs/CACHE.md](docs/CACHE.md) — **Cache manager:** `getCachedPricing()` / `setCachedPricing()`, 12-hour TTL, centralizes cache logic and reduces API calls.
 - [docs/BENCHMARKS.md](docs/BENCHMARKS.md) — Benchmark pipeline: `benchmarks.json`, weekly workflow, merge with pricing by model.
 - [docs/ALLOWED_MODELS.md](docs/ALLOWED_MODELS.md) — Only models listed as available on each provider’s official page are shown (Overview, Models, Value Analysis, Calculators, Benchmarks, Recommend). Implementation: `src/data/allowedModels.js`, `filterToAllowedModels`, `isAllowedModel`.
-- [docs/RETIRED_MODELS.md](docs/RETIRED_MODELS.md) — Retired/deprecated models excluded; used together with allowlist. Implementation (`utils/retiredModels.js`, `filterRetiredModels`, `getAllModels`, `getUnifiedCalcModels`). Lists cross-checked with each provider’s official deprecation pages.
+- [docs/RETIRED_MODELS.md](docs/RETIRED_MODELS.md) — Retired/deprecated models excluded after provider/bucket filtering. Implementation (`utils/retiredModels.js`, `filterRetiredModels`, `getAllModels`, `getUnifiedCalcModels`). Lists cross-checked with each provider’s official deprecation pages.
 - [docs/PRICING_UPDATES.md](docs/PRICING_UPDATES.md) — Pricing update architecture and flow.
 - [docs/PRICING_SCENARIOS.md](docs/PRICING_SCENARIOS.md) — How pricing is loaded in each scenario (first load, refresh, GitHub vs local).
 - [docs/DEPLOY.md](docs/DEPLOY.md) — Push to GitHub and deploy to GitHub Pages (static export, workflow, Pages source).

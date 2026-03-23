@@ -77,7 +77,7 @@ function filterToAllowedModels(data) {
   };
 }
 
-/** Filter out retired/deprecated models (defense in depth after allowlist). */
+/** Filter out retired/deprecated models (defense in depth after provider/bucket filter). */
 function filterRetiredModels(data) {
   if (!data || typeof data !== 'object') return data;
   return {

@@ -8,7 +8,7 @@ This doc describes the **model types** the app supports (text/chat, image, audio
 - **Allowlist** — `src/data/allowedModels.js` (patterns so only official models are shown).
 - **Retired filter** — `src/utils/retiredModels.js` (deprecated models are excluded).
 
-Do **not** maintain a duplicate list of every model in this .md; that would drift. When in doubt, check the overlay and allowlist.
+Do **not** maintain a duplicate list of every model in this .md; that would drift. When in doubt, check the overlay, `providerByModel.js`, and `allowedModels.js` / retired list.
 
 ---
 
@@ -28,7 +28,7 @@ Do **not** maintain a duplicate list of every model in this .md; that would drif
 
 ## How to add a new model (existing type)
 
-1. **Allowlist** — In `src/data/allowedModels.js`, add a pattern (or logic) so `isAllowedModel(providerKey, modelName)` returns true for the new model.
+1. **Provider map** — In `src/data/providerByModel.js`, add a name prefix so `getProviderByModelName()` assigns the correct vendor (or rely on the API bucket for unknown names). For OpenAI-only deprecations, update `src/utils/retiredModels.js` if needed.
 2. **Overlay** — In the provider’s overlay file (e.g. `src/data/openaiOfficialOverlay.js`), add an entry with at least `name` and:
    - **Chat:** `input`, `output` (per 1M tokens), optional `cachedInput`.
    - **Image:** `modelType: 'image'`, `pricingPerImage`, and `input: 0`, `output: 0` if no token pricing.
@@ -92,4 +92,4 @@ When a provider introduces a **new kind** of product (new pricing unit or new UI
 | Filter / comparison display  | `components/sections/Overview.js`, `components/sections/Models.js` (formatPriceDisplay) |
 | Keep Value Analysis / Benchmarks chat-only | `src/valueChart.js`, `components/sections/Benchmarks.js` use `getChatModels(data)` |
 
-This keeps one source of truth (overlay + allowlist + modelTypes.js) and makes future model-type integration a matter of following this runbook.
+This keeps one source of truth (overlay + provider map + `isAllowedModel` / retired + modelTypes.js) and makes future model-type integration a matter of following this runbook.

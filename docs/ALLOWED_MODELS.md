@@ -1,20 +1,21 @@
-# Official-only model display (allowlist)
+# Model display rules (provider + retired)
 
-The app **displays only models that are listed as available** on each provider’s official documentation. This applies to **Overview**, **Models**, **Value Analysis**, **Calculators**, **Benchmarks**, and **Recommend**. Models are also **reassigned to the correct provider** by name so they always appear under the right provider.
+The app shows **all models that pass the pricing pipeline** except (1) rows that **clearly belong to another provider** by name, and (2) models on each provider’s **retired / deprecation** lists. This applies to **Overview**, **Models**, **Value Analysis**, **Calculators**, **Benchmarks**, and **Recommend**. Models are **reassigned to the correct provider** by name when the source mis-tags them.
 
 ## How it works
 
-1. **Provider by name** — `src/data/providerByModel.js` defines `getProviderByModelName(name)`. Before allowlist/retired filtering, every model is moved into the provider array that matches its name (e.g. `deep-research-*` → OpenAI, `gemini-*` → Gemini, `claude-*` → Anthropic, `mistral-*` / `mixtral-*` / `codestral-*` / etc. → Mistral). So models are always under the correct provider even if the data source misclassifies them.
+1. **Provider by name** — `src/data/providerByModel.js` defines `getProviderByModelName(name)` with prefix patterns (Gemini/Google media first, then OpenAI, Anthropic, Mistral) so IDs like `text-embedding-004` map to **Gemini**, and `whisper-*`, `tts-*`, `sora-*`, `computer-use-*`, `gpt-image-*`, `gpt-realtime-*` map to **OpenAI**. Before filtering, **`reassignByCanonicalProvider()`** moves every row into the bucket that matches its name.
 
-2. **Allowlist** — `src/data/allowedModels.js` defines `isAllowedModel(providerKey, modelName)`:
-   - **Gemini:** Official patterns: `gemini-2.5-*`, `gemini-3.*`, `gemini-embedding-2*`, `gemini-embedding-001`, `gemini-live-2.5*`, `gemini-2.0-*`, `gemini-gemma-2-*`, `gemini-exp-*`, `gemini-robotics-*`. 1.0, 1.5, and `gemini-pro` are not in the allowlist (retired).
-   - **OpenAI:** Any model **not** in the [deprecations list](https://developers.openai.com/api/docs/deprecations) is considered allowed.
-   - **Anthropic:** Only Claude 4.x (e.g. `claude-opus-4-*`, `claude-sonnet-4-*`, `claude-haiku-4-*`, `claude-4-opus*`, `claude-4-sonnet*`).
-   - **Mistral:** Official patterns: `mistral-large-3`, `mistral-large-2512`, `mistral-medium-3*`, `mistral-small-3*`, `mistral-3.*`, `mistral-medium-2505`, `mistral-large-24*`, `ministral-3*`, `magistral-*`, `codestral-*`, `pixtral-*`, `devstral-*`, `labs-devstral-*`, `open-mistral-*`, `open-mixtral-*`, `open-codestral-*`, `mistral-tiny`, `mistral-7b`, `mixtral-8x22b`, and generic `mistral-small` / `mistral-medium` / `mistral-large` when still listed.
+2. **Allow / reject (`isAllowedModel`)** — `src/data/allowedModels.js`:
+   - If `getProviderByModelName(name)` returns a provider **different** from the current bucket → **reject** (stops cross-provider leakage).
+   - If the name is **unknown** (no pattern match) → **allow** in the current bucket (trust Vizra / `pricing.json` so **new SKUs are not dropped** until patterns are updated).
+   - **OpenAI:** additionally require **not** deprecated per `isRetiredOpenAIModel()` ([OpenAI deprecations](https://developers.openai.com/api/docs/deprecations)).
 
-3. **Filtering** — In the React app, **PricingContext** loads pricing and passes the payload to **`lib/dataPipeline.js`** `processPayload()`, which runs `reassignByCanonicalProvider()` → `filterToAllowedModels()` → `filterRetiredModels()`. Only allowed, non-retired models are stored in context, and each model is in the correct provider array.
+3. **Retired filter** — **`filterRetiredModels()`** removes deprecated models for **all** providers (e.g. Gemini 1.x/1.5, Claude 3.x, OpenAI shutdown list). Keep **`src/utils/retiredModels.js`** in sync with official deprecation pages.
 
-4. **Lists** — In `src/calculator.js`, `getAllModels(data)` and `getUnifiedCalcModels(data)` only include models for which `isAllowedModel(providerKey, m.name)` is true and the model is not retired.
+4. **Filtering order** — **PricingContext** → `applyOfficialOverlays()` → `mergeTiersIntoPayload()` → `processPayload()`: `reassignByCanonicalProvider()` → `filterToAllowedModels()` → `filterRetiredModels()`.
+
+5. **Lists** — In `src/calculator.js`, `getAllModels(data)` and `getUnifiedCalcModels(data)` require `isAllowedModel` and `!isRetired` (and skip embedding-only where applicable).
 
 ## Official models overlays (all providers)
 
@@ -34,7 +35,7 @@ So that all models on each provider’s official pricing/models page appear even
 
 Update each overlay when that provider’s official pricing or models page changes.
 
-## Official sources (for allowlist updates)
+## Official sources (for provider map + retired updates)
 
 | Provider   | Official “available” / models page |
 |-----------|------------------------------------|
@@ -43,49 +44,47 @@ Update each overlay when that provider’s official pricing or models page chang
 | **Anthropic**| [Models overview \| Claude](https://docs.anthropic.com/en/docs/about-claude/models/overview) |
 | **Mistral**  | [Models \| Mistral Docs](https://docs.mistral.ai/models/) |
 
-To change which models are shown, edit the patterns or logic in **`src/data/allowedModels.js`** and re-check the provider’s official page.
+To tune **cross-provider detection**, edit prefix patterns in **`src/data/providerByModel.js`**. To hide **deprecated** OpenAI IDs, edit **`src/utils/retiredModels.js`**. For **new vendor naming schemes**, add patterns to `providerByModel.js` first so reassignment stays correct.
 
 ---
 
 ## Scope: which model types are included
 
-The app is built around **text/multimodal chat and token-based pricing**. Only a **subset** of each provider’s catalog is shown.
+The app is built around **text/multimodal chat and token-based pricing**. **Anything in the pricing feed** that passes provider + retired rules is shown; **missing** SKUs are usually absent from Vizra/`pricing.json` or the **overlays**, not blocked by a tight name allowlist.
 
 ### Included
 
 - **Chat/completion models** — Text and multimodal (text + vision) models with **per-token** (input/output per 1M tokens) or comparable pricing. These appear in Overview, Models, Value Analysis, Calculators, Benchmarks, and Recommend.
 - **Realtime/audio when token-priced** — e.g. OpenAI Realtime (gpt-realtime-1.5, gpt-realtime-mini) are in the overlay and appear if not deprecated.
-- **Embeddings** — In the allowlist and overlay, but **excluded from** the main model lists (Calculator dropdown, Recommend, Comparison) via `isEmbeddingOnlyModel()` in `src/calculator.js`; they are not shown in those flows.
+- **Embeddings** — Allowed when present in data, but **excluded from** some flows (Calculator dropdown, Recommend, Comparison) via `isEmbeddingOnlyModel()` in `src/calculator.js`.
 
 ### Not included (or only partly)
 
-Many **audio-, video-, or image-generation–specific** models are **not** in the overlays or allowlist, so they do not appear:
+Some catalog entries may still **not appear** if they are **missing from `pricing.json`/Vizra** and **not** in the **official overlay** for that provider, or if they use **non–token pricing** the UI does not yet surface:
 
-| Type | Examples | Why they’re missing |
-|------|----------|----------------------|
-| **Image generation** | DALL·E, Imagen, Flux | Pricing is per image (or per resolution), not per token; overlays use input/output per 1M tokens only. |
-| **Video generation** | Veo, Sora, Runway | Pricing is per second or per clip, not token-based. |
-| **Audio / music** | Lyria, Whisper, TTS | Per minute / per second or different units; not in the token-priced overlay. |
-| **Specialized APIs** | Moderation, some Labs models | Different products; allowlist/overlay are tuned to main chat and token-priced models. |
+| Type | Examples | Why they might be missing |
+|------|----------|---------------------------|
+| **Image / video / audio SKUs** | Some Imagen, Veo, Sora rows | Need overlay + optional `modelType` / per-unit pricing fields. |
+| **Specialized APIs** | Moderation, some Labs models | Often absent from pricing feed or overlay. |
 
-So **only models that (1) are on the official docs, (2) match the allowlist, and (3) have token-style pricing in the overlay** (or from the API) will show. Audio/video/image-only models are not added by default.
+So models **from the API / JSON** appear if they are **not retired** and **not clearly another provider’s ID**. They still need **prices** from the API or an **overlay** row to be useful in the UI.
 
 ### Adding more models (including audio/video/specialized)
 
-1. **Allowlist** — In `src/data/allowedModels.js`, add a pattern (or logic) for the model name (e.g. `veo-`, `imagen-`, `whisper-`) so `isAllowedModel(providerKey, name)` returns true.
+1. **Provider patterns** — If a new ID is **mis-bucketed or dropped** as “wrong provider”, add a prefix in **`src/data/providerByModel.js`** so `getProviderByModelName()` returns the correct vendor (or leave unknown names to **trust the source bucket**).
 2. **Overlay** — In the provider’s overlay file (e.g. `src/data/geminiOfficialOverlay.js`), add an entry with `name`, `input`, `output` (per 1M tokens if the provider publishes it; otherwise you can use placeholder or a separate pricing path later).
 3. **Pricing units** — The UI and calculators assume **input/output cost per 1M tokens**. For per-image or per-second pricing you’d need to extend the data shape and the relevant UI (e.g. Calculator, Overview) to support alternate units.
-4. **Exclusions** — If the model is embedding-only, it will still be hidden from Calculator/Recommend/Comparison by `isEmbeddingOnlyModel()`. Audio/video/image-only models are not treated as “embedding-only”; they’re simply not in the overlay/allowlist unless you add them as above.
+4. **Exclusions** — If the model is embedding-only, it will still be hidden from Calculator/Recommend/Comparison by `isEmbeddingOnlyModel()`. Audio/video/image-only models need overlay entries (and optional `modelType` / alternate pricing) to show meaningful costs.
 
 ---
 
 ## If you add all models from all providers
 
-**Short answer:** You can **list** all models with small changes (allowlist + overlay). For the app to **use** them properly (comparison, calculator, benchmarks, recommend), **yes — structure and use would need to change**.
+**Short answer:** You can **surface** more models with **overlays** (and provider-map tweaks if names are new). For **non–token-priced** SKUs, the app may still need **structural** support (see Option B below).
 
 ### Option A: List only (minimal change)
 
-- **What you do:** Add every model to the allowlist (patterns in `allowedModels.js`) and to the provider overlays (`*OfficialOverlay.js`) with `name`, `input`, `output` (use 0 or a placeholder if the provider doesn't publish token pricing).
+- **What you do:** Ensure models appear in **`pricing.json`/Vizra** or add them to the provider **`\*OfficialOverlay.js`** with `name`, `input`, `output` (use 0 or a placeholder if the provider doesn't publish token pricing). Add **`providerByModel.js`** prefixes if a name is assigned to the wrong vendor.
 - **What stays the same:** Data shape (still `input`/`output` per 1M tokens), all existing screens, Calculator (token-based), Value Analysis, Benchmarks, Recommend.
 - **Trade-off:** Non–token-based models (image, video, audio) will appear in Overview/Models but won't be comparable in a meaningful way (cost "per 1M tokens" is wrong for them; benchmarks don't exist). So **structure and UI stay the same, but use is inconsistent** for those models.
 
@@ -133,7 +132,7 @@ The app has been extended with **Option B** so that image, audio, and video mode
 ### Where model type and alternate pricing are set
 
 - **Overlays** — `src/data/openaiOfficialOverlay.js` and `src/data/geminiOfficialOverlay.js` add image/audio (and video) entries with `modelType`, `pricingPerImage`, or `pricingPerMinute`; merge passes these through.
-- **Allowlist** — `src/data/allowedModels.js` includes patterns for image/audio/video (e.g. `imagen-`, `veo-`, `lyria-`, `whisper-`, `tts-`).
-- Retired models (e.g. DALL·E 2/3 in `src/utils/retiredModels.js`) are still filtered out; Whisper and TTS (and Gemini image/audio/video) appear when in overlay and allowlist.
+- **Provider map** — `src/data/providerByModel.js` includes prefixes for image/audio/video where applicable (e.g. `imagen-`, `veo-`, `lyria-`, `whisper-`, `tts-`, `sora-`).
+- Retired models (e.g. DALL·E 2/3 in `src/utils/retiredModels.js`) are still filtered out; Whisper and TTS (and Gemini image/audio/video) appear when in overlay and not retired.
 
 For a **runbook to add new models or new model types** (e.g. a future type) without changing app behavior, see [MODEL_TYPES_AND_INTEGRATION.md](MODEL_TYPES_AND_INTEGRATION.md).

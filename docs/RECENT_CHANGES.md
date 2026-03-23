@@ -4,6 +4,20 @@ This document summarizes recent updates to the AI Model Pricing app (dashboard, 
 
 ---
 
+## 0. Model coverage: fewer missed SKUs (provider map + trust bucket)
+
+- **Problem:** Tight regex **allowlists** per provider could **hide** new or rare model IDs that Vizra/`pricing.json` already returned (e.g. new Gemini or Claude snapshot IDs that didn’t match a pattern).
+- **Change:** **`isAllowedModel()`** (`src/data/allowedModels.js`) now:
+  - **Rejects** a row only if `getProviderByModelName(name)` identifies a **different** vendor than the bucket (stops cross-provider leakage).
+  - **Allows** names with **no known prefix** in the bucket supplied by the data source (**trust the API** for new SKUs).
+  - **OpenAI:** unchanged extra gate — still **`!isRetiredOpenAIModel()`** (deprecations list).
+- **`src/data/providerByModel.js`:** Expanded prefixes — Gemini family checked **before** OpenAI (`text-embedding-004` → Google); OpenAI adds `whisper-`, `tts-`, `sora-`, `computer-use-`, `gpt-image-`, `gpt-realtime-`, and `o1`/`o3`/`o4` style IDs; Mistral adds `labs-mistral-`, `voxtral-`.
+- **Anthropic:** Retired pattern **`/^claude-3\.5-haiku($|-)/i`** added so API ids like `claude-3.5-haiku` are excluded (dot variant).
+- **Docs:** [ALLOWED_MODELS.md](ALLOWED_MODELS.md), [README](../README.md), [UI.md](UI.md), [RETIRED_MODELS.md](RETIRED_MODELS.md), [MODEL_TYPES_AND_INTEGRATION.md](MODEL_TYPES_AND_INTEGRATION.md).
+- **Regression:** `npm run test:pipeline` — asserts no retired IDs in processed payload, no embeddings in calculator dropdown lists, `getChatModels` / `getUnifiedCalcModelsChat` non-empty and chat-only. Run after changing `allowedModels.js`, `providerByModel.js`, or `retiredModels.js`.
+
+---
+
 ## 1. Footer date: when data was last loaded
 
 - **Behavior:** The footer **Pricing** and **Benchmarks** dates show **when the app last loaded the data**, not the “updated” field from the JSON files. This applies to both **initial load** (including a full page refresh, e.g. F5) and **Refresh from web** — in both cases the footer reflects the current date/time of the load.

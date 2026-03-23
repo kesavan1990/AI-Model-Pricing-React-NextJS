@@ -87,6 +87,7 @@ const ANTHROPIC_RETIRED_PATTERNS = [
   /^claude-3-opus($|-)/i,
   /^claude-3-haiku($|-)/i,
   /^claude-3-5-haiku($|-)/i,
+  /^claude-3\.5-haiku($|-)/i, // API id uses a dot (e.g. claude-3.5-haiku)
   /^claude-3-7-sonnet($|-)/i,
   /^claude-3\.5-sonnet$/i,
   /^claude-3\.7-sonnet$/i,
