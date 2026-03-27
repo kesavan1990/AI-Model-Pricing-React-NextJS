@@ -82,7 +82,7 @@ function useExportPricing() {
   return { exportCSV, exportPDF };
 }
 
-function ProviderTable({ providerKey, title, logoClass, note, models, searchPlaceholder, hasCached, searchQuery, onSearch }) {
+function ProviderTable({ providerKey, title, logoClass, noteContent, models, searchPlaceholder, hasCached, searchQuery, onSearch }) {
   const filtered = useMemo(() => {
     const q = (searchQuery || '').trim().toLowerCase();
     if (!q) return models;
@@ -125,7 +125,7 @@ function ProviderTable({ providerKey, title, logoClass, note, models, searchPlac
         </div>
         <h2 className="provider-name">{title}</h2>
       </div>
-      <p className="provider-pricing-note" dangerouslySetInnerHTML={{ __html: note }} />
+      <div className="provider-pricing-note">{noteContent}</div>
       <div className="pricing-table-wrap">
         <input
           type="text"
@@ -253,7 +253,15 @@ export function Overview({ showOnlyPricing = false }) {
             providerKey="gemini"
             title="Google Gemini"
             logoClass="provider-logo-gemini"
-            note='Where available, <strong>all context tiers</strong> are shown (e.g. ≤200K vs &gt;200K). <a href="https://ai.google.dev/gemini-api/docs/pricing" target="_blank" rel="noopener">Official pricing</a>. Retired/deprecated models are excluded.'
+            noteContent={
+              <>
+                Where available, <strong>all context tiers</strong> are shown (e.g. ≤200K vs &gt;200K).{' '}
+                <a href="https://ai.google.dev/gemini-api/docs/pricing" target="_blank" rel="noopener noreferrer" className="source-link">
+                  Official pricing
+                </a>
+                . Retired/deprecated models are excluded.
+              </>
+            }
             models={filteredData.gemini || []}
             searchPlaceholder="Search Gemini models…"
             hasCached={false}
@@ -264,7 +272,15 @@ export function Overview({ showOnlyPricing = false }) {
             providerKey="openai"
             title="OpenAI"
             logoClass="provider-logo-openai-custom"
-            note='Where available, <strong>all tiers</strong> are shown (e.g. standard vs extended context). <a href="https://platform.openai.com/docs/pricing" target="_blank" rel="noopener">Official pricing</a>. Retired/deprecated models are excluded.'
+            noteContent={
+              <>
+                Where available, <strong>all tiers</strong> are shown (e.g. standard vs extended context).{' '}
+                <a href="https://platform.openai.com/docs/pricing" target="_blank" rel="noopener noreferrer" className="source-link">
+                  Official pricing
+                </a>
+                . Retired/deprecated models are excluded.
+              </>
+            }
             models={filteredData.openai || []}
             searchPlaceholder="Search OpenAI models…"
             hasCached
@@ -275,7 +291,15 @@ export function Overview({ showOnlyPricing = false }) {
             providerKey="anthropic"
             title="Anthropic"
             logoClass="provider-logo-anthropic"
-            note='Where available, <strong>all tiers</strong> are shown (e.g. ≤200K vs extended context). <a href="https://docs.anthropic.com/en/docs/about-claude/pricing" target="_blank" rel="noopener">Official pricing</a>. Retired/deprecated models are excluded.'
+            noteContent={
+              <>
+                Where available, <strong>all tiers</strong> are shown (e.g. ≤200K vs extended context).{' '}
+                <a href="https://docs.anthropic.com/en/docs/about-claude/pricing" target="_blank" rel="noopener noreferrer" className="source-link">
+                  Official pricing
+                </a>
+                . Retired/deprecated models are excluded.
+              </>
+            }
             models={filteredData.anthropic || []}
             searchPlaceholder="Search Anthropic models…"
             hasCached={false}
@@ -286,7 +310,15 @@ export function Overview({ showOnlyPricing = false }) {
             providerKey="mistral"
             title="Mistral"
             logoClass="provider-logo-mistral"
-            note='Some legacy models are deprecated in favor of newer versions (e.g. Mistral Large → Large 24.11). <a href="https://mistral.ai/pricing" target="_blank" rel="noopener">Official pricing</a>. Retired/deprecated models are excluded.'
+            noteContent={
+              <>
+                Some legacy models are deprecated in favor of newer versions (e.g. Mistral Large → Large 24.11).{' '}
+                <a href="https://mistral.ai/pricing" target="_blank" rel="noopener noreferrer" className="source-link">
+                  Official pricing
+                </a>
+                . Retired/deprecated models are excluded.
+              </>
+            }
             models={filteredData.mistral || []}
             searchPlaceholder="Search Mistral models…"
             hasCached={false}

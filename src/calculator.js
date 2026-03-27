@@ -4,6 +4,7 @@
  * Retired models are excluded in getAllModels and getUnifiedCalcModels (Models, Value Analysis, Calculators, Benchmarks, Recommend).
  */
 
+import { encode as cl100kEncode } from 'gpt-tokenizer';
 import { isRetired } from './utils/retiredModels.js';
 import { isAllowedModel } from './data/allowedModels.js';
 import { getModelType, MODEL_TYPES } from '../lib/modelTypes.js';
@@ -454,11 +455,8 @@ export function estimatePromptTokens(text) {
   const t = text.trim();
   if (t.length === 0) return 0;
   try {
-    const tok = typeof GPTTokenizer_cl100k_base !== 'undefined' && GPTTokenizer_cl100k_base;
-    if (tok && typeof tok.encode === 'function') {
-      const tokens = tok.encode(t);
-      return Array.isArray(tokens) ? tokens.length : Math.ceil(t.length / 4);
-    }
+    const tokens = cl100kEncode(t);
+    return Array.isArray(tokens) ? tokens.length : Math.ceil(t.length / 4);
   } catch (_) {}
   return Math.ceil(t.length / 4);
 }

@@ -5,6 +5,7 @@
 import { getUnifiedCalcModels, getAllModels, getBenchmarkForModel, getBenchmarkForModelMerged, getCostTierLabel, getFallbackReason } from './calculator.js';
 import { dedupeModelsByName } from './pricingService.js';
 import { isRetiredGeminiModel, isRetiredOpenAIModel, isRetiredAnthropicModel, isRetiredMistralModel } from './utils/retiredModels.js';
+import { escapeHtml } from './utils/escapeHtml.js';
 export { isRetiredGeminiModel, isRetiredOpenAIModel, isRetiredAnthropicModel, isRetiredMistralModel };
 
 export function showToast(msg, type) {
@@ -87,14 +88,14 @@ function appendRowsWithFragment(tbody, rowHtmlArray) {
 }
 
 function geminiRows(m) {
-  const badge = m.badge ? `<span>${m.badge}</span>` : '';
-  const nameCell = `${m.name}${badge}`;
+  const badge = m.badge ? `<span>${escapeHtml(m.badge)}</span>` : '';
+  const nameCell = `${escapeHtml(m.name)}${badge}`;
   const rows = [];
   if (m.tiers && m.tiers.length > 0) {
     m.tiers.forEach((t) => {
       const inp = t.input === 0 ? 'Free' : '$' + Number(t.input).toFixed(2);
       const out = t.output === 0 ? 'Free' : '$' + Number(t.output).toFixed(2);
-      rows.push(`<tr><td class="model-name">${nameCell}</td><td class="context-tier">${t.contextLabel}</td><td class="price price-input">${inp}</td><td class="price price-output">${out}</td></tr>`);
+      rows.push(`<tr><td class="model-name">${nameCell}</td><td class="context-tier">${escapeHtml(t.contextLabel)}</td><td class="price price-input">${inp}</td><td class="price price-output">${out}</td></tr>`);
     });
   } else {
     const inp = m.input === 0 ? 'Free' : '$' + Number(m.input).toFixed(2);
@@ -104,8 +105,8 @@ function geminiRows(m) {
   return rows;
 }
 function openaiRows(m) {
-  const badge = m.badge ? `<span>${m.badge}</span>` : '';
-  const nameCell = `${m.name}${badge}`;
+  const badge = m.badge ? `<span>${escapeHtml(m.badge)}</span>` : '';
+  const nameCell = `${escapeHtml(m.name)}${badge}`;
   const isEmbed = /^text-embedding/i.test(m.name);
   const rows = [];
   if (m.tiers && m.tiers.length > 0) {
@@ -113,7 +114,7 @@ function openaiRows(m) {
       const inp = t.input === 0 ? 'Free' : '$' + Number(t.input).toFixed(2);
       const cached = t.cachedInput != null ? '$' + Number(t.cachedInput).toFixed(2) : '—';
       const out = isEmbed ? '—' : (t.output === 0 ? 'Free' : '$' + Number(t.output).toFixed(2));
-      rows.push(`<tr><td class="model-name">${nameCell}</td><td class="context-tier">${t.contextLabel}</td><td class="price price-input">${inp}</td><td class="price price-cached">${cached}</td><td class="price price-output">${out}</td></tr>`);
+      rows.push(`<tr><td class="model-name">${nameCell}</td><td class="context-tier">${escapeHtml(t.contextLabel)}</td><td class="price price-input">${inp}</td><td class="price price-cached">${cached}</td><td class="price price-output">${out}</td></tr>`);
     });
   } else {
     const inp = m.input === 0 ? 'Free' : '$' + Number(m.input).toFixed(2);
@@ -124,13 +125,13 @@ function openaiRows(m) {
   return rows;
 }
 function anthropicRows(m) {
-  const nameCell = m.name;
+  const nameCell = escapeHtml(m.name);
   const rows = [];
   if (m.tiers && m.tiers.length > 0) {
     m.tiers.forEach((t) => {
       const inp = t.input === 0 ? 'Free' : '$' + Number(t.input).toFixed(2);
       const out = t.output === 0 ? 'Free' : '$' + Number(t.output).toFixed(2);
-      rows.push(`<tr><td class="model-name">${nameCell}</td><td class="context-tier">${t.contextLabel}</td><td class="price price-input">${inp}</td><td class="price price-output">${out}</td></tr>`);
+      rows.push(`<tr><td class="model-name">${nameCell}</td><td class="context-tier">${escapeHtml(t.contextLabel)}</td><td class="price price-input">${inp}</td><td class="price price-output">${out}</td></tr>`);
     });
   } else {
     const inp = m.input === 0 ? 'Free' : '$' + Number(m.input).toFixed(2);
@@ -140,13 +141,13 @@ function anthropicRows(m) {
   return rows;
 }
 function mistralRows(m) {
-  const nameCell = m.name;
+  const nameCell = escapeHtml(m.name);
   const rows = [];
   if (m.tiers && m.tiers.length > 0) {
     m.tiers.forEach((t) => {
       const inp = t.input === 0 ? 'Free' : '$' + Number(t.input).toFixed(2);
       const out = t.output === 0 ? 'Free' : '$' + Number(t.output).toFixed(2);
-      rows.push(`<tr><td class="model-name">${nameCell}</td><td class="context-tier">${t.contextLabel}</td><td class="price price-input">${inp}</td><td class="price price-output">${out}</td></tr>`);
+      rows.push(`<tr><td class="model-name">${nameCell}</td><td class="context-tier">${escapeHtml(t.contextLabel)}</td><td class="price price-input">${inp}</td><td class="price price-output">${out}</td></tr>`);
     });
   } else {
     const inp = m.input === 0 ? 'Free' : '$' + Number(m.input).toFixed(2);
@@ -174,11 +175,11 @@ export function renderTables(data, benchmarks = null) {
   const calcModelSel = document.getElementById('calc-model');
   const calcCompareSel = document.getElementById('calc-compare');
   if (calcModelSel) {
-    const opts = unified.map((u) => `<option value="${u.key}">${u.label}</option>`).join('');
+    const opts = unified.map((u) => `<option value="${escapeHtml(u.key)}">${escapeHtml(u.label)}</option>`).join('');
     calcModelSel.innerHTML = '<option value="">-- Select model --</option><option value="__all__">Compare all models</option>' + opts;
   }
   if (calcCompareSel) {
-    const opts = unified.map((u) => `<option value="${u.key}">${u.label}</option>`).join('');
+    const opts = unified.map((u) => `<option value="${escapeHtml(u.key)}">${escapeHtml(u.label)}</option>`).join('');
     calcCompareSel.innerHTML = '<option value="">— None —</option>' + opts;
   }
   renderModelComparisonTable(data, comparisonProviderFilter, comparisonSortBy);
@@ -264,12 +265,14 @@ export function renderModelComparisonTable(data, providerFilter, sortByArg) {
   const rows = list.map((m) => {
     const inp = fmt(m.input);
     const out = fmt(m.output);
-    const ctx = m.contextWindow || '—';
-    const tierCell = m.contextTier || '—';
+    const ctx = escapeHtml(m.contextWindow || '—');
+    const tierCell = escapeHtml(m.contextTier || '—');
     const isCheapest = cheapestModel && m.name === cheapestModel.name && m.providerKey === cheapestModel.providerKey && (m.contextTier || '') === (cheapestModel.contextTier || '');
-    const nameCell = isCheapest ? `${m.name} <span class="cheapest-badge" aria-label="Cheapest">🟢 Cheapest</span>` : m.name;
+    const nameCell = isCheapest
+      ? `${escapeHtml(m.name)} <span class="cheapest-badge" aria-label="Cheapest">🟢 Cheapest</span>`
+      : escapeHtml(m.name);
     const rowClass = isCheapest ? 'cheapest' : '';
-    return `<tr class="${rowClass}"><td class="model-name">${nameCell}</td><td class="provider-name">${m.provider}</td><td class="context-tier">${tierCell}</td><td class="price price-input">${inp}</td><td class="price price-output">${out}</td><td class="context-window">${ctx}</td></tr>`;
+    return `<tr class="${rowClass}"><td class="model-name">${nameCell}</td><td class="provider-name">${escapeHtml(m.provider)}</td><td class="context-tier">${tierCell}</td><td class="price price-input">${inp}</td><td class="price price-output">${out}</td><td class="context-window">${ctx}</td></tr>`;
   });
   appendRowsWithFragment(tbody, rows);
 }
@@ -298,8 +301,8 @@ export function renderBenchmarkDashboard(data, fileBenchmarks = null) {
     const b = getBenchmarkForModelMerged(m.name, m.providerKey, fileBenchmarks);
     const { tier, desc } = getCostTierLabel(m.blended);
     const blendedStr = m.blended <= 0 ? '0' : m.blended.toFixed(2);
-    const costTitle = `Blended: $${blendedStr}/1M tokens (70% input, 30% output) — ${desc}`;
-    return `<tr><td class="model-name">${m.name}</td><td class="benchmark-score">${b.mmlu}</td><td class="benchmark-score">${b.code}</td><td class="benchmark-score">${b.reasoning}</td><td class="benchmark-score">${b.arena}</td><td class="cost-tier" title="${costTitle}">${tier}</td></tr>`;
+    const costTitle = escapeHtml(`Blended: $${blendedStr}/1M tokens (70% input, 30% output) — ${desc}`);
+    return `<tr><td class="model-name">${escapeHtml(m.name)}</td><td class="benchmark-score">${b.mmlu}</td><td class="benchmark-score">${b.code}</td><td class="benchmark-score">${b.reasoning}</td><td class="benchmark-score">${b.arena}</td><td class="cost-tier" title="${costTitle}">${escapeHtml(tier)}</td></tr>`;
   });
   const table = document.createElement('table');
   table.className = 'model-table';
@@ -386,18 +389,22 @@ export function renderRecommendations(results, fromDocs) {
     return parts.join(' · ');
   };
   const docNote = fromDocs ? '<p class="recommend-doc-note">Results informed by official Gemini, OpenAI, Anthropic, and Mistral documentation.</p>' : '';
+  const pkClass = (k) => (/^(gemini|openai|anthropic|mistral)$/.test(String(k)) ? String(k) : 'gemini');
   container.innerHTML =
     docNote +
     results
       .map((m) => {
         const showAsQuote = m.docSnippet && !m.docSnippetIsGenerated;
-        const docSnippet = m.docSnippet ? `<div class="recommend-doc-snippet">${showAsQuote ? 'From documentation: "' + m.docSnippet + '"' : m.docSnippet}</div>` : '';
-        const reasonText = (m.reason && String(m.reason).trim()) ? m.reason : getFallbackReason(m);
+        const snipEsc = escapeHtml(String(m.docSnippet));
+        const docSnippet = m.docSnippet
+          ? `<div class="recommend-doc-snippet">${showAsQuote ? 'From documentation: &quot;' + snipEsc + '&quot;' : snipEsc}</div>`
+          : '';
+        const reasonText = escapeHtml((m.reason && String(m.reason).trim()) ? m.reason : getFallbackReason(m));
         return `
         <div class="recommend-item">
-          <span class="provider-tag ${m.providerKey}">${m.provider}</span>
+          <span class="provider-tag ${pkClass(m.providerKey)}">${escapeHtml(m.provider)}</span>
           <div>
-            <div class="model-name-rec">${m.name}</div>
+            <div class="model-name-rec">${escapeHtml(m.name)}</div>
             <div class="model-reason">${reasonText}</div>
             ${docSnippet}
             <div class="model-price">${priceStr(m)}</div>
@@ -411,14 +418,14 @@ export function renderRecommendations(results, fromDocs) {
 function historyGeminiRow(m) {
   const inp = m.input === 0 ? 'Free' : '$' + Number(m.input).toFixed(2);
   const out = m.output === 0 ? 'Free' : '$' + Number(m.output).toFixed(2);
-  return `<tr><td class="model-name">${m.name}</td><td class="price price-input">${inp}</td><td class="price price-output">${out}</td></tr>`;
+  return `<tr><td class="model-name">${escapeHtml(m.name)}</td><td class="price price-input">${inp}</td><td class="price price-output">${out}</td></tr>`;
 }
 
 function historyOpenaiRow(m) {
   const inp = m.input === 0 ? 'Free' : '$' + Number(m.input).toFixed(2);
   const cached = m.cachedInput != null ? '$' + Number(m.cachedInput).toFixed(2) : '—';
   const out = m.output === 0 ? 'Free' : '$' + Number(m.output).toFixed(2);
-  return `<tr><td class="model-name">${m.name}</td><td class="price price-input">${inp}</td><td class="price price-cached">${cached}</td><td class="price price-output">${out}</td></tr>`;
+  return `<tr><td class="model-name">${escapeHtml(m.name)}</td><td class="price price-input">${inp}</td><td class="price price-cached">${cached}</td><td class="price price-output">${out}</td></tr>`;
 }
 
 export function renderHistoryList(historyList) {
@@ -448,7 +455,8 @@ export function renderHistoryList(historyList) {
     .map((entry, idx) => {
       const d = new Date(entry.date);
       const isScheduled = entry.daily || entry.weekly;
-      const dateStr = isScheduled ? d.toLocaleString('en-IN', { dateStyle: 'medium', timeZone: 'Asia/Kolkata' }) + ', 12:00 am IST' : d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+      const dateStrRaw = isScheduled ? d.toLocaleString('en-IN', { dateStyle: 'medium', timeZone: 'Asia/Kolkata' }) + ', 12:00 am IST' : d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+      const dateStr = escapeHtml(dateStrRaw);
       const scheduleBadge = entry.daily ? ' <span class="history-daily-badge">Daily</span>' : entry.weekly ? ' <span class="history-daily-badge">Weekly</span>' : '';
       const gList = dedupeModelsByName(entry.gemini || []);
       const oList = dedupeModelsByName(entry.openai || []);
@@ -470,7 +478,7 @@ export function renderHistoryList(historyList) {
       if (aCount) summaryParts.push(aCount + ' Anthropic');
       if (mCount) summaryParts.push(mCount + ' Mistral');
       return `
-        <div class="history-entry" data-idx="${idx}">
+        <div class="history-entry" data-idx="${Number(idx)}">
           <div class="history-entry-header">
             <span class="history-entry-date">${dateStr}${scheduleBadge}</span>
             <span class="history-entry-summary">${summaryParts.length ? summaryParts.join(' · ') : 'No models'}</span>

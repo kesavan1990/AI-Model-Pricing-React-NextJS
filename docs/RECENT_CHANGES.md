@@ -147,6 +147,7 @@ See [PRICING_UPDATES.md](PRICING_UPDATES.md) and [BENCHMARKS.md](BENCHMARKS.md) 
 | **Dashboard** | Model type filter (Chat/Text default); provider filter via clickable cards; 5 decimals; empty state; compact layout; Cost per 1M: all results, scrollable, sticky header, sort by Cost header, legend below. |
 | **Calculator** | Chat-only models for Pricing and Prompt cost; sticky headers and no-gap scroll on result tables (Pricing, Prompt cost, Context window, Production cost). |
 | **Navigation** | Next.js **Link** for all in-app routes; **prefetch** enabled; **NProgress** top bar shown while route loads. See [UI.md](UI.md). |
+| **Security** | HTML escaping for legacy `innerHTML` builders; React notes without `dangerouslySetInnerHTML`; bundled **`gpt-tokenizer`** instead of CDN script. See **§10** below. |
 
 ---
 
@@ -157,6 +158,41 @@ See [PRICING_UPDATES.md](PRICING_UPDATES.md) and [BENCHMARKS.md](BENCHMARKS.md) 
 - **Where:** Sidebar (Dashboard, Pricing, Calculator, Comparison, Value Analysis, Benchmarks, Recommend), header logo link, and Calculator sub-nav (Pricing, Prompt cost, Context window, Production cost).
 - **Navigation loading indicator** — A top progress bar (NProgress) is shown when the user clicks an internal link and disappears when the new page has loaded. Implementation: `components/NavigationProgress.js`; wired in root layout.
 - **Docs:** See [UI.md](UI.md) → “Client navigation and route prefetching”.
+
+---
+
+## 10. Security hardening (XSS and supply chain)
+
+Goal: reduce **cross-site scripting (XSS)** risk where user- or API-derived strings were written into the DOM, and reduce **third-party script** supply-chain risk for token counting—**without** changing pricing math, recommendation logic, or intentional product behavior.
+
+### HTML entity escaping (`innerHTML` paths)
+
+- **`src/utils/escapeHtml.js`** — Central **`escapeHtml()`** for `&`, `<`, `>`, `"`, and `'`, suitable for inserting dynamic text into HTML attribute or element contexts built as strings.
+- **`src/render.js`** — All dynamic bits in legacy table and recommendation HTML builders pass through **`escapeHtml`** (model names, badges, context labels, comparison rows, benchmark rows, history rows, calculator `<option>` labels/values, recommendation provider/name/reason/doc snippets). **Provider CSS class** for recommendation tags uses a small whitelist: only `gemini`, `openai`, `anthropic`, or `mistral`; anything else falls back to `gemini` so `providerKey` cannot inject extra class names.
+- **`src/app.js`** — Same treatment for **recent price changes**, **history compare**, **prompt cost**, **context window**, **production cost**, **compare result** markup, and **compare-all** calculator rows.
+
+Doc snippets in the **legacy** `renderRecommendations` path are treated as **text** (escaped). Snippets from **`cleanDocSnippetForDisplay()`** are plain-text excerpts; they are not HTML. The **Next.js Recommend** page (`components/sections/Recommend.js`) already renders via React; this hardening mainly affects **`index.html` + `src/app.js`** / **`render.js`** flows.
+
+### React: provider notes without raw HTML
+
+- **`components/sections/Overview.js`** — Provider footnotes are no longer injected with **`dangerouslySetInnerHTML`**. **`ProviderTable`** takes **`noteContent`** (React nodes: same copy and links as before) instead of an HTML string prop. Wrapper is **`div.provider-pricing-note`** (valid for block-level children). External links use **`rel="noopener noreferrer"`**.
+
+### Tokenizer: npm package instead of unpkg
+
+- **`app/layout.js`** — Removed **`next/script`** loading **`gpt-tokenizer`** from **unpkg** (no SRI-controlled bundle from a CDN in the critical path).
+- **`src/calculator.js`** — **`import { encode as cl100kEncode } from 'gpt-tokenizer'`**; **`estimatePromptTokens`** (and callers) use the same encoding with existing fallback **`Math.ceil(text.length / 4)`** on failure.
+- **`package.json`** — **`gpt-tokenizer`** added as a **dependency** so the library is pinned and resolved with the rest of the app.
+
+### What was not changed (by design)
+
+- **CORS / `fetchWithCors`** behavior in **`src/api.js`** — unchanged to avoid altering offline or refresh behavior.
+- **Content-Security-Policy** headers were not added here (would need alignment with hosts, inline styles/scripts, and any third-party origins).
+
+### How to verify
+
+- **`npm run build`** — production compile.
+- **`npm run test:pipeline`** and **`npm run test:recommend`** — data and recommendation invariants.
+- Smoke: **`estimatePromptTokens()`** in Node against **`src/calculator.js`** returns finite token counts.
 
 ---
 

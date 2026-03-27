@@ -1,6 +1,5 @@
 import './tailwind.css';
 import '../css/styles.css';
-import Script from 'next/script';
 import { ThemeProvider } from '../context/ThemeContext';
 import { PricingProvider } from '../context/PricingContext';
 import { ThemeInit } from '../components/ThemeInit';
@@ -22,11 +21,6 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body>
-        <Script
-          src="https://unpkg.com/gpt-tokenizer/dist/cl100k_base.js"
-          strategy="lazyOnload"
-          crossOrigin="anonymous"
-        />
         <ThemeInit />
         <NavigationProgress />
         <ThemeProvider>

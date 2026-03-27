@@ -22,6 +22,7 @@ function applyOfficialOverlays(payload) {
   out = mergeMistralOfficialIntoPayload(out);
   return out;
 }
+import { escapeHtml } from './utils/escapeHtml.js';
 import { getCachedPricing, setCachedPricing } from './utils/cacheManager.js';
 import { isRetiredGeminiModel, isRetiredOpenAIModel, isRetiredAnthropicModel, isRetiredMistralModel } from './utils/retiredModels.js';
 import { isAllowedModel } from './data/allowedModels.js';
@@ -282,8 +283,8 @@ async function refreshFromWeb() {
     const summaryEl = document.getElementById('priceChangesSummary');
     if (!summaryEl) return;
     if (drops.length || increases.length) {
-      const dropRows = drops.slice(0, 10).map((d) => `<tr class="change-drop"><td class="col-direction">↓</td><td class="col-provider">${d.provider}</td><td class="col-model">${d.name}</td><td class="col-field">${d.field}</td><td class="col-prices">${fmt(d.oldVal)} → ${fmt(d.newVal)}</td></tr>`).join('');
-      const riseRows = increases.slice(0, 10).map((d) => `<tr class="change-rise"><td class="col-direction">↑</td><td class="col-provider">${d.provider}</td><td class="col-model">${d.name}</td><td class="col-field">${d.field}</td><td class="col-prices">${fmt(d.oldVal)} → ${fmt(d.newVal)}</td></tr>`).join('');
+      const dropRows = drops.slice(0, 10).map((d) => `<tr class="change-drop"><td class="col-direction">↓</td><td class="col-provider">${escapeHtml(d.provider)}</td><td class="col-model">${escapeHtml(d.name)}</td><td class="col-field">${escapeHtml(d.field)}</td><td class="col-prices">${fmt(d.oldVal)} → ${fmt(d.newVal)}</td></tr>`).join('');
+      const riseRows = increases.slice(0, 10).map((d) => `<tr class="change-rise"><td class="col-direction">↑</td><td class="col-provider">${escapeHtml(d.provider)}</td><td class="col-model">${escapeHtml(d.name)}</td><td class="col-field">${escapeHtml(d.field)}</td><td class="col-prices">${fmt(d.oldVal)} → ${fmt(d.newVal)}</td></tr>`).join('');
       const moreD = drops.length > 10 ? `<tr><td colspan="5" class="change-more">↓ … and ${drops.length - 10} more drop(s)</td></tr>` : '';
       const moreI = increases.length > 10 ? `<tr><td colspan="5" class="change-more">↑ … and ${increases.length - 10} more increase(s)</td></tr>` : '';
       summaryEl.innerHTML = '<h4>Recent price changes</h4><p class="price-changes-hint">Which models dropped (↓) or increased (↑):</p><table class="change-table"><thead><tr><th class="col-direction"></th><th class="col-provider">Provider</th><th class="col-model">Model</th><th class="col-field">Field</th><th class="col-prices">Old → New</th></tr></thead><tbody>' + dropRows + riseRows + moreD + moreI + '</tbody></table>';
@@ -397,8 +398,8 @@ function runHistoryCompare() {
   }
   const fromEntry = list[fromIdx];
   const toEntry = list[toIdx];
-  const fromDateStr = new Date(fromEntry.date).toLocaleString('en-IN', { dateStyle: 'medium', timeZone: 'Asia/Kolkata' });
-  const toDateStr = new Date(toEntry.date).toLocaleString('en-IN', { dateStyle: 'medium', timeZone: 'Asia/Kolkata' });
+  const fromDateStr = escapeHtml(new Date(fromEntry.date).toLocaleString('en-IN', { dateStyle: 'medium', timeZone: 'Asia/Kolkata' }));
+  const toDateStr = escapeHtml(new Date(toEntry.date).toLocaleString('en-IN', { dateStyle: 'medium', timeZone: 'Asia/Kolkata' }));
   const toMap = (arr) => (arr || []).reduce((acc, m) => {
     acc[m.name] = m;
     return acc;
@@ -417,6 +418,7 @@ function runHistoryCompare() {
   const allMistral = [...new Set([...Object.keys(mFrom), ...Object.keys(mTo)])].sort();
   const fmt = (v) => (v === 0 ? 'Free' : '$' + Number(v).toFixed(2));
   const row = (modelName, a, b, hasCached = false) => {
+    const nameEsc = escapeHtml(modelName);
     const in1 = a ? fmt(a.input) : '—';
     const out1 = a ? fmt(a.output) : '—';
     const in2 = b ? fmt(b.input) : '—';
@@ -429,8 +431,8 @@ function runHistoryCompare() {
     const c1 = hasCached && a?.cachedInput != null ? fmt(a.cachedInput) : '—';
     const c2 = hasCached && b?.cachedInput != null ? fmt(b.cachedInput) : '—';
     return hasCached
-      ? `<tr><td class="model-name">${modelName}</td><td>${in1}</td><td>${c1}</td><td>${out1}</td><td>${in2}</td><td>${c2}</td><td>${out2}</td><td>${change}</td></tr>`
-      : `<tr><td class="model-name">${modelName}</td><td>${in1}</td><td>${out1}</td><td>${in2}</td><td>${out2}</td><td>${change}</td></tr>`;
+      ? `<tr><td class="model-name">${nameEsc}</td><td>${in1}</td><td>${c1}</td><td>${out1}</td><td>${in2}</td><td>${c2}</td><td>${out2}</td><td>${change}</td></tr>`
+      : `<tr><td class="model-name">${nameEsc}</td><td>${in1}</td><td>${out1}</td><td>${in2}</td><td>${out2}</td><td>${change}</td></tr>`;
   };
   const geminiRows = allGemini.map((n) => row(n, gFrom[n], gTo[n]));
   const openaiRows = allOpenai.map((n) => row(n, oFrom[n], oTo[n], true));
@@ -678,7 +680,7 @@ function runPromptCostEstimate() {
   });
   data.anthropic.forEach((m) => list.push({ provider: 'Anthropic', name: m.name, cost: calc.calcCost(promptTokens, outputTokens, m.input, m.output) }));
   data.mistral.forEach((m) => list.push({ provider: 'Mistral', name: m.name, cost: calc.calcCost(promptTokens, outputTokens, m.input, m.output) }));
-  const rows = list.map((m) => `<li><span class="model-label">${m.name}</span> <span class="model-cost">$${m.cost.toFixed(5)}</span></li>`).join('');
+  const rows = list.map((m) => `<li><span class="model-label">${escapeHtml(m.name)}</span> <span class="model-cost">$${m.cost.toFixed(5)}</span></li>`).join('');
   resultEl.innerHTML = '<h4>Cost by model</h4><ul class="prompt-cost-list">' + rows + '</ul>';
   resultEl.style.display = 'block';
   lastPromptCostResult = { rows: list.map((m) => ({ model: m.name, cost: m.cost })) };
@@ -781,7 +783,7 @@ function runContextWindowCheck() {
         resultClass = 'result-near';
         resultText = 'Near limit';
       }
-      rows.push(`<tr><td class="model-name">${m.name}</td><td>${ctx.label}</td><td class="${resultClass}">${resultText}</td></tr>`);
+      rows.push(`<tr><td class="model-name">${escapeHtml(m.name)}</td><td>${escapeHtml(ctx.label)}</td><td class="${resultClass}">${resultText}</td></tr>`);
       exportRows.push({ model: m.name, contextWindow: ctx.label, result: resultText });
     });
   }
@@ -799,7 +801,7 @@ function runContextWindowCheck() {
       resultClass = 'result-near';
       resultText = 'Near limit';
     }
-    rows.push(`<tr><td class="model-name">${m.name}</td><td>${ctx.label}</td><td class="${resultClass}">${resultText}</td></tr>`);
+    rows.push(`<tr><td class="model-name">${escapeHtml(m.name)}</td><td>${escapeHtml(ctx.label)}</td><td class="${resultClass}">${resultText}</td></tr>`);
     exportRows.push({ model: m.name, contextWindow: ctx.label, result: resultText });
   });
   addContextRows('anthropic', data.anthropic);
@@ -865,7 +867,7 @@ function runProductionCostSim() {
     list.push({ name: m.name, perRequest: costPerRequest, daily, monthly, annum: monthly * 12 });
   });
   const fmtReq = (v) => (v < 0.0001 && v > 0 ? '$' + v.toExponential(2) : '$' + v.toFixed(4));
-  const rows = list.map((m) => `<tr><td class="model-name">${m.name}</td><td class="cost-per-request">${fmtReq(m.perRequest)}</td><td class="cost-daily">$${m.daily.toFixed(2)}</td><td class="cost-monthly">$${m.monthly.toFixed(2)}</td><td class="cost-annum">$${m.annum.toFixed(2)}</td></tr>`).join('');
+  const rows = list.map((m) => `<tr><td class="model-name">${escapeHtml(m.name)}</td><td class="cost-per-request">${fmtReq(m.perRequest)}</td><td class="cost-daily">$${m.daily.toFixed(2)}</td><td class="cost-monthly">$${m.monthly.toFixed(2)}</td><td class="cost-annum">$${m.annum.toFixed(2)}</td></tr>`).join('');
   resultEl.innerHTML = '<h4>Estimated costs</h4><table class="model-table"><thead><tr><th>Model</th><th>Per request</th><th>Daily cost</th><th>Monthly cost</th><th>Per annum</th></tr></thead><tbody>' + rows + '</tbody></table>';
   resultEl.style.display = 'block';
   lastProductionResult = { rows: list };
@@ -887,7 +889,7 @@ function resetProductionCostSim() {
 function renderCompareResult(name1, cost1, name2, cost2) {
   const diff = Math.abs(cost1 - cost2);
   const summary = diff === 0 ? 'Same cost' : (cost1 < cost2 ? name1 : name2) + ' is cheaper by $' + diff.toFixed(4);
-  return `<table class="calc-result-table"><tr><td>${name1}</td><td class="cost">$${cost1.toFixed(4)}</td></tr><tr><td>${name2}</td><td class="cost">$${cost2.toFixed(4)}</td></tr></table><p class="compare-summary">${summary}</p>`;
+  return `<table class="calc-result-table"><tr><td>${escapeHtml(name1)}</td><td class="cost">$${cost1.toFixed(4)}</td></tr><tr><td>${escapeHtml(name2)}</td><td class="cost">$${cost2.toFixed(4)}</td></tr></table><p class="compare-summary">${escapeHtml(summary)}</p>`;
 }
 
 function calculateUnified() {
@@ -916,7 +918,7 @@ function calculateUnified() {
       if (pa !== pb) return pa - pb;
       return a.cost - b.cost;
     });
-    const rows = withCost.map((r) => `<tr><td>${r.label}</td><td class="cost">$${r.cost.toFixed(4)}</td></tr>`).join('');
+    const rows = withCost.map((r) => `<tr><td>${escapeHtml(r.label)}</td><td class="cost">$${r.cost.toFixed(4)}</td></tr>`).join('');
     resultEl.className = 'calc-result wrap-scroll';
     resultEl.innerHTML = '<table class="calc-result-table"><thead><tr><th>Model</th><th>Est. cost</th></tr></thead><tbody>' + rows + '</tbody></table>';
     lastPricingResult = { type: 'all', rows: withCost.map((r) => ({ label: r.label, cost: r.cost })) };
