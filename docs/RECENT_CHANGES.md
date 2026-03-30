@@ -148,6 +148,7 @@ See [PRICING_UPDATES.md](PRICING_UPDATES.md) and [BENCHMARKS.md](BENCHMARKS.md) 
 | **Calculator** | Chat-only models for Pricing and Prompt cost; sticky headers and no-gap scroll on result tables (Pricing, Prompt cost, Context window, Production cost). |
 | **Navigation** | Next.js **Link** for all in-app routes; **prefetch** enabled; **NProgress** top bar shown while route loads. See [UI.md](UI.md). |
 | **Security** | HTML escaping for legacy `innerHTML` builders; React notes without `dangerouslySetInnerHTML`; bundled **`gpt-tokenizer`** instead of CDN script. See **§10** below. |
+| **Pricing history** | **Update pricing** run now commits **`pricing-history.json`** with **`pricing.json`**; client merges server history into **`localStorage`** after load. See **§11**. |
 
 ---
 
@@ -193,6 +194,17 @@ Doc snippets in the **legacy** `renderRecommendations` path are treated as **tex
 - **`npm run build`** — production compile.
 - **`npm run test:pipeline`** and **`npm run test:recommend`** — data and recommendation invariants.
 - Smoke: **`estimatePromptTokens()`** in Node against **`src/calculator.js`** returns finite token counts.
+
+---
+
+## 11. Pricing history: server snapshots without opening the app
+
+- **Problem:** `public/pricing-history.json` could lag because **Update pricing** only committed when **`pricing.json`** changed, while **Update pricing history** relied on a separate **`workflow_run`** (easy to miss or fail independently).
+- **CI:** **`update-pricing.yml`** now runs **`scripts/update-pricing-history.js`** after every pricing fetch and commits **both** `public/pricing.json` and `public/pricing-history.json` when **either** changes—so a new IST-day snapshot is still written when Vizra data is unchanged.
+- **Backup:** **`update-pricing-history.yml`** keeps the **IST midnight** cron and **workflow_dispatch**; **`workflow_run`** was removed to avoid duplicate runs.
+- **Client:** After load, **`syncMergedHistoryToLocalStorage()`** (`src/pricingService.js`) merges **`getServerHistory()`** into **`localStorage`**; the first-open-of-day local snapshot is skipped if that day already exists (server or merged). **`mergeServerAndLocalHistory`** is shared with **`HistoryModal`**.
+
+Details: [PRICING_UPDATES.md](PRICING_UPDATES.md) § Pricing history.
 
 ---
 

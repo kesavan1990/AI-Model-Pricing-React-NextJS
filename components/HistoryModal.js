@@ -4,23 +4,10 @@ import { useState, useEffect } from 'react';
 import { usePricing } from '../context/PricingContext';
 import { getServerHistory } from '../src/api.js';
 import { formatHistoryDate } from '../src/render.js';
-import { dedupeModelsByName } from '../src/pricingService.js';
+import { dedupeModelsByName, mergeServerAndLocalHistory } from '../src/pricingService.js';
 import { escapeCsvCell, drawPdfBorderedTable } from '../src/render.js';
 
 const fmt = (v) => (v === 0 ? 'Free' : '$' + Number(v).toFixed(2));
-
-function mergeHistory(serverList, localList) {
-  const byDate = new Map();
-  for (const e of serverList || []) {
-    const key = e.date ? new Date(e.date).toISOString().slice(0, 10) : '';
-    if (key && !byDate.has(key)) byDate.set(key, { ...e, source: 'server' });
-  }
-  for (const e of localList || []) {
-    const key = e.date ? new Date(e.date).toISOString().slice(0, 10) : '';
-    if (key && !byDate.has(key)) byDate.set(key, { ...e, source: 'local' });
-  }
-  return Array.from(byDate.values()).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-}
 
 export function HistoryModal({ open, onClose }) {
   const { pricing, showToast } = usePricing();
@@ -36,7 +23,7 @@ export function HistoryModal({ open, onClose }) {
     const local = pricing.getHistory() || [];
     getServerHistory()
       .then((server) => {
-        setHistoryList(mergeHistory(server, local));
+        setHistoryList(mergeServerAndLocalHistory(server, local));
       })
       .catch(() => {
         setHistoryList(local);

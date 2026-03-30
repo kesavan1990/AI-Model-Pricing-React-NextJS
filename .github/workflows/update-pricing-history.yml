@@ -1,18 +1,13 @@
-# Appends a daily pricing snapshot to public/pricing-history.json so the app's
-# Pricing History has data even when no one opens the site that day.
+# Appends a daily pricing snapshot to public/pricing-history.json.
 #
-# Runs after "Update pricing" completes (same day as fresh pricing.json) and keeps
-# a scheduled fallback at 12:00 AM IST in case the pricing workflow was skipped.
+# Primary: `.github/workflows/update-pricing.yml` runs this script after every
+# pricing fetch and commits pricing.json + pricing-history.json together.
 #
-# workflow_run.branches: only runs when "Update pricing" ran on this branch.
-# If your default branch is not `main`, change `main` below to match (e.g. master).
+# This workflow is a scheduled fallback (12:00 AM IST) and manual dispatch if
+# the main pricing workflow did not run or failed before committing history.
 name: Update pricing history
 
 on:
-  workflow_run:
-    workflows: ['Update pricing']
-    types: [completed]
-    branches: [main]
   schedule:
     # Run daily at 12:00 AM IST (18:30 UTC)
     - cron: '30 18 * * *'

@@ -4,6 +4,7 @@
  */
 
 import { getCachedPricing } from './utils/cacheManager.js';
+import { getServerHistory } from './api.js';
 
 export const STORAGE_KEY = 'ai_pricing_cache'; // legacy; prefer cacheManager.CACHE_KEY
 export const HISTORY_KEY = 'ai_pricing_history';
@@ -191,6 +192,50 @@ export function getHistory() {
   } catch (_) {
     return [];
   }
+}
+
+/** YYYY-MM-DD key for merging server and local history (matches ISO snapshot timestamps). */
+export function getHistoryDateMergeKey(date) {
+  if (date == null || date === '') return '';
+  try {
+    const d = new Date(date);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toISOString().slice(0, 10);
+  } catch (_) {
+    return '';
+  }
+}
+
+/** Prefer server snapshot per day, then local-only days (same rules as Pricing History modal). */
+export function mergeServerAndLocalHistory(serverList, localList) {
+  const byDate = new Map();
+  for (const e of serverList || []) {
+    const key = getHistoryDateMergeKey(e.date);
+    if (key && !byDate.has(key)) byDate.set(key, { ...e });
+  }
+  for (const e of localList || []) {
+    const key = getHistoryDateMergeKey(e.date);
+    if (key && !byDate.has(key)) byDate.set(key, { ...e });
+  }
+  return Array.from(byDate.values()).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+}
+
+/**
+ * Pull GitHub Pages pricing-history.json into localStorage merged with existing rows.
+ * Called after pricing loads so History reflects server snapshots even before opening the modal.
+ */
+export async function syncMergedHistoryToLocalStorage() {
+  if (typeof window === 'undefined') return;
+  try {
+    const server = await getServerHistory();
+    if (!Array.isArray(server) || server.length === 0) return;
+    const local = getHistory();
+    const merged = mergeServerAndLocalHistory(server, local);
+    const mergedStr = JSON.stringify(merged);
+    if (mergedStr !== JSON.stringify(local)) {
+      localStorage.setItem(HISTORY_KEY, mergedStr);
+    }
+  } catch (_) {}
 }
 
 export function cleanupHistoryToDailyOnly() {

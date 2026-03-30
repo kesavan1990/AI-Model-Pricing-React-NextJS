@@ -9,7 +9,7 @@ To avoid API rate limits from the frontend, pricing is updated via the repo inst
 | **Automated run** | **Daily at 06:00 UTC** | `.github/workflows/update-pricing.yml` triggers at `cron: '0 6 * * *'`. |
 | **Manual run** | On demand | GitHub Actions → **Update pricing** → **Run workflow**. |
 | **Output** | After each run | `public/pricing.json` is updated and committed only if content changed. |
-| **Pricing history (server)** | **After Update pricing completes** (`workflow_run` on `main`) **+** daily **12:00 AM IST** (`30 18 * * *` UTC) **+** manual | `.github/workflows/update-pricing-history.yml` appends to `public/pricing-history.json`. Uses **`concurrency: update-pricing-history`** so overlapping runs don’t race. See [Pricing history (daily snapshots)](#pricing-history-daily-snapshots-without-opening-the-app). |
+| **Pricing history (server)** | **Same run as Update pricing** (history script runs after every pricing fetch; one commit may update both files) **+** fallback **12:00 AM IST** (`30 18 * * *` UTC) **+** manual | `update-pricing.yml` runs `scripts/update-pricing-history.js` then commits `public/pricing.json` and/or `public/pricing-history.json`. Standalone `update-pricing-history.yml` remains as backup. See [Pricing history (daily snapshots)](#pricing-history-daily-snapshots-without-opening-the-app). |
 
 **CI runtime:** The **Update pricing**, **Update pricing history**, and **Deploy to GitHub Pages** workflows all use **Node.js 22** in Actions so `npm ci` / build behavior matches.
 
@@ -175,21 +175,23 @@ The **Pricing History** modal merges two sources:
 | **Server** | Automated; no need to open the site | `public/pricing-history.json` on the deployed host (e.g. GitHub Pages) |
 | **Browser** | When someone loads the app in that browser | `localStorage` (per device) |
 
-If you only see history **after** you’ve opened the app, the **server file** is missing, not deployed, or the workflow never committed it. The UI calls `getServerHistory()` in `src/api.js` (fetches `pricing-history.json` with the same base path as `pricing.json` on GitHub Pages). A failed or missing fetch yields `[]`, so you only see **local** snapshots.
+If you only see history **after** you’ve opened the app, the **server file** may be missing, not deployed, or **Update pricing** never committed it. After pricing loads, the app merges **`pricing-history.json`** into `localStorage` via `syncMergedHistoryToLocalStorage()` in `src/pricingService.js`. A failed fetch yields only **local** snapshots until the next successful merge.
 
 ### Automated server history
 
-- **Workflow:** [`.github/workflows/update-pricing-history.yml`](../.github/workflows/update-pricing-history.yml) — runs **`workflow_run`** after **[Update pricing](../.github/workflows/update-pricing.yml)** completes on `main` (so the snapshot uses the repo’s current `public/pricing.json`), plus a **daily cron** at **12:00 AM IST** (`30 18 * * *` UTC) as a fallback, and **workflow_dispatch**.
+- **Primary:** [`.github/workflows/update-pricing.yml`](../.github/workflows/update-pricing.yml) — after `scripts/update-pricing.js`, runs **`scripts/update-pricing-history.js`**, then commits **both** `public/pricing.json` and `public/pricing-history.json` when either file changed. So a new daily history row is written **even when pricing.json is unchanged**, as long as that day’s snapshot is not already in the history file.
+- **Backup:** [`.github/workflows/update-pricing-history.yml`](../.github/workflows/update-pricing-history.yml) — **daily cron** at **12:00 AM IST** (`30 18 * * *` UTC) and **workflow_dispatch** (no `workflow_run` link, to avoid duplicate runs).
 - **Script:** `scripts/update-pricing-history.js` — appends one entry per IST calendar day (deduped), caps at 90 days, writes `public/pricing-history.json`.
 - **Deploy:** A push to `main` (including the history commit) should run **Deploy to GitHub Pages** so the live site serves the updated JSON.
 
 ### Troubleshooting (no daily rows until I open the app)
 
-1. **GitHub → Actions → Update pricing history** — confirm runs are **green**. Fix failures (e.g. no pricing data, script error).
-2. **Repo file** — ensure `public/pricing-history.json` exists on `main` and grows over time (workflow commits `chore: add daily pricing snapshot to history`).
-3. **Live URL** — open `https://<user>.github.io/<repo>/pricing-history.json` (e.g. `…/AI-Model-Pricing-React-NextJS/pricing-history.json`). If this **404s** or is empty `[]`, the deployed build doesn’t include the file or Actions aren’t updating it.
-4. **Actions on fork** — forks often have Actions disabled; enable them for scheduled and `workflow_run` triggers.
-5. **Not the same as local folder** — pushing from your machine is required; GitHub cannot run workflows on code that never reached the remote.
+1. **GitHub → Actions → Update pricing** — confirm runs are **green** and commits appear for `pricing-history.json` when you expect a new day (message: `chore: update pricing and/or daily history snapshot`).
+2. **GitHub → Actions → Update pricing history** (fallback) — confirm scheduled/manual runs if the main workflow failed before the history step.
+3. **Repo file** — ensure `public/pricing-history.json` on `main` grows over time.
+4. **Live URL** — open `https://<user>.github.io/<repo>/pricing-history.json` (e.g. `…/AI-Model-Pricing-React-NextJS/pricing-history.json`). If this **404s** or is stale, the deploy did not include the latest JSON.
+5. **Actions on fork** — forks often have Actions disabled; enable them for **scheduled** triggers.
+6. **Not the same as local folder** — pushing from your machine is required; GitHub cannot run workflows on code that never reached the remote.
 
 ### Manual recovery
 
