@@ -3,7 +3,7 @@
 #
 # Scheduled runs execute on GitHub only (not when users open the app). Cron uses the
 # repository DEFAULT branch. Enable Actions in repo Settings; forks often start with Actions off.
-# Commit happens only when public/pricing.json content changes (see "Commit and push if changed").
+# Commits when public/pricing.json and/or public/pricing-history.json change (see commit step).
 name: Update pricing
 
 on:
@@ -12,8 +12,9 @@ on:
     - cron: '0 6 * * *'
   workflow_dispatch:
 
+# Same group as "Update pricing history" so two workflows never push at once (avoids rejected pushes).
 concurrency:
-  group: update-pricing
+  group: pricing-data-${{ github.repository }}
   cancel-in-progress: false
 
 jobs:
@@ -42,8 +43,14 @@ jobs:
         run: node scripts/update-pricing.js
 
       - name: Append daily snapshot to pricing-history.json
+        id: append_history
         continue-on-error: true
         run: node scripts/update-pricing-history.js
+
+      - name: Report history-append failure
+        if: steps.append_history.outcome == 'failure'
+        run: |
+          echo "::warning::scripts/update-pricing-history.js failed. The scheduled 'Update pricing history' workflow (IST midnight) or manual dispatch can still append. Check logs above."
 
       - name: Commit and push if pricing or history changed
         run: |
@@ -54,5 +61,6 @@ jobs:
             echo "No changes to pricing.json or pricing-history.json"
           else
             git commit -m "chore: update pricing and/or daily history snapshot"
-            git push
+            git pull --rebase origin ${{ github.ref_name }}
+            git push origin ${{ github.ref_name }}
           fi

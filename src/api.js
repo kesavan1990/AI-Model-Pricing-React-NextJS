@@ -74,17 +74,32 @@ export function getHistoryJsonUrl() {
  * Fetch server-side pricing history (daily snapshots from workflow). Returns [] on failure.
  * @returns {Promise<Array<{ date: string, gemini, openai, anthropic, mistral, daily?: boolean }>>}
  */
+const HISTORY_FETCH_MS = 15000;
+
+async function fetchHistoryOnce(url) {
+  const ac = new AbortController();
+  const t = setTimeout(() => ac.abort(), HISTORY_FETCH_MS);
+  try {
+    const res = await fetch(url, { cache: 'no-store', signal: ac.signal });
+    if (!res.ok) throw new Error('not ok');
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+/** Merges into localStorage after load; retry once for slow GitHub Pages / flaky networks. */
 export async function getServerHistory() {
   const url = getHistoryJsonUrl();
   try {
-    const ac = new AbortController();
-    const t = setTimeout(() => ac.abort(), 8000);
-    const res = await fetch(url, { cache: 'no-store', signal: ac.signal }).finally(() => clearTimeout(t));
-    if (!res.ok) return [];
-    const data = await res.json();
-    return Array.isArray(data) ? data : [];
+    return await fetchHistoryOnce(url);
   } catch (_) {
-    return [];
+    try {
+      return await fetchHistoryOnce(url);
+    } catch (_) {
+      return [];
+    }
   }
 }
 

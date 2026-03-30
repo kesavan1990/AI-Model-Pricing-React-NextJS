@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: update-pricing-history
+  group: pricing-data-${{ github.repository }}
   cancel-in-progress: false
 
 jobs:
@@ -48,5 +48,6 @@ jobs:
             echo "No history changes"
           else
             git commit -m "chore: add daily pricing snapshot to history"
-            git push
+            git pull --rebase origin ${{ github.ref_name }}
+            git push origin ${{ github.ref_name }}
           fi

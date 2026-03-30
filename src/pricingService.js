@@ -5,6 +5,7 @@
 
 import { getCachedPricing } from './utils/cacheManager.js';
 import { getServerHistory } from './api.js';
+import { getHistoryDateMergeKey } from './historyDateKey.js';
 
 export const STORAGE_KEY = 'ai_pricing_cache'; // legacy; prefer cacheManager.CACHE_KEY
 export const HISTORY_KEY = 'ai_pricing_history';
@@ -194,17 +195,7 @@ export function getHistory() {
   }
 }
 
-/** YYYY-MM-DD key for merging server and local history (matches ISO snapshot timestamps). */
-export function getHistoryDateMergeKey(date) {
-  if (date == null || date === '') return '';
-  try {
-    const d = new Date(date);
-    if (Number.isNaN(d.getTime())) return '';
-    return d.toISOString().slice(0, 10);
-  } catch (_) {
-    return '';
-  }
-}
+export { getHistoryDateMergeKey };
 
 /** Prefer server snapshot per day, then local-only days (same rules as Pricing History modal). */
 export function mergeServerAndLocalHistory(serverList, localList) {

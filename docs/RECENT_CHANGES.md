@@ -203,8 +203,9 @@ Doc snippets in the **legacy** `renderRecommendations` path are treated as **tex
 - **CI:** **`update-pricing.yml`** now runs **`scripts/update-pricing-history.js`** after every pricing fetch and commits **both** `public/pricing.json` and `public/pricing-history.json` when **either** changes—so a new IST-day snapshot is still written when Vizra data is unchanged.
 - **Backup:** **`update-pricing-history.yml`** keeps the **IST midnight** cron and **workflow_dispatch**; **`workflow_run`** was removed to avoid duplicate runs.
 - **Client:** After load, **`syncMergedHistoryToLocalStorage()`** (`src/pricingService.js`) merges **`getServerHistory()`** into **`localStorage`**; the first-open-of-day local snapshot is skipped if that day already exists (server or merged). **`mergeServerAndLocalHistory`** is shared with **`HistoryModal`**.
+- **Hardening:** Shared **`src/historyDateKey.js`** for CI + app dedupe; **shared `concurrency`** + **`git pull --rebase`** before push on both workflows; history fetch **retry** and **15s** timeout in **`getServerHistory()`**; explicit **GitHub warning** if the history step fails inside **Update pricing**; **60s** Vizra timeout in the history script fallback fetch.
 
-Details: [PRICING_UPDATES.md](PRICING_UPDATES.md) § Pricing history.
+Details and edge-case table: [PRICING_UPDATES.md](PRICING_UPDATES.md) § Pricing history.
 
 ---
 

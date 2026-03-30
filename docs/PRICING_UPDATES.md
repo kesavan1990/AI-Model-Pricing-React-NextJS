@@ -183,6 +183,20 @@ If you only see history **after** you’ve opened the app, the **server file** m
 - **Backup:** [`.github/workflows/update-pricing-history.yml`](../.github/workflows/update-pricing-history.yml) — **daily cron** at **12:00 AM IST** (`30 18 * * *` UTC) and **workflow_dispatch** (no `workflow_run` link, to avoid duplicate runs).
 - **Script:** `scripts/update-pricing-history.js` — appends one entry per IST calendar day (deduped), caps at 90 days, writes `public/pricing-history.json`.
 - **Deploy:** A push to `main` (including the history commit) should run **Deploy to GitHub Pages** so the live site serves the updated JSON.
+- **Push serialization:** Both workflows use the same **`concurrency` group** (`pricing-data-${{ github.repository }}`) so they do not run two `git push`es at the same time (avoids non-fast-forward failures). Each commit step does **`git pull --rebase`** before **`git push`**.
+- **Dedup key:** `src/historyDateKey.js` (`getHistoryDateMergeKey`) is shared by the CI script and the app so “already have today” checks match the Pricing History modal (handles `date` values that are full ISO or date-only strings).
+
+### Edge cases (cannot fully eliminate without a backend)
+
+| Case | Behavior |
+|------|-----------|
+| **GitHub Actions disabled / fork** | No server file updates until Actions run on the default branch. |
+| **History step fails in Update pricing** | Step uses `continue-on-error` so **pricing.json** can still commit. A **GitHub warning** is printed; IST fallback workflow or **manual** run can append history. |
+| **Both workflows skip commit** | No file change (e.g. history already has today + pricing unchanged) — expected. |
+| **Deploy not run** | Pushes to `main` without **Deploy to GitHub Pages** leave the live URL stale until the next deploy. |
+| **Browser offline / fetch timeout** | `getServerHistory()` retries once (15s timeout); failure yields `[]` until the next load. |
+| **Clock skew** | Snapshots are defined in **IST** on the runner and in the script; extreme skew is unlikely on `ubuntu-latest`. |
+| **Concurrent edits to `pricing-history.json`** | Concurrency group + rebase reduces races; manual edits while Actions run can still conflict (resolve in git). |
 
 ### Troubleshooting (no daily rows until I open the app)
 

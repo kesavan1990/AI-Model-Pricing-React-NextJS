@@ -6,8 +6,9 @@
  * Entry format matches app: { date, gemini, openai, anthropic, mistral, daily: true }.
  */
 
-const fs = await import('fs');
-const path = await import('path');
+import { getHistoryDateMergeKey } from '../src/historyDateKey.js';
+import fs from 'fs';
+import path from 'path';
 
 const PRICING_FILE = 'public/pricing.json';
 const HISTORY_FILE = 'public/pricing-history.json';
@@ -113,7 +114,9 @@ async function loadPricing() {
       };
     }
   } catch (_) {}
-  const res = await fetch(VIZRA_URL, { cache: 'no-store' });
+  const ac = new AbortController();
+  const t = setTimeout(() => ac.abort(), 60000);
+  const res = await fetch(VIZRA_URL, { cache: 'no-store', signal: ac.signal }).finally(() => clearTimeout(t));
   if (!res.ok) throw new Error(`Vizra API ${res.status}`);
   const data = await res.json();
   return parseVizraResponse(data);
@@ -137,8 +140,12 @@ async function main() {
     if (!Array.isArray(list)) list = [];
   } catch (_) {}
 
-  const todayDateStr = todayDate.slice(0, 10);
-  const existingDate = list.some((e) => e.date && String(e.date).slice(0, 10) === todayDateStr);
+  const todayKey = getHistoryDateMergeKey(todayDate);
+  if (!todayKey) {
+    console.error('Could not compute history day key for IST snapshot date');
+    process.exit(1);
+  }
+  const existingDate = list.some((e) => e.date && getHistoryDateMergeKey(e.date) === todayKey);
   if (existingDate) {
     console.log('History already has an entry for today', todayIST);
     process.exit(0);
