@@ -146,3 +146,4 @@ The workflow depends on `public/pricing.json` being present (from the last run o
 - **API:** `api.getBenchmarks()` fetches `benchmarks.json?t=<timestamp>` (cache-busting). Returns `{ updated, benchmarks }` or `null`.
 - **State:** App stores `benchmarksData` (the `benchmarks` array or `null`) and passes it to `render.renderTables(data, benchmarks)`.
 - **Merge:** `getBenchmarkForModelMerged(name, providerKey, fileBenchmarks)` in `src/calculator.js` finds an entry in `fileBenchmarks` where `provider` and normalized `model` match; otherwise falls back to `getBenchmarkForModel(name, providerKey)`.
+- **Transparency (Next.js `/benchmarks`):** Collapsible **Where these scores come from** explains Arena vs HF vs in-app fallbacks, shows the file **`updated`** date, and aligns column tooltips with this pipeline. See [UI.md](UI.md) § Model benchmark dashboard → *Where scores come from (UI)*; changelog [RECENT_CHANGES.md](RECENT_CHANGES.md) §12.

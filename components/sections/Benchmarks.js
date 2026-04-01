@@ -32,8 +32,11 @@ function HeatmapCell({ score }) {
   );
 }
 
+const HF_LEADERBOARD_URL = 'https://huggingface.co/datasets/open-llm-leaderboard/contents';
+const ARENA_URL = 'https://arena.lmsys.org/';
+
 export function Benchmarks() {
-  const { getData, getBenchmarksData, showToast } = usePricing();
+  const { getData, getBenchmarksData, showToast, benchmarksLastUpdated } = usePricing();
   const data = getData();
   const fileBenchmarks = getBenchmarksData();
   const all = useMemo(() => getChatModels(data), [data]);
@@ -184,6 +187,37 @@ export function Benchmarks() {
         <div>
           <h2 className="section-title">📊 Benchmarks Leaderboard</h2>
           <p className="section-subtitle">Model benchmarks (MMLU, Code, Reasoning, Arena) and cost tier. Use Export to download CSV or PDF.</p>
+          <details className="benchmark-sources-panel">
+            <summary className="benchmark-sources-summary">Where these scores come from</summary>
+            <div className="benchmark-sources-body">
+              <p className="benchmark-sources-lead">
+                Numbers are merged from public leaderboards where possible, then filled with tier-based estimates when there is no match.
+                The bundled file&apos;s <strong>updated</strong> date is <strong>{benchmarksLastUpdated}</strong>.
+                Your footer shows when this browser last loaded pricing and benchmarks.
+              </p>
+              <ul className="benchmark-sources-list">
+                <li>
+                  <strong>MMLU</strong> — From the{' '}
+                  <a href={HF_LEADERBOARD_URL} target="_blank" rel="noopener noreferrer">Hugging Face Open LLM Leaderboard</a>{' '}
+                  (<em>MMLU-PRO</em>) when the weekly build matches the model name; otherwise an in-app tier estimate.
+                </li>
+                <li>
+                  <strong>Reasoning</strong> — From the same HF leaderboard (<em>MATH Lvl 5</em> / <em>BBH</em>) when matched; otherwise tier estimates.
+                </li>
+                <li>
+                  <strong>Code</strong> — In-app tier estimates only (the pipeline does not pull a separate code benchmark column from that HF slice today).
+                </li>
+                <li>
+                  <strong>Arena</strong> — From the{' '}
+                  <a href={ARENA_URL} target="_blank" rel="noopener noreferrer">LMSYS Chatbot Arena</a>{' '}
+                  leaderboard when matched (often ELO-style values). If there is no match, a smaller fallback score is used, so Arena numbers may not be on one scale across every row.
+                </li>
+              </ul>
+              <p className="benchmark-sources-note">
+                The radar chart maps each metric to 0–100 for display (values above 100 appear at the outer edge). Heatmap bands (strong / average / weak) are for quick scanning, not official benchmark tiers.
+              </p>
+            </div>
+          </details>
         </div>
         <div className="benchmark-export-toolbar">
           <span className="export-label">Export:</span>
@@ -273,25 +307,25 @@ export function Benchmarks() {
             <thead>
               <tr>
                 <th>Model</th>
-                <th className="benchmark-sortable" scope="col" title="Massive Multitask Language Understanding — broad knowledge. Higher = better.">
+                <th className="benchmark-sortable" scope="col" title="MMLU-PRO (or similar) from Hugging Face Open LLM Leaderboard when matched; else tier estimate. Higher = better.">
                   <button type="button" className="benchmark-sort-btn" onClick={() => handleSort('mmlu')} aria-label={sortColumn === 'mmlu' ? `Sorted by MMLU ${sortDirection === 'asc' ? 'ascending' : 'descending'}. Click to change.` : 'Sort by MMLU'}>
                     MMLU
                     <span className={`benchmark-sort-icon${sortColumn === 'mmlu' ? ' benchmark-sort-icon-active' : ''}`} aria-hidden="true">{sortColumn === 'mmlu' ? (sortDirection === 'asc' ? ' ↑' : ' ↓') : ' ↕'}</span>
                   </button>
                 </th>
-                <th className="benchmark-sortable" scope="col" title="HumanEval — code generation. Higher = better.">
+                <th className="benchmark-sortable" scope="col" title="Approximate code capability tier (in-app estimates). Not from HumanEval in the current pipeline. Higher = better.">
                   <button type="button" className="benchmark-sort-btn" onClick={() => handleSort('code')} aria-label={sortColumn === 'code' ? `Sorted by Code ${sortDirection === 'asc' ? 'ascending' : 'descending'}. Click to change.` : 'Sort by Code'}>
                     Code
                     <span className={`benchmark-sort-icon${sortColumn === 'code' ? ' benchmark-sort-icon-active' : ''}`} aria-hidden="true">{sortColumn === 'code' ? (sortDirection === 'asc' ? ' ↑' : ' ↓') : ' ↕'}</span>
                   </button>
                 </th>
-                <th className="benchmark-sortable" scope="col" title="GSM8K — reasoning. Higher = better.">
+                <th className="benchmark-sortable" scope="col" title="MATH Lvl 5 / BBH from Hugging Face Open LLM Leaderboard when matched; else tier estimate. Higher = better.">
                   <button type="button" className="benchmark-sort-btn" onClick={() => handleSort('reasoning')} aria-label={sortColumn === 'reasoning' ? `Sorted by Reasoning ${sortDirection === 'asc' ? 'ascending' : 'descending'}. Click to change.` : 'Sort by Reasoning'}>
                     Reasoning
                     <span className={`benchmark-sort-icon${sortColumn === 'reasoning' ? ' benchmark-sort-icon-active' : ''}`} aria-hidden="true">{sortColumn === 'reasoning' ? (sortDirection === 'asc' ? ' ↑' : ' ↓') : ' ↕'}</span>
                   </button>
                 </th>
-                <th className="benchmark-sortable" scope="col" title="Arena / leaderboard. Higher = better.">
+                <th className="benchmark-sortable" scope="col" title="LMSYS Chatbot Arena leaderboard when matched (often ELO-style); else fallback score — scales may differ between rows. Higher = better.">
                   <button type="button" className="benchmark-sort-btn" onClick={() => handleSort('arena')} aria-label={sortColumn === 'arena' ? `Sorted by Arena ${sortDirection === 'asc' ? 'ascending' : 'descending'}. Click to change.` : 'Sort by Arena'}>
                     Arena
                     <span className={`benchmark-sort-icon${sortColumn === 'arena' ? ' benchmark-sort-icon-active' : ''}`} aria-hidden="true">{sortColumn === 'arena' ? (sortDirection === 'asc' ? ' ↑' : ' ↓') : ' ↕'}</span>

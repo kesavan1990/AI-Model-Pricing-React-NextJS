@@ -142,13 +142,14 @@ See [PRICING_UPDATES.md](PRICING_UPDATES.md) and [BENCHMARKS.md](BENCHMARKS.md) 
 | Area | Change |
 |------|--------|
 | **Pricing pipeline** | Writes `public/pricing.json`; includes all model types and providers; preserves `modelType` and alternate pricing; allows 0/0 when type or alternate pricing present. **Actions use Node 22.** |
-| **Pricing history pipeline** | `update-pricing-history.yml`: `workflow_run` after **Update pricing** + IST cron + manual → `public/pricing-history.json`; concurrency group; documented in PRICING_UPDATES.md + README. |
+| **Pricing history pipeline** | **`update-pricing.yml`** runs **`update-pricing-history.js`** and commits **`pricing-history.json`** with **`pricing.json`**; **`update-pricing-history.yml`** = IST cron + manual backup; shared **`pricing-data-${{ github.repository }}`** concurrency + rebase push. See **§11** and [PRICING_UPDATES.md](PRICING_UPDATES.md). |
 | **Benchmarks pipeline** | Reads/writes `public/pricing.json` and `public/benchmarks.json`; one entry per model (all types, all providers); chat uses Arena/HF, others use fallback. |
 | **Dashboard** | Model type filter (Chat/Text default); provider filter via clickable cards; 5 decimals; empty state; compact layout; Cost per 1M: all results, scrollable, sticky header, sort by Cost header, legend below. |
 | **Calculator** | Chat-only models for Pricing and Prompt cost; sticky headers and no-gap scroll on result tables (Pricing, Prompt cost, Context window, Production cost). |
 | **Navigation** | Next.js **Link** for all in-app routes; **prefetch** enabled; **NProgress** top bar shown while route loads. See [UI.md](UI.md). |
 | **Security** | HTML escaping for legacy `innerHTML` builders; React notes without `dangerouslySetInnerHTML`; bundled **`gpt-tokenizer`** instead of CDN script. See **§10** below. |
 | **Pricing history** | **Update pricing** run now commits **`pricing-history.json`** with **`pricing.json`**; client merges server history into **`localStorage`** after load. See **§11**. |
+| **Benchmarks transparency** | Collapsible **Where these scores come from** on **`/benchmarks`**, accurate column tooltips, **`benchmarks.json` `updated`** in copy. See **§12** and [UI.md](UI.md) § Model benchmark dashboard. |
 
 ---
 
@@ -206,6 +207,15 @@ Doc snippets in the **legacy** `renderRecommendations` path are treated as **tex
 - **Hardening:** Shared **`src/historyDateKey.js`** for CI + app dedupe; **shared `concurrency`** + **`git pull --rebase`** before push on both workflows; history fetch **retry** and **15s** timeout in **`getServerHistory()`**; explicit **GitHub warning** if the history step fails inside **Update pricing**; **60s** Vizra timeout in the history script fallback fetch.
 
 Details and edge-case table: [PRICING_UPDATES.md](PRICING_UPDATES.md) § Pricing history.
+
+---
+
+## 12. Benchmarks: score sources in the UI
+
+- **Goal:** Make it clear **where MMLU, Code, Reasoning, and Arena** numbers come from (HF Open LLM Leaderboard, LMSYS Arena, in-app tier fallbacks) and how that relates to **`benchmarks.json`** vs the footer clock.
+- **UI:** **`components/sections/Benchmarks.js`** — collapsible **Where these scores come from** (`<details>`) with links to [Hugging Face Open LLM Leaderboard dataset](https://huggingface.co/datasets/open-llm-leaderboard/contents) and [LMSYS Chatbot Arena](https://arena.lmsys.org/); shows **`benchmarksLastUpdated`** (from the file’s **`updated`** field). Table header **`title`** tooltips match **`scripts/update-benchmarks.js`** (e.g. Code = in-app tier only; no incorrect HumanEval/GSM8K labels).
+- **Styles:** **`css/styles.css`** — `#section-benchmark .benchmark-sources-*` (including light theme).
+- **Docs:** [UI.md](UI.md) § Model benchmark dashboard → **Where scores come from (UI)**.
 
 ---
 

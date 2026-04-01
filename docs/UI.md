@@ -274,6 +274,8 @@ On the **Benchmarks** tab (React: `/benchmarks`), the **Model benchmark dashboar
 
 **Layout and alignment** — The **Benchmarks Leaderboard** title and subtitle are **left-aligned**. The heatmap legend is **right-aligned** above the table. The **Benchmark Radar Comparison** section title and instructions are left-aligned.
 
+**Where scores come from (UI)** — A collapsible **Where these scores come from** (`<details>`) under the subtitle explains **MMLU** (HF Open LLM Leaderboard MMLU-PRO when matched), **Reasoning** (HF MATH Lvl 5 / BBH when matched), **Code** (in-app tier estimates only in the current pipeline), and **Arena** (LMSYS Chatbot Arena when matched, with a note on mixed scales). It shows the **`benchmarks.json` `updated` date** from context and clarifies footer vs dataset date. **Column header** `title` tooltips match these sources. Implementation: `components/sections/Benchmarks.js`, styles `#section-benchmark .benchmark-sources-*` in `css/styles.css`.
+
 ### Leaderboard cards
 
 Four cards show **top 5** models each: **Best Reasoning Models**, **Best Coding Models**, **Best General Intelligence** (MMLU), **Best Arena Score**. Each lists model name and score.
@@ -336,7 +338,7 @@ The **Recommend** tab helps users find a suitable model by describing their use 
 
 ## Pricing history
 
-The **📜 History** button in the header opens a **Pricing history** modal. Daily snapshots (12:00 AM IST) are saved when you first open the app each day; one snapshot per day is kept. History is stored in this browser only (separate for local file vs GitHub Pages). In the modal you can **compare two dates**: select two snapshots and see which models had price changes (drops and increases) between those dates. **Export CSV** and **Export PDF** download the full history list. After you click **Refresh from web**, a **Recent price changes** summary may appear in the footer showing which provider/model/field dropped or increased compared with the previous snapshot.
+The **📜 History** button in the header opens a **Pricing history** modal. The modal merges **two sources**: (1) **`pricing-history.json`** on the same host (daily snapshots from **GitHub Actions**, IST-oriented labels), and (2) **`localStorage`** snapshots from this browser. After each successful pricing load, **`syncMergedHistoryToLocalStorage()`** (`src/pricingService.js`) merges the server file into **`localStorage`** so server-only days appear without opening the modal first. A **local** daily snapshot is still added on first visit of an IST calendar day **only if** that day is not already present after the merge (see **`getHistoryDateMergeKey`** in **`src/historyDateKey.js`**). In the modal you can **compare two dates**: select two snapshots and see which models had price changes (drops and increases) between those dates. **Export CSV** and **Export PDF** download the merged list shown in the modal. After **Refresh from web**, a **Recent price changes** summary may appear in the footer (legacy **`index.html`** path where implemented). **Pipeline:** [PRICING_UPDATES.md](PRICING_UPDATES.md) § Pricing history; **React:** `components/HistoryModal.js`.
 
 ---
 
