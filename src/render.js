@@ -309,7 +309,7 @@ export function renderBenchmarkDashboard(data, fileBenchmarks = null) {
   const table = document.createElement('table');
   table.className = 'model-table';
   table.innerHTML =
-    '<thead><tr><th>Model</th><th title="MMLU-PRO from Hugging Face when matched; else tier estimate.">MMLU</th><th title="In-app code capability tier.">Code</th><th title="MATH / BBH from HF when matched; else tier estimate.">Reasoning</th><th title="LMArena text ELO or tier.">Txt ELO</th><th title="LMArena code arena ELO.">Code ELO</th><th title="LMArena document arena ELO.">Doc ELO</th><th title="Blended $/1M.">Cost</th></tr></thead><tbody></tbody>';
+    '<thead><tr><th>Model</th><th title="Knowledge (0–100): public tests or estimate.">Knowledge</th><th title="Coding strength tier in app (not Code rank).">Coding</th><th title="Reasoning (0–100): public tests or estimate.">Reasoning</th><th title="Chat leaderboard score (ELO scale).">Chat rank</th><th title="Code leaderboard on LMArena.">Code rank</th><th title="Document leaderboard on LMArena.">Doc rank</th><th title="Cost: $ cheaper, $$$ pricier.">Cost</th></tr></thead><tbody></tbody>';
   const tbody = table.querySelector('tbody');
   appendRowsWithFragment(tbody, rowHtmlArray);
   container.innerHTML = '';

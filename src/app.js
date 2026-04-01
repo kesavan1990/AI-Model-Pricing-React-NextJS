@@ -570,7 +570,7 @@ function exportComparisonPDF() {
 
 function exportBenchmarksCSV() {
   const list = render.getBenchmarkList(getData(), getBenchmarksData());
-  const rows = ['Model,MMLU,Code cap.,Reasoning,Text ELO,Code ELO,Doc ELO,Cost tier'];
+  const rows = ['Model,Knowledge (0-100),Coding (est),Reasoning (0-100),Chat rank ELO,Code rank ELO,Doc rank ELO,Cost tier'];
   list.forEach((m) =>
     rows.push(
       [m.name, m.mmlu, m.code, m.reasoning, m.arena, m.arenaCode ?? '', m.arenaDocument ?? '', m.costTier].map(render.escapeCsvCell).join(',')
@@ -600,7 +600,7 @@ function exportBenchmarksPDF() {
   doc.setTextColor(80, 80, 80);
   doc.text('Exported: ' + new Date().toLocaleDateString(undefined, { dateStyle: 'long' }), pageW / 2, 25, { align: 'center' });
   doc.setTextColor(0, 0, 0);
-  const headers = ['Model', 'MMLU', 'Code', 'Reas.', 'Txt ELO', 'Code ELO', 'Doc ELO', 'Cost'];
+  const headers = ['Model', 'Know.', 'Code est.', 'Reas.', 'Chat ELO', 'Code ELO', 'Doc ELO', 'Cost'];
   const colWidths = [44, 22, 20, 22, 22, 22, 22, 14];
   const rows = list.map((m) => [
     m.name,
