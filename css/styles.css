@@ -1289,17 +1289,53 @@ h1 {
 }
 #section-benchmark .benchmark-sources-card {
   margin-bottom: 20px;
-  padding: 14px 16px 16px;
   border-radius: 10px;
   border: 1px solid rgba(148, 163, 184, 0.28);
   background: rgba(15, 23, 42, 0.45);
+  overflow: hidden;
 }
-#section-benchmark .benchmark-sources-heading {
-  margin: 0 0 8px 0;
+#section-benchmark .benchmark-sources-disclosure { padding: 0; }
+#section-benchmark .benchmark-sources-summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 12px 14px;
+  margin: 0;
+  display: block;
+  user-select: none;
+  border: none;
+  font: inherit;
+}
+#section-benchmark .benchmark-sources-summary::-webkit-details-marker { display: none; }
+#section-benchmark .benchmark-sources-summary::marker { content: ''; }
+#section-benchmark .benchmark-sources-summary:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+#section-benchmark .benchmark-sources-disclosure[open] .benchmark-sources-summary {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+#section-benchmark .benchmark-sources-summary-text {
   font-size: 0.9375rem;
   font-weight: 600;
-  color: var(--theme-text);
-  text-align: left;
+  color: #7dd3fc;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+#section-benchmark .benchmark-sources-disclosure:not([open]) .benchmark-sources-summary::after {
+  content: ' · show';
+  font-weight: 500;
+  font-size: 0.8125rem;
+  color: var(--theme-text-muted);
+  text-decoration: none;
+}
+#section-benchmark .benchmark-sources-disclosure[open] .benchmark-sources-summary::after {
+  content: ' · hide';
+  font-weight: 500;
+  font-size: 0.8125rem;
+  color: var(--theme-text-muted);
+  text-decoration: none;
+}
+#section-benchmark .benchmark-sources-disclosure-body {
+  padding: 12px 16px 16px;
 }
 #section-benchmark .benchmark-sources-intro {
   margin: 0 0 12px 0;
@@ -1371,6 +1407,7 @@ h1 {
 [data-theme="light"] #section-benchmark .benchmark-sources-table thead th { border-bottom-color: rgba(0, 0, 0, 0.1); }
 [data-theme="light"] #section-benchmark .benchmark-sources-table tbody td { border-bottom-color: rgba(0, 0, 0, 0.06); }
 [data-theme="light"] #section-benchmark .benchmark-sources-table a { color: #0369a1; }
+[data-theme="light"] #section-benchmark .benchmark-sources-summary-text { color: #0369a1; }
 #section-benchmark .benchmark-table-block { min-width: 0; display: flex; flex-direction: column; gap: 10px; margin-bottom: 8px; }
 #section-benchmark .benchmark-toolbar-row {
   display: flex;

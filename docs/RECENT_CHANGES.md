@@ -213,7 +213,7 @@ Details and edge-case table: [PRICING_UPDATES.md](PRICING_UPDATES.md) § Pricing
 ## 12. Benchmarks: score sources in the UI
 
 - **Goal:** Make it clear **where each column** comes from (HF, LMArena, in-app tiers) with **correct URLs** and how that relates to **`benchmarks.json`** vs the footer.
-- **UI:** **`components/sections/Benchmarks.js`** — open **How scores are fetched** card (three-column table: column name, scale, source + links to [HF dataset](https://huggingface.co/datasets/open-llm-leaderboard/contents), [Datasets Server API](https://datasets-server.huggingface.co/rows?dataset=open-llm-leaderboard%2Fcontents&config=default&split=train&offset=0&length=500), [LMArena text/code/document](https://lmarena.ai/leaderboard/text)); header shows **`benchmarksLastUpdated`**. Mini leaderboard cards removed; main table + radar retained.
+- **UI:** **`components/sections/Benchmarks.js`** — **How these values are fetched** is a **`<details>`** (collapsed by default); the summary is the clickable control; the three-column sources table lives inside. Links: [HF dataset](https://huggingface.co/datasets/open-llm-leaderboard/contents), [Datasets Server API](https://datasets-server.huggingface.co/rows?dataset=open-llm-leaderboard%2Fcontents&config=default&split=train&offset=0&length=500), [LMArena text/code/document](https://lmarena.ai/leaderboard/text). Header shows **`benchmarksLastUpdated`**. Mini leaderboard cards removed; main table + radar retained.
 - **Styles:** **`css/styles.css`** — `#section-benchmark` layout (`.benchmark-page-head`, `.benchmark-sources-card`, `.benchmark-data-table` numeric alignment).
 - **Docs:** [UI.md](UI.md) § Model benchmark dashboard.
 
@@ -250,8 +250,8 @@ Details and edge-case table: [PRICING_UPDATES.md](PRICING_UPDATES.md) § Pricing
 
 ## 15. Benchmarks page layout (redesign)
 
-- **Scope:** Single-column flow: header + **sources table** + filter/legend + **aligned data table** + **Compare models** radar. Removed four **top-5 mini leaderboards**, long subtitle, collapsible `<details>`, and the long radar “how to read” list — replaced with a short radar subtitle.
-- **Sources:** One visible table lists each dashboard column, its **scale** (0–100 vs ELO vs cost tier), and **how** it is fetched with the **same URLs** as `update-benchmarks.js` (HF dataset + API query string; `lmarena.ai/leaderboard/{text,code,document}`).
+- **Scope:** Single-column flow: header + **collapsible sources** (`<details>`) + filter/legend + **aligned data table** + **Compare models** radar. Removed four **top-5 mini leaderboards**, long subtitle, and the long radar “how to read” list — replaced with a short radar subtitle.
+- **Sources:** When expanded, a table lists each dashboard column, its **scale**, and **how** it is fetched with the **same URLs** as `update-benchmarks.js` (HF dataset + API; `lmarena.ai/leaderboard/{text,code,document}`).
 - **Alignment:** Numeric columns use **right-aligned** headers/cells, **tabular numerals**, heatmap values **right-aligned** in cells; model names **left** with wrapping. Sources table is **horizontally scrollable** on narrow viewports.
 - **Files:** **`components/sections/Benchmarks.js`**, **`css/styles.css`**, **[UI.md](UI.md)** § Model benchmark dashboard.
 

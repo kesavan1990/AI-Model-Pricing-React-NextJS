@@ -274,8 +274,11 @@ export function Benchmarks() {
         </div>
       </header>
 
-      <div className="benchmark-sources-card">
-        <h3 className="benchmark-sources-heading">How scores are fetched</h3>
+      <details className="benchmark-sources-card benchmark-sources-disclosure">
+        <summary className="benchmark-sources-summary">
+          <span className="benchmark-sources-summary-text">How these values are fetched</span>
+        </summary>
+        <div className="benchmark-sources-disclosure-body">
         <p className="benchmark-sources-intro">
           Built by <code className="benchmark-code">scripts/update-benchmarks.js</code> (weekly GitHub Action). The footer shows when your browser last loaded data.
         </p>
@@ -359,7 +362,8 @@ export function Benchmarks() {
             </tbody>
           </table>
         </div>
-      </div>
+        </div>
+      </details>
 
       <div className="benchmark-table-block">
         <div className="benchmark-toolbar-row">
