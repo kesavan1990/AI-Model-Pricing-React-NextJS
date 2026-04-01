@@ -302,12 +302,14 @@ export function renderBenchmarkDashboard(data, fileBenchmarks = null) {
     const { tier, desc } = getCostTierLabel(m.blended);
     const blendedStr = m.blended <= 0 ? '0' : m.blended.toFixed(2);
     const costTitle = escapeHtml(`Blended: $${blendedStr}/1M tokens (70% input, 30% output) — ${desc}`);
-    return `<tr><td class="model-name">${escapeHtml(m.name)}</td><td class="benchmark-score">${b.mmlu}</td><td class="benchmark-score">${b.code}</td><td class="benchmark-score">${b.reasoning}</td><td class="benchmark-score">${b.arena}</td><td class="cost-tier" title="${costTitle}">${escapeHtml(tier)}</td></tr>`;
+    const ac = b.arenaCode != null ? b.arenaCode : '—';
+    const ad = b.arenaDocument != null ? b.arenaDocument : '—';
+    return `<tr><td class="model-name">${escapeHtml(m.name)}</td><td class="benchmark-score">${b.mmlu}</td><td class="benchmark-score">${b.code}</td><td class="benchmark-score">${b.reasoning}</td><td class="benchmark-score">${b.arena}</td><td class="benchmark-score">${ac}</td><td class="benchmark-score">${ad}</td><td class="cost-tier" title="${costTitle}">${escapeHtml(tier)}</td></tr>`;
   });
   const table = document.createElement('table');
   table.className = 'model-table';
   table.innerHTML =
-    '<thead><tr><th>Model</th><th title="MMLU-PRO from Hugging Face Open LLM Leaderboard when matched; else tier estimate. Higher = better.">MMLU</th><th title="In-app code tier estimate only (not HumanEval from HF in this pipeline). Higher = better.">Code</th><th title="MATH Lvl 5 / BBH from Hugging Face when matched; else tier estimate. Higher = better.">Reasoning</th><th title="LMArena text chat ELO when matched; else 0–100 tier estimate. Higher = better.">Arena</th><th title="Based on blended price per 1M tokens (70% input + 30% output). $ = free/low, $$ = budget, $$$ = premium.">Cost</th></tr></thead><tbody></tbody>';
+    '<thead><tr><th>Model</th><th title="MMLU-PRO from Hugging Face when matched; else tier estimate.">MMLU</th><th title="In-app code capability tier.">Code</th><th title="MATH / BBH from HF when matched; else tier estimate.">Reasoning</th><th title="LMArena text ELO or tier.">Txt ELO</th><th title="LMArena code arena ELO.">Code ELO</th><th title="LMArena document arena ELO.">Doc ELO</th><th title="Blended $/1M.">Cost</th></tr></thead><tbody></tbody>';
   const tbody = table.querySelector('tbody');
   appendRowsWithFragment(tbody, rowHtmlArray);
   container.innerHTML = '';
@@ -320,7 +322,16 @@ export function getBenchmarkList(data, fileBenchmarks = null) {
   return all.map((m) => {
     const b = getBenchmarkForModelMerged(m.name, m.providerKey, fileBenchmarks);
     const { tier } = getCostTierLabel(m.blended);
-    return { name: m.name, mmlu: b.mmlu, code: b.code, reasoning: b.reasoning, arena: b.arena, costTier: tier };
+    return {
+      name: m.name,
+      mmlu: b.mmlu,
+      code: b.code,
+      reasoning: b.reasoning,
+      arena: b.arena,
+      arenaCode: b.arenaCode,
+      arenaDocument: b.arenaDocument,
+      costTier: tier,
+    };
   });
 }
 

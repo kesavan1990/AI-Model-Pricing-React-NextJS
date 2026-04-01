@@ -231,20 +231,20 @@ Details and edge-case table: [PRICING_UPDATES.md](PRICING_UPDATES.md) § Pricing
 
 ### How to verify
 
-- **`node scripts/update-benchmarks.js`** — expect **`Arena: fetched`** with a **non-zero** count when the site is reachable; validate **`public/benchmarks.json`**.
+- **`node scripts/update-benchmarks.js`** — expect log lines **`Arena text`**, **`Arena code`**, **`Arena document`** with row counts; validate **`public/benchmarks.json`**.
 
 ---
 
 ## 14. Benchmark columns vs LMArena / HF (scales and UI)
 
 - **Why numbers differed from the Arena site**
-  - **MMLU** and **Reasoning** in this app come from the **Hugging Face Open LLM Leaderboard** (and tier estimates when unmatched), **not** from LMArena — so they will not match anything on lmarena.ai.
-  - **Code** is an **in-app tier estimate** only (not scraped from Arena or HF HumanEval in the current pipeline).
-  - **Arena** should be **text chat ELO** (~1200–1600) when `benchmarks.json` was built with a successful scrape; the bundled file often had **only 0–100 embedded fallbacks** (e.g. 84–97), which look nothing like portal ELO. Regenerate **`benchmarks.json`** after a successful weekly or manual **`update-benchmarks`** run to align Arena with the text leaderboard.
-- **Radar chart** — Previously **`Math.min(100, arena)`** capped ELO at **100**, so the chart lied next to the portal. Now **Arena** is mapped **linearly** from ~**1150–1650 → 0–100** for the radar only; **tooltips** show the **raw** value (**ELO** when ≥ 250).
-- **Heatmap** — The same **ELO → 0–100** mapping drives **color bands** for the Arena column; the **cell still shows raw ELO** when it is a real leaderboard value.
-- **Value Analysis** — Y-axis label for Arena is **“Arena (ELO or 0–100 est.)”** when that metric is selected, to reflect mixed data until all rows use scraped ELO.
-- **Implementation:** **`src/benchmarkScales.js`** (`arenaValueToChartScale`, `heatmapTierForMetric`, `formatBenchmarkTooltipValue`); **`components/sections/Benchmarks.js`**; **`src/valueChart.js`**; **`src/render.js`** table header titles; **`css/styles.css`** legend note.
+  - **MMLU** and **Reasoning** use a **0–100-style** scale from **Hugging Face** (or tier estimates) — **not** ELO and not the same as any LMArena column.
+  - **Code** (capability) is an **in-app 0–100 tier** — **not** LMArena **code arena ELO**. The dashboard now has a separate **Code ELO** column for the code leaderboard when matched.
+  - **Text / Code / Doc ELO** (~four digits) come from **`benchmarks.json`** after **`update-benchmarks`** scrapes **text**, **code**, and **document** LMArena pages. Stale bundles showed **only ~80–97** in the text column (tier fallback). **Image/video** LMArena boards are not scraped yet.
+- **Radar chart** — **Text ELO** is mapped ~**1150–1650 → 0–100** for the polygon; tooltips show raw **ELO** when ≥ 250. MMLU / Code / Reasoning stay on **0–100** on the chart.
+- **Heatmap** — **Text / Code / Doc ELO** columns use the same ELO→color mapping; **MMLU / Code cap. / Reasoning** use literal **0–100** bands.
+- **Value Analysis** — Performance metric **Arena** still uses the **text** ELO field (`arena`); axis label notes ELO vs estimate.
+- **Implementation:** **`src/benchmarkScales.js`** (`isArenaEloMetric`, …); **`scripts/update-benchmarks.js`** (three LMArena URLs); **`schemas/benchmarks.schema.json`** (`arenaCode`, `arenaDocument`); **`components/sections/Benchmarks.js`**; **`src/calculator.js`**; **`src/render.js`** / **`src/app.js`** exports; **`src/valueChart.js`**; **`css/styles.css`**.
 
 ---
 

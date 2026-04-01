@@ -27,7 +27,9 @@
         "mmlu": { "type": "number", "minimum": 0 },
         "code": { "type": "number", "minimum": 0 },
         "reasoning": { "type": "number", "minimum": 0 },
-        "arena": { "type": "number", "minimum": 0 }
+        "arena": { "type": "number", "minimum": 0 },
+        "arenaCode": { "type": "number", "minimum": 0 },
+        "arenaDocument": { "type": "number", "minimum": 0 }
       }
     }
   }

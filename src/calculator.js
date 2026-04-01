@@ -90,8 +90,8 @@ export function getBenchmarkForModel(name, providerKey) {
  * Get benchmark scores for a model: from file (benchmarks.json) if provided and entry exists, else fallback.
  * @param {string} name - Model name
  * @param {string} providerKey - gemini | openai | anthropic | mistral
- * @param {Array<{ model: string, provider: string, mmlu?: number, code?: number, reasoning?: number, arena?: number }>|null} fileBenchmarks - From benchmarks.json
- * @returns {{ mmlu: number, code: number, reasoning: number, arena: number }}
+ * @param {Array<{ model: string, provider: string, mmlu?: number, code?: number, reasoning?: number, arena?: number, arenaCode?: number, arenaDocument?: number }>|null} fileBenchmarks - From benchmarks.json
+ * @returns {{ mmlu: number, code: number, reasoning: number, arena: number, arenaCode?: number, arenaDocument?: number }}
  */
 export function getBenchmarkForModelMerged(name, providerKey, fileBenchmarks) {
   if (Array.isArray(fileBenchmarks) && fileBenchmarks.length > 0) {
@@ -100,12 +100,15 @@ export function getBenchmarkForModelMerged(name, providerKey, fileBenchmarks) {
       (e) => e && e.provider === providerKey && normalizeModelName(e.model) === norm
     );
     if (entry) {
-      return {
+      const out = {
         mmlu: typeof entry.mmlu === 'number' ? entry.mmlu : 0,
         code: typeof entry.code === 'number' ? entry.code : 0,
         reasoning: typeof entry.reasoning === 'number' ? entry.reasoning : 0,
         arena: typeof entry.arena === 'number' ? entry.arena : 0,
       };
+      if (typeof entry.arenaCode === 'number') out.arenaCode = entry.arenaCode;
+      if (typeof entry.arenaDocument === 'number') out.arenaDocument = entry.arenaDocument;
+      return out;
     }
   }
   return getBenchmarkForModel(name, providerKey);

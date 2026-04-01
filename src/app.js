@@ -570,8 +570,12 @@ function exportComparisonPDF() {
 
 function exportBenchmarksCSV() {
   const list = render.getBenchmarkList(getData(), getBenchmarksData());
-  const rows = ['Model,MMLU,Code,Reasoning,Arena,Cost tier'];
-  list.forEach((m) => rows.push([m.name, m.mmlu, m.code, m.reasoning, m.arena, m.costTier].map(render.escapeCsvCell).join(',')));
+  const rows = ['Model,MMLU,Code cap.,Reasoning,Text ELO,Code ELO,Doc ELO,Cost tier'];
+  list.forEach((m) =>
+    rows.push(
+      [m.name, m.mmlu, m.code, m.reasoning, m.arena, m.arenaCode ?? '', m.arenaDocument ?? '', m.costTier].map(render.escapeCsvCell).join(',')
+    )
+  );
   const csv = '\uFEFF' + rows.join('\r\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
@@ -596,9 +600,18 @@ function exportBenchmarksPDF() {
   doc.setTextColor(80, 80, 80);
   doc.text('Exported: ' + new Date().toLocaleDateString(undefined, { dateStyle: 'long' }), pageW / 2, 25, { align: 'center' });
   doc.setTextColor(0, 0, 0);
-  const headers = ['Model', 'MMLU', 'Code', 'Reasoning', 'Arena', 'Cost'];
-  const colWidths = [50, 28, 28, 32, 28, 24];
-  const rows = list.map((m) => [m.name, m.mmlu, m.code, m.reasoning, m.arena, m.costTier]);
+  const headers = ['Model', 'MMLU', 'Code', 'Reas.', 'Txt ELO', 'Code ELO', 'Doc ELO', 'Cost'];
+  const colWidths = [44, 22, 20, 22, 22, 22, 22, 14];
+  const rows = list.map((m) => [
+    m.name,
+    m.mmlu,
+    m.code,
+    m.reasoning,
+    m.arena,
+    m.arenaCode ?? '—',
+    m.arenaDocument ?? '—',
+    m.costTier,
+  ]);
   render.drawPdfBorderedTable(doc, 32, headers, rows, colWidths);
   doc.save('ai-benchmarks-' + new Date().toISOString().slice(0, 10) + '.pdf');
   render.showToast('Benchmarks exported as PDF.', 'success');

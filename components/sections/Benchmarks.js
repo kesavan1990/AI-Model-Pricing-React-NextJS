@@ -9,6 +9,7 @@ import {
   arenaValueToChartScale,
   formatBenchmarkTooltipValue,
   heatmapTierForMetric,
+  isArenaEloMetric,
 } from '../../src/benchmarkScales.js';
 import { escapeCsvCell, drawPdfBorderedTable } from '../../src/render.js';
 
@@ -22,24 +23,34 @@ const HEATMAP_AVERAGE = 40;
 const RADAR_SUBJECT_TO_KEY = {
   Reasoning: 'reasoning',
   Code: 'code',
-  Arena: 'arena',
+  'Text ELO': 'arena',
   MMLU: 'mmlu',
 };
 
 function HeatmapCell({ score, metricKey }) {
+  const optionalArena = metricKey === 'arenaCode' || metricKey === 'arenaDocument';
+  if (optionalArena && (score == null || typeof score !== 'number' || Number.isNaN(score))) {
+    return (
+      <span className="benchmark-heatmap-cell" title="No matching row on this LMArena leaderboard">
+        <span className="benchmark-heatmap-value">—</span>
+      </span>
+    );
+  }
   const tier = heatmapTierForMetric(score, metricKey);
   let display = '—';
   if (tier != null && typeof score === 'number' && !Number.isNaN(score)) {
     display =
-      metricKey === 'arena' && score >= ARENA_ELO_THRESHOLD
+      isArenaEloMetric(metricKey) && score >= ARENA_ELO_THRESHOLD
         ? String(Math.round(score))
         : Number.isInteger(score)
           ? score
           : Number(score.toFixed(1));
   }
+  const board =
+    metricKey === 'arenaCode' ? 'code' : metricKey === 'arenaDocument' ? 'document' : 'text';
   const titleHint =
-    metricKey === 'arena' && typeof score === 'number' && score >= ARENA_ELO_THRESHOLD
-      ? `${display} ELO (text leaderboard); heatmap uses ELO mapped to 0–100 for color bands`
+    isArenaEloMetric(metricKey) && typeof score === 'number' && score >= ARENA_ELO_THRESHOLD
+      ? `${display} ELO (${board}); heatmap maps ELO → 0–100 for color bands`
       : tier
         ? `${display} — ${tier}`
         : 'No data';
@@ -52,7 +63,9 @@ function HeatmapCell({ score, metricKey }) {
 }
 
 const HF_LEADERBOARD_URL = 'https://huggingface.co/datasets/open-llm-leaderboard/contents';
-const ARENA_URL = 'https://lmarena.ai/leaderboard/text';
+const ARENA_TEXT_URL = 'https://lmarena.ai/leaderboard/text';
+const ARENA_CODE_URL = 'https://lmarena.ai/leaderboard/code';
+const ARENA_DOCUMENT_URL = 'https://lmarena.ai/leaderboard/document';
 
 export function Benchmarks() {
   const { getData, getBenchmarksData, showToast, benchmarksLastUpdated } = usePricing();
@@ -77,7 +90,17 @@ export function Benchmarks() {
         const { tier, desc } = getCostTierLabel(m.blended);
         const blendedStr = m.blended <= 0 ? '0' : m.blended.toFixed(2);
         const costTitle = `Blended: $${blendedStr}/1M tokens (70% input, 30% output) — ${desc}`;
-        return { name: m.name, mmlu: b.mmlu, code: b.code, reasoning: b.reasoning, arena: b.arena, costTier: tier, costTitle };
+        return {
+          name: m.name,
+          mmlu: b.mmlu,
+          code: b.code,
+          reasoning: b.reasoning,
+          arena: b.arena,
+          arenaCode: b.arenaCode,
+          arenaDocument: b.arenaDocument,
+          costTier: tier,
+          costTitle,
+        };
       }),
     [allUniqueByName, fileBenchmarks]
   );
@@ -142,7 +165,10 @@ export function Benchmarks() {
     const byReasoning = [...rows].filter((r) => num(r.reasoning) >= 0).sort((a, b) => num(b.reasoning) - num(a.reasoning)).slice(0, TOP_N);
     const byCode = [...rows].filter((r) => num(r.code) >= 0).sort((a, b) => num(b.code) - num(a.code)).slice(0, TOP_N);
     const byMmlu = [...rows].filter((r) => num(r.mmlu) >= 0).sort((a, b) => num(b.mmlu) - num(a.mmlu)).slice(0, TOP_N);
-    const byArena = [...rows].filter((r) => num(r.arena) >= 0).sort((a, b) => num(b.arena) - num(a.arena)).slice(0, TOP_N);
+    const byArena = [...rows]
+      .filter((r) => num(r.arena) >= ARENA_ELO_THRESHOLD)
+      .sort((a, b) => num(b.arena) - num(a.arena))
+      .slice(0, TOP_N);
     return { byReasoning, byCode, byMmlu, byArena };
   }, [rows]);
 
@@ -153,7 +179,7 @@ export function Benchmarks() {
     const subjects = [
       { subject: 'Reasoning', key: 'reasoning' },
       { subject: 'Code', key: 'code' },
-      { subject: 'Arena', key: 'arena' },
+      { subject: 'Text ELO', key: 'arena' },
       { subject: 'MMLU', key: 'mmlu' },
     ];
     const data = subjects.map(({ subject, key }) => {
@@ -168,8 +194,12 @@ export function Benchmarks() {
   }, [rows, selectedRadarModels]);
 
   const exportCSV = () => {
-    const csvRows = ['Model,MMLU,Code,Reasoning,Arena,Cost tier'];
-    rows.forEach((m) => csvRows.push([m.name, m.mmlu, m.code, m.reasoning, m.arena, m.costTier].map(escapeCsvCell).join(',')));
+    const csvRows = ['Model,MMLU,Code cap.,Reasoning,Text ELO,Code ELO,Doc ELO,Cost tier'];
+    rows.forEach((m) =>
+      csvRows.push(
+        [m.name, m.mmlu, m.code, m.reasoning, m.arena, m.arenaCode ?? '', m.arenaDocument ?? '', m.costTier].map(escapeCsvCell).join(',')
+      )
+    );
     const csv = '\uFEFF' + csvRows.join('\r\n');
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
@@ -190,9 +220,18 @@ export function Benchmarks() {
       doc.setTextColor(80, 80, 80);
       doc.text('Exported: ' + new Date().toLocaleDateString(undefined, { dateStyle: 'long' }), pageW / 2, 25, { align: 'center' });
       doc.setTextColor(0, 0, 0);
-      const headers = ['Model', 'MMLU', 'Code', 'Reasoning', 'Arena', 'Cost'];
-      const colWidths = [50, 28, 28, 32, 28, 24];
-      const pdfRows = rows.map((m) => [m.name, m.mmlu, m.code, m.reasoning, m.arena, m.costTier]);
+      const headers = ['Model', 'MMLU', 'Code', 'Reas.', 'Txt ELO', 'Code ELO', 'Doc ELO', 'Cost'];
+      const colWidths = [44, 22, 20, 22, 22, 22, 22, 14];
+      const pdfRows = rows.map((m) => [
+        m.name,
+        m.mmlu,
+        m.code,
+        m.reasoning,
+        m.arena,
+        m.arenaCode ?? '—',
+        m.arenaDocument ?? '—',
+        m.costTier,
+      ]);
       drawPdfBorderedTable(doc, 32, headers, pdfRows, colWidths);
       doc.save('ai-benchmarks-' + new Date().toISOString().slice(0, 10) + '.pdf');
       showToast('Benchmarks exported as PDF.', 'success');
@@ -206,7 +245,10 @@ export function Benchmarks() {
       <div className="benchmark-header-row">
         <div>
           <h2 className="section-title">📊 Benchmarks Leaderboard</h2>
-          <p className="section-subtitle">Model benchmarks (MMLU, Code, Reasoning, Arena) and cost tier. Use Export to download CSV or PDF.</p>
+          <p className="section-subtitle">
+            <strong>MMLU, Code (capability), and Reasoning</strong> use a <strong>0–100-style</strong> scale (Hugging Face % or in-app tier estimates) — not LMArena ELO.
+            <strong> Arena text / code / document</strong> columns show <strong>four-digit ELO</strong> from LMArena when <code>benchmarks.json</code> is up to date; if you only see ~80–97 in Arena text, refresh benchmarks (workflow or <code>node scripts/update-benchmarks.js</code>).
+          </p>
           <details className="benchmark-sources-panel">
             <summary className="benchmark-sources-summary">Where these scores come from</summary>
             <div className="benchmark-sources-body">
@@ -229,8 +271,9 @@ export function Benchmarks() {
                 </li>
                 <li>
                   <strong>Arena</strong> — From the{' '}
-                  <a href={ARENA_URL} target="_blank" rel="noopener noreferrer">LMSYS Chatbot Arena</a>{' '}
-                  <strong>text</strong> leaderboard (ELO) when the weekly job matches your pricing model name. MMLU / Reasoning come from Hugging Face, not from this site — so they will not match numbers on LMArena. If there is no Arena match, a small <strong>0–100 tier estimate</strong> is used instead of ELO, so rows can mix scales until you refresh <code>benchmarks.json</code>.
+                  <a href={ARENA_TEXT_URL} target="_blank" rel="noopener noreferrer">LMArena text</a>,{' '}
+                  <a href={ARENA_CODE_URL} target="_blank" rel="noopener noreferrer">code</a>, and{' '}
+                  <a href={ARENA_DOCUMENT_URL} target="_blank" rel="noopener noreferrer">document</a> leaderboards (each is its own <strong>ELO</strong> scale, typically four digits). Image / video arenas on the site are separate URLs and are not imported here yet. If there is no row match, <strong>Text</strong> falls back to a 0–100 tier estimate; <strong>Code</strong> / <strong>Doc</strong> show —.
                 </li>
               </ul>
               <p className="benchmark-sources-note">
@@ -287,7 +330,7 @@ export function Benchmarks() {
           </ol>
         </div>
         <div className="benchmark-leaderboard-card">
-          <h3 className="benchmark-leaderboard-title">🏆 Best Arena Score</h3>
+          <h3 className="benchmark-leaderboard-title">🏆 Best text Arena (ELO)</h3>
           <ol className="benchmark-leaderboard-list">
             {leaderboards.byArena.map((m, i) => (
               <li key={i}>
@@ -296,7 +339,9 @@ export function Benchmarks() {
                 <span className="benchmark-leaderboard-score">{m.arena}</span>
               </li>
             ))}
-            {leaderboards.byArena.length === 0 && <li className="benchmark-leaderboard-empty">No data</li>}
+            {leaderboards.byArena.length === 0 && (
+              <li className="benchmark-leaderboard-empty">No text ELO in data (run benchmark update or check matches).</li>
+            )}
           </ol>
         </div>
       </div>
@@ -321,7 +366,7 @@ export function Benchmarks() {
           <span className="benchmark-heatmap-legend-item"><span className="benchmark-heatmap-dot benchmark-heatmap-strong" /> Strong ({HEATMAP_STRONG}–100 scale)</span>
           <span className="benchmark-heatmap-legend-item"><span className="benchmark-heatmap-dot benchmark-heatmap-average" /> Average ({HEATMAP_AVERAGE}–{HEATMAP_STRONG - 1})</span>
           <span className="benchmark-heatmap-legend-item"><span className="benchmark-heatmap-dot benchmark-heatmap-weak" /> Weak (0–{HEATMAP_AVERAGE - 1})</span>
-          <span className="benchmark-heatmap-legend-item benchmark-heatmap-legend-note">Arena: table shows ELO; colors map ELO → 0–100 for bands.</span>
+          <span className="benchmark-heatmap-legend-item benchmark-heatmap-legend-note">Arena columns: raw ELO in cells; colors map ELO → 0–100. MMLU / Code / Reasoning stay on 0–100.</span>
         </p>
         <div className="benchmark-table-scroll">
           <table className="model-table">
@@ -346,10 +391,22 @@ export function Benchmarks() {
                     <span className={`benchmark-sort-icon${sortColumn === 'reasoning' ? ' benchmark-sort-icon-active' : ''}`} aria-hidden="true">{sortColumn === 'reasoning' ? (sortDirection === 'asc' ? ' ↑' : ' ↓') : ' ↕'}</span>
                   </button>
                 </th>
-                <th className="benchmark-sortable" scope="col" title="LMArena text chat ELO when matched; else 0–100 tier estimate. Not comparable to MMLU (HF). Higher = better.">
-                  <button type="button" className="benchmark-sort-btn" onClick={() => handleSort('arena')} aria-label={sortColumn === 'arena' ? `Sorted by Arena ${sortDirection === 'asc' ? 'ascending' : 'descending'}. Click to change.` : 'Sort by Arena'}>
-                    Arena
+                <th className="benchmark-sortable" scope="col" title="LMArena text chat ELO (four digits) when matched; else 0–100 tier estimate. Higher = better.">
+                  <button type="button" className="benchmark-sort-btn" onClick={() => handleSort('arena')} aria-label={sortColumn === 'arena' ? `Sorted by text ELO ${sortDirection === 'asc' ? 'ascending' : 'descending'}. Click to change.` : 'Sort by text ELO'}>
+                    Text ELO
                     <span className={`benchmark-sort-icon${sortColumn === 'arena' ? ' benchmark-sort-icon-active' : ''}`} aria-hidden="true">{sortColumn === 'arena' ? (sortDirection === 'asc' ? ' ↑' : ' ↓') : ' ↕'}</span>
+                  </button>
+                </th>
+                <th className="benchmark-sortable" scope="col" title="LMArena code arena ELO when this model appears on that leaderboard; — if no match.">
+                  <button type="button" className="benchmark-sort-btn" onClick={() => handleSort('arenaCode')} aria-label={sortColumn === 'arenaCode' ? `Sorted by code ELO ${sortDirection === 'asc' ? 'ascending' : 'descending'}. Click to change.` : 'Sort by code ELO'}>
+                    Code ELO
+                    <span className={`benchmark-sort-icon${sortColumn === 'arenaCode' ? ' benchmark-sort-icon-active' : ''}`} aria-hidden="true">{sortColumn === 'arenaCode' ? (sortDirection === 'asc' ? ' ↑' : ' ↓') : ' ↕'}</span>
+                  </button>
+                </th>
+                <th className="benchmark-sortable" scope="col" title="LMArena document arena ELO when matched; — if no match.">
+                  <button type="button" className="benchmark-sort-btn" onClick={() => handleSort('arenaDocument')} aria-label={sortColumn === 'arenaDocument' ? `Sorted by document ELO ${sortDirection === 'asc' ? 'ascending' : 'descending'}. Click to change.` : 'Sort by document ELO'}>
+                    Doc ELO
+                    <span className={`benchmark-sort-icon${sortColumn === 'arenaDocument' ? ' benchmark-sort-icon-active' : ''}`} aria-hidden="true">{sortColumn === 'arenaDocument' ? (sortDirection === 'asc' ? ' ↑' : ' ↓') : ' ↕'}</span>
                   </button>
                 </th>
                 <th className="benchmark-sortable" scope="col" title="Cost tier: $ = free/low, $$ = budget, $$$ = premium.">
@@ -368,6 +425,8 @@ export function Benchmarks() {
                   <td className="benchmark-score"><HeatmapCell score={m.code} metricKey="code" /></td>
                   <td className="benchmark-score"><HeatmapCell score={m.reasoning} metricKey="reasoning" /></td>
                   <td className="benchmark-score"><HeatmapCell score={m.arena} metricKey="arena" /></td>
+                  <td className="benchmark-score"><HeatmapCell score={m.arenaCode} metricKey="arenaCode" /></td>
+                  <td className="benchmark-score"><HeatmapCell score={m.arenaDocument} metricKey="arenaDocument" /></td>
                   <td className="cost-tier" title={m.costTitle}>{m.costTier}</td>
                 </tr>
               ))}
@@ -384,7 +443,7 @@ export function Benchmarks() {
         <div className="benchmark-radar-how-to" role="region" aria-label="How to read the radar chart">
           <strong className="benchmark-radar-how-to-title">How to read this chart</strong>
           <ul className="benchmark-radar-how-to-list">
-            <li><strong>Each axis</strong> is one benchmark: <strong>Reasoning</strong> (top), <strong>Code</strong> (left), <strong>Arena</strong> (right), <strong>MMLU</strong> (bottom).</li>
+            <li><strong>Each axis</strong> is one benchmark: <strong>Reasoning</strong> (top), <strong>Code</strong> (capability, left), <strong>Text ELO</strong> (LMArena chat, right), <strong>MMLU</strong> (bottom).</li>
             <li>
               <strong>Scale 0–100 on the chart:</strong> MMLU, Code, and Reasoning are shown up to 100. Arena uses <strong>ELO mapped</strong> into 0–100 (see note above); tooltips list the raw value (ELO or score).
             </li>

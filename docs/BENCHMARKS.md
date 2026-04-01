@@ -31,12 +31,20 @@ update-pricing.js            Arena + HF → update-benchmarks.js
 
 ## Benchmark sources
 
-### 1. LMSYS Chatbot Arena (best for overall model quality)
+### 1. LMSYS Chatbot Arena (ELO per category)
 
-- **URL:** https://lmarena.ai/leaderboard/text — **text chat** leaderboard only. The main `/leaderboard` page embeds several arenas (code, vision, …); scraping it mixed different ELO tables and did not match a single tab on the site.
-- **What it measures:** Human preference ranking for **chat** (ELO). This is **not** the same metric as MMLU or Reasoning (those come from Hugging Face in this app).
-- **Data:** HTML table (model name + ELO + vote count). Example ELO values are often ~1200–1600.
-- **How we fetch it:** The script scrapes that page with `cheerio`. The table is **7 columns** (rank, extra, model+license, **ELO±CI**, votes, …); ELO is parsed with a regex so values like `1504±6` become **1504**. Matching prefers **exact** normalized names, then the **longest** arena slug that contains the pricing model key. If the fetch or parse fails, embedded **0–100 tier** scores are used for Arena — so values will **not** match the portal until `benchmarks.json` is regenerated with a successful scrape.
+The script scrapes **three** LMArena HTML leaderboards (same 7-column table shape on each):
+
+| Field in `benchmarks.json` | URL | Notes |
+|----------------------------|-----|--------|
+| **`arena`** (UI: Text ELO) | https://lmarena.ai/leaderboard/text | Chat; if no match, **0–100 tier** fallback (not ELO). |
+| **`arenaCode`** (optional) | https://lmarena.ai/leaderboard/code | Omitted when no row matches. |
+| **`arenaDocument`** (optional) | https://lmarena.ai/leaderboard/document | Omitted when no row matches. |
+
+**Image / video / other** arenas on the site (e.g. text-to-image, text-to-video) are **not** imported yet.
+
+- **What ELO measures:** Human preference ranking **for that arena only**. It is **not** MMLU or Reasoning (those come from Hugging Face in this app).
+- **Parsing:** **ELO±CI** cells (e.g. `1504±6`) → numeric **1504**. Matching: exact normalized name, then longest arena slug containing the pricing key.
 - **Update frequency:** Weekly (with the benchmark workflow).
 
 ### 2. Hugging Face Open LLM Leaderboard (technical benchmarks)
@@ -54,13 +62,14 @@ When Arena or HF is unavailable or a model has no match, the script uses embedde
 
 The script:
 
-1. Fetches Arena scores (model → arena number).
+1. Fetches LMArena **text**, **code**, and **document** tables (each → list of model + ELO).
 2. Fetches HF leaderboard rows (model → mmlu, reasoning).
 3. For each model in `pricing.json`, builds one benchmark entry:
-   - **arena:** from Arena if we found a matching model name, else embedded.
-   - **mmlu, reasoning:** from HF if we found a match, else embedded.
-   - **code:** from embedded (HF Open LLM Leaderboard doesn’t expose HumanEval in the same slice; can be extended later).
-4. Writes `benchmarks.json` with `updated` (YYYY-MM-DD) and `benchmarks` array. Names in `benchmarks` match pricing model names so the frontend merge works.
+   - **arena:** text leaderboard match, else embedded 0–100 tier.
+   - **arenaCode** / **arenaDocument:** set only when that leaderboard matches (field omitted otherwise).
+   - **mmlu, reasoning:** from HF if matched, else embedded.
+   - **code:** from embedded (in-app tier; not LMArena code ELO).
+4. Writes `benchmarks.json` with `updated` (YYYY-MM-DD) and `benchmarks` array.
 
 Model name matching uses **normalized names** (lowercase, alphanumeric only: `name.toLowerCase().trim().replace(/[^a-z0-9]/g, '')`) so variants like `gpt-4o`, `gpt4o`, and `GPT-4o` all match. The script’s `normalizeName()` and the app’s `normalizeModelName()` in `src/calculator.js` use the same rule so merge is consistent.
 
@@ -76,7 +85,9 @@ Model name matching uses **normalized names** (lowercase, alphanumeric only: `na
       "mmlu": 88.7,
       "code": 90,
       "reasoning": 87,
-      "arena": 1320
+      "arena": 1320,
+      "arenaCode": 1280,
+      "arenaDocument": 1400
     },
     {
       "model": "Gemini 1.5 Pro",

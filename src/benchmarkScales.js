@@ -10,6 +10,13 @@ export const ARENA_ELO_AXIS_MAX = 1650;
 /** Values below this are treated as legacy 0–100 tier estimates, not ELO. */
 export const ARENA_ELO_THRESHOLD = 250;
 
+/** LMArena columns that store raw ELO (~four digits), not 0–100. */
+export const ARENA_ELO_METRIC_KEYS = new Set(['arena', 'arenaCode', 'arenaDocument']);
+
+export function isArenaEloMetric(metricKey) {
+  return ARENA_ELO_METRIC_KEYS.has(metricKey);
+}
+
 /**
  * Map Arena column value to 0–100 for radar / heatmap tiers.
  * @param {number} arena
@@ -36,18 +43,18 @@ export function heatmapTierFrom0to100(score0to100) {
 
 /**
  * @param {number} raw
- * @param {'mmlu'|'code'|'reasoning'|'arena'} metricKey
+ * @param {string} metricKey
  */
 export function heatmapTierForMetric(raw, metricKey) {
   if (typeof raw !== 'number' || Number.isNaN(raw) || raw < 0) return null;
-  const scaled = metricKey === 'arena' ? arenaValueToChartScale(raw) : Math.min(100, Math.max(0, raw));
+  const scaled = isArenaEloMetric(metricKey) ? arenaValueToChartScale(raw) : Math.min(100, Math.max(0, raw));
   return heatmapTierFrom0to100(scaled);
 }
 
 /** Radar / tooltips: show raw Arena ELO vs other metrics. */
 export function formatBenchmarkTooltipValue(raw, metricKey) {
   if (raw == null || (typeof raw === 'number' && Number.isNaN(raw))) return '—';
-  if (metricKey === 'arena' && typeof raw === 'number' && raw >= ARENA_ELO_THRESHOLD) return `${Math.round(raw)} ELO`;
+  if (isArenaEloMetric(metricKey) && typeof raw === 'number' && raw >= ARENA_ELO_THRESHOLD) return `${Math.round(raw)} ELO`;
   if (typeof raw === 'number' && Number.isInteger(raw)) return String(raw);
   if (typeof raw === 'number') return String(Number(raw.toFixed(1)));
   return String(raw);

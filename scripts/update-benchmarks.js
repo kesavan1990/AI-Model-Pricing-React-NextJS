@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Builds benchmarks.json by merging:
- * 1. LMSYS Chatbot Arena text leaderboard (human preference / ELO) — scraped from lmarena.ai/leaderboard/text
+ * 1. LMSYS Chatbot Arena — text, code, and document leaderboards (ELO each) — lmarena.ai/leaderboard/{text,code,document}
  * 2. Hugging Face Open LLM Leaderboard (MMLU, reasoning, etc.) — from datasets-server API
  * 3. Embedded fallback — when external data is missing or no match
  *
@@ -19,8 +19,9 @@
 const OUT_FILE = 'public/benchmarks.json';
 const SCHEMA_PATH = 'schemas/benchmarks.schema.json';
 const PRICING_FILE = 'public/pricing.json';
-/** Text chat leaderboard only — `/leaderboard` embeds multiple arenas (code, vision, …) and would mix ELO scales. */
-const ARENA_URL = 'https://lmarena.ai/leaderboard/text';
+const ARENA_URL_TEXT = 'https://lmarena.ai/leaderboard/text';
+const ARENA_URL_CODE = 'https://lmarena.ai/leaderboard/code';
+const ARENA_URL_DOCUMENT = 'https://lmarena.ai/leaderboard/document';
 const HF_ROWS_URL = 'https://datasets-server.huggingface.co/rows';
 const FETCH_TIMEOUT_MS = 25_000;
 
@@ -30,35 +31,33 @@ function normalizeName(s) {
   return s.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
 }
 
-/** Fetch LMSYS Chatbot Arena leaderboard (model name + ELO/score). Returns [{ model, arena }]. */
-async function fetchArenaScores() {
+/** First numeric token (handles "1504±6", "1,504", "1491±7Preliminary"). */
+function parseLeaderboardNumber(s) {
+  const m = String(s || '').match(/[\d,]+(?:\.\d+)?/);
+  if (!m) return NaN;
+  return parseFloat(m[0].replace(/,/g, ''), 10);
+}
+
+async function fetchArenaScoresFromUrl(url, logLabel) {
   try {
     const ac = new AbortController();
     const to = setTimeout(() => ac.abort(), FETCH_TIMEOUT_MS);
-    const res = await fetch(ARENA_URL, { signal: ac.signal, headers: { 'User-Agent': 'Mozilla/5.0 (compatible; BenchmarkBot/1.0)' } });
+    const res = await fetch(url, { signal: ac.signal, headers: { 'User-Agent': 'Mozilla/5.0 (compatible; BenchmarkBot/1.0)' } });
     clearTimeout(to);
     if (!res.ok) return [];
     const html = await res.text();
     const { load } = await import('cheerio');
     const $ = load(html);
     const scores = [];
-    /** First numeric token (handles "1504±6", "1,504", "1491±7Preliminary"). */
-    function parseLeaderboardNumber(s) {
-      const m = String(s || '').match(/[\d,]+(?:\.\d+)?/);
-      if (!m) return NaN;
-      return parseFloat(m[0].replace(/,/g, ''), 10);
-    }
     $('table tbody tr').each((_, row) => {
       const tds = $(row).find('td');
       if (tds.length < 2) return;
       let model;
       let scoreText;
-      // LMArena text (2025+): Rank | ? | Model+org | ELO±ci | votes | price | ctx — 7 cols
       if (tds.length >= 7) {
         model = $(tds[2]).text().trim();
         scoreText = $(tds[3]).text().trim();
       } else if (tds.length >= 4) {
-        // Older 4-col: Rank | Model | ELO | votes
         model = $(tds[1]).text().trim();
         scoreText = $(tds[2]).text().trim();
       } else {
@@ -68,12 +67,21 @@ async function fetchArenaScores() {
       const num = parseLeaderboardNumber(scoreText);
       if (model && !Number.isNaN(num)) scores.push({ model, arena: num });
     });
-    if (scores.length > 0) console.log('Arena: fetched', scores.length, 'scores');
+    if (scores.length > 0) console.log(`Arena ${logLabel}:`, scores.length, 'rows');
     return scores;
   } catch (e) {
-    console.warn('Arena fetch failed:', e.message || e);
+    console.warn(`Arena ${logLabel} fetch failed:`, e.message || e);
     return [];
   }
+}
+
+async function fetchAllArenaLeaderboards() {
+  const [text, code, document_] = await Promise.all([
+    fetchArenaScoresFromUrl(ARENA_URL_TEXT, 'text'),
+    fetchArenaScoresFromUrl(ARENA_URL_CODE, 'code'),
+    fetchArenaScoresFromUrl(ARENA_URL_DOCUMENT, 'document'),
+  ]);
+  return { text, code, document: document_ };
 }
 
 /** Fetch Hugging Face Open LLM Leaderboard slice (MMLU-PRO, BBH, MATH, etc.). Returns [{ model, mmlu, reasoning }]. */
@@ -186,7 +194,7 @@ function findHFScores(pricingModelName, hfList) {
 }
 
 /** Build benchmark entries for every model in pricing (all providers, all types: text/chat, image, audio, video). */
-function buildBenchmarksFromPricing(pricing, arenaList, hfList) {
+function buildBenchmarksFromPricing(pricing, arenaByCategory, hfList) {
   const entries = [];
   const providers = [
     { key: 'gemini', list: pricing.gemini },
@@ -194,6 +202,9 @@ function buildBenchmarksFromPricing(pricing, arenaList, hfList) {
     { key: 'anthropic', list: pricing.anthropic || [] },
     { key: 'mistral', list: pricing.mistral || [] },
   ];
+  const textList = arenaByCategory.text || [];
+  const codeList = arenaByCategory.code || [];
+  const docList = arenaByCategory.document || [];
   for (const { key, list } of providers) {
     if (!Array.isArray(list)) continue;
     for (const m of list) {
@@ -201,16 +212,21 @@ function buildBenchmarksFromPricing(pricing, arenaList, hfList) {
       if (!name) continue;
       const embedded = getScoresForModel(name, key);
       if (!embedded) continue; // e.g. text-embedding: no benchmark scores
-      const arenaScore = findArenaScore(name, arenaList);
+      const arenaText = findArenaScore(name, textList);
+      const arenaCode = findArenaScore(name, codeList);
+      const arenaDocument = findArenaScore(name, docList);
       const hfScores = findHFScores(name, hfList);
-      entries.push({
+      const row = {
         model: name,
         provider: key,
         mmlu: hfScores?.mmlu ?? embedded.mmlu,
         code: embedded.code,
         reasoning: hfScores?.reasoning ?? embedded.reasoning,
-        arena: arenaScore ?? embedded.arena,
-      });
+        arena: arenaText ?? embedded.arena,
+      };
+      if (arenaCode != null) row.arenaCode = arenaCode;
+      if (arenaDocument != null) row.arenaDocument = arenaDocument;
+      entries.push(row);
     }
   }
   return entries;
@@ -236,8 +252,8 @@ async function main() {
     process.exit(1);
   }
 
-  const [arenaList, hfList] = await Promise.all([fetchArenaScores(), fetchHFBenchmarks()]);
-  const benchmarks = buildBenchmarksFromPricing(pricing, arenaList, hfList);
+  const [arenas, hfList] = await Promise.all([fetchAllArenaLeaderboards(), fetchHFBenchmarks()]);
+  const benchmarks = buildBenchmarksFromPricing(pricing, arenas, hfList);
   const updated = new Date().toISOString().slice(0, 10);
   const payload = { updated, benchmarks };
 
@@ -264,7 +280,11 @@ async function main() {
   }
 
   fs.writeFileSync(outPath, JSON.stringify(payload, null, 2) + '\n', 'utf8');
-  console.log('Wrote', OUT_FILE, `(${benchmarks.length} models, Arena=${arenaList.length}, HF=${hfList.length})`);
+  console.log(
+    'Wrote',
+    OUT_FILE,
+    `(${benchmarks.length} models, Arena text/code/doc=${arenas.text.length}/${arenas.code.length}/${arenas.document.length}, HF=${hfList.length})`
+  );
 }
 
 main().catch((e) => {
