@@ -33,7 +33,7 @@ update-pricing.js            Arena + HF → update-benchmarks.js
 
 ### 1. LMSYS Chatbot Arena (best for overall model quality)
 
-- **URL:** https://arena.lmsys.org/
+- **URL:** https://lmarena.ai/leaderboard (official Chatbot Arena site; `arena.lmsys.org` is deprecated)
 - **What it measures:** Human preference ranking, conversation quality, reasoning ability, real-world usefulness. One of the most trusted LLM benchmarks.
 - **Data:** Leaderboard table (model name + ELO/Arena score). Example: GPT-4o 1320, Claude 3 Opus 1290, Gemini 1.5 Pro 1275.
 - **How we fetch it:** The script scrapes the Arena HTML table (using `cheerio`). If the fetch or parse fails (e.g. timeout, page structure change), the script falls back to embedded scores and still writes `benchmarks.json`.

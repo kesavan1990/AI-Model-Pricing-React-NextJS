@@ -33,7 +33,7 @@ function HeatmapCell({ score }) {
 }
 
 const HF_LEADERBOARD_URL = 'https://huggingface.co/datasets/open-llm-leaderboard/contents';
-const ARENA_URL = 'https://arena.lmsys.org/';
+const ARENA_URL = 'https://lmarena.ai/leaderboard';
 
 export function Benchmarks() {
   const { getData, getBenchmarksData, showToast, benchmarksLastUpdated } = usePricing();

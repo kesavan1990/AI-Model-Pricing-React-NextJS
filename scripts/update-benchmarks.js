@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Builds benchmarks.json by merging:
- * 1. LMSYS Chatbot Arena (human preference / overall quality) — scraped from arena.lmsys.org
+ * 1. LMSYS Chatbot Arena (human preference / overall quality) — scraped from lmarena.ai/leaderboard
  * 2. Hugging Face Open LLM Leaderboard (MMLU, reasoning, etc.) — from datasets-server API
  * 3. Embedded fallback — when external data is missing or no match
  *
@@ -19,7 +19,7 @@
 const OUT_FILE = 'public/benchmarks.json';
 const SCHEMA_PATH = 'schemas/benchmarks.schema.json';
 const PRICING_FILE = 'public/pricing.json';
-const ARENA_URL = 'https://arena.lmsys.org/';
+const ARENA_URL = 'https://lmarena.ai/leaderboard';
 const HF_ROWS_URL = 'https://datasets-server.huggingface.co/rows';
 const FETCH_TIMEOUT_MS = 25_000;
 
@@ -44,8 +44,16 @@ async function fetchArenaScores() {
     $('table tbody tr').each((_, row) => {
       const tds = $(row).find('td');
       if (tds.length < 2) return;
-      const model = $(tds[0]).text().trim();
-      const scoreText = $(tds[1]).text().trim();
+      // LMArena: Rank | Model | ELO | votes; legacy arena: Model | ELO
+      let model;
+      let scoreText;
+      if (tds.length >= 4) {
+        model = $(tds[1]).text().trim();
+        scoreText = $(tds[2]).text().trim();
+      } else {
+        model = $(tds[0]).text().trim();
+        scoreText = $(tds[1]).text().trim();
+      }
       const num = parseFloat(scoreText.replace(/[,]/g, ''), 10);
       if (model && !Number.isNaN(num)) scores.push({ model, arena: num });
     });

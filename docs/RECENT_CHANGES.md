@@ -213,9 +213,25 @@ Details and edge-case table: [PRICING_UPDATES.md](PRICING_UPDATES.md) § Pricing
 ## 12. Benchmarks: score sources in the UI
 
 - **Goal:** Make it clear **where MMLU, Code, Reasoning, and Arena** numbers come from (HF Open LLM Leaderboard, LMSYS Arena, in-app tier fallbacks) and how that relates to **`benchmarks.json`** vs the footer clock.
-- **UI:** **`components/sections/Benchmarks.js`** — collapsible **Where these scores come from** (`<details>`) with links to [Hugging Face Open LLM Leaderboard dataset](https://huggingface.co/datasets/open-llm-leaderboard/contents) and [LMSYS Chatbot Arena](https://arena.lmsys.org/); shows **`benchmarksLastUpdated`** (from the file’s **`updated`** field). Table header **`title`** tooltips match **`scripts/update-benchmarks.js`** (e.g. Code = in-app tier only; no incorrect HumanEval/GSM8K labels).
+- **UI:** **`components/sections/Benchmarks.js`** — collapsible **Where these scores come from** (`<details>`) with links to [Hugging Face Open LLM Leaderboard dataset](https://huggingface.co/datasets/open-llm-leaderboard/contents) and [LMSYS Chatbot Arena](https://lmarena.ai/leaderboard); shows **`benchmarksLastUpdated`** (from the file’s **`updated`** field). Table header **`title`** tooltips match **`scripts/update-benchmarks.js`** (e.g. Code = in-app tier only; no incorrect HumanEval/GSM8K labels).
 - **Styles:** **`css/styles.css`** — `#section-benchmark .benchmark-sources-*` (including light theme).
 - **Docs:** [UI.md](UI.md) § Model benchmark dashboard → **Where scores come from (UI)**.
+
+---
+
+## 13. Chatbot Arena: LMArena URL and leaderboard scrape
+
+- **Context:** **`https://arena.lmsys.org/`** is no longer the canonical Chatbot Arena site; it may return errors or be unavailable. LMSYS announced a dedicated product site in [September 2024](https://lmsys.org/blog/2024-09-20-arena-new-site/): **[https://lmarena.ai/](https://lmarena.ai/)** (leaderboard: **[https://lmarena.ai/leaderboard](https://lmarena.ai/leaderboard)**).
+- **`scripts/update-benchmarks.js`**
+  - **`ARENA_URL`** set to **`https://lmarena.ai/leaderboard`** (was `https://arena.lmsys.org/`).
+  - **`fetchArenaScores()`** parses the LMArena HTML table: **Rank | Model | ELO | vote count** (four `<td>` cells per row). A **fallback** still treats the first two cells as **Model | ELO** for any legacy-style table.
+  - File header comment updated to mention **lmarena.ai**.
+- **`components/sections/Benchmarks.js`** — **`ARENA_URL`** and the **Where these scores come from** link point to **`https://lmarena.ai/leaderboard`** (label remains **LMSYS Chatbot Arena**).
+- **Docs:** [BENCHMARKS.md](BENCHMARKS.md) (Arena URL + note on deprecated `arena.lmsys.org`), [UI.md](UI.md) (benchmark pipeline sentence), and §12 above (link already uses LMArena).
+
+### How to verify
+
+- **`node scripts/update-benchmarks.js`** — expect a log line like **`Arena: fetched`** with a **non-zero** count when the site is reachable; then validate **`public/benchmarks.json`** against the schema as today.
 
 ---
 
