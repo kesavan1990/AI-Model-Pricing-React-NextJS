@@ -1416,6 +1416,12 @@ h1 {
   gap: 6px;
 }
 .benchmark-heatmap-legend-item .benchmark-heatmap-dot { width: 8px; height: 8px; }
+.benchmark-heatmap-legend-note {
+  flex-basis: 100%;
+  margin-top: 2px;
+  font-style: italic;
+  opacity: 0.92;
+}
 @media (max-width: 900px) {
   #section-benchmark .benchmark-content-wrap { grid-template-columns: 1fr; }
   #section-benchmark .benchmark-leaderboard { margin-bottom: 12px; }

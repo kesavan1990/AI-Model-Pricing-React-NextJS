@@ -4,6 +4,12 @@ import { useState, useMemo } from 'react';
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Legend, ResponsiveContainer, Tooltip } from 'recharts';
 import { usePricing } from '../../context/PricingContext';
 import { getChatModels, getBenchmarkForModelMerged, getCostTierLabel } from '../../src/calculator.js';
+import {
+  ARENA_ELO_THRESHOLD,
+  arenaValueToChartScale,
+  formatBenchmarkTooltipValue,
+  heatmapTierForMetric,
+} from '../../src/benchmarkScales.js';
 import { escapeCsvCell, drawPdfBorderedTable } from '../../src/render.js';
 
 const RADAR_COLORS = [
@@ -13,19 +19,32 @@ const RADAR_COLORS = [
 const HEATMAP_STRONG = 70;
 const HEATMAP_AVERAGE = 40;
 
-function getScoreTier(score) {
-  const n = typeof score === 'number' && !Number.isNaN(score) ? score : -1;
-  if (n < 0) return null;
-  if (n >= HEATMAP_STRONG) return 'strong';
-  if (n >= HEATMAP_AVERAGE) return 'average';
-  return 'weak';
-}
+const RADAR_SUBJECT_TO_KEY = {
+  Reasoning: 'reasoning',
+  Code: 'code',
+  Arena: 'arena',
+  MMLU: 'mmlu',
+};
 
-function HeatmapCell({ score }) {
-  const tier = getScoreTier(score);
-  const display = tier != null ? Number(score) : '—';
+function HeatmapCell({ score, metricKey }) {
+  const tier = heatmapTierForMetric(score, metricKey);
+  let display = '—';
+  if (tier != null && typeof score === 'number' && !Number.isNaN(score)) {
+    display =
+      metricKey === 'arena' && score >= ARENA_ELO_THRESHOLD
+        ? String(Math.round(score))
+        : Number.isInteger(score)
+          ? score
+          : Number(score.toFixed(1));
+  }
+  const titleHint =
+    metricKey === 'arena' && typeof score === 'number' && score >= ARENA_ELO_THRESHOLD
+      ? `${display} ELO (text leaderboard); heatmap uses ELO mapped to 0–100 for color bands`
+      : tier
+        ? `${display} — ${tier}`
+        : 'No data';
   return (
-    <span className={`benchmark-heatmap-cell${tier ? ` benchmark-heatmap-${tier}` : ''}`} title={tier ? `${display} — ${tier}` : 'No data'}>
+    <span className={`benchmark-heatmap-cell${tier ? ` benchmark-heatmap-${tier}` : ''}`} title={titleHint}>
       {tier != null && <span className="benchmark-heatmap-dot" aria-hidden="true" />}
       <span className="benchmark-heatmap-value">{display}</span>
     </span>
@@ -33,7 +52,7 @@ function HeatmapCell({ score }) {
 }
 
 const HF_LEADERBOARD_URL = 'https://huggingface.co/datasets/open-llm-leaderboard/contents';
-const ARENA_URL = 'https://lmarena.ai/leaderboard';
+const ARENA_URL = 'https://lmarena.ai/leaderboard/text';
 
 export function Benchmarks() {
   const { getData, getBenchmarksData, showToast, benchmarksLastUpdated } = usePricing();
@@ -140,7 +159,8 @@ export function Benchmarks() {
     const data = subjects.map(({ subject, key }) => {
       const point = { subject, fullMark: 100 };
       selected.forEach((row, i) => {
-        point['m' + i] = Math.min(100, Math.max(0, num(row[key])));
+        const v = num(row[key]);
+        point['m' + i] = key === 'arena' ? arenaValueToChartScale(v) : Math.min(100, Math.max(0, v));
       });
       return point;
     });
@@ -210,11 +230,11 @@ export function Benchmarks() {
                 <li>
                   <strong>Arena</strong> — From the{' '}
                   <a href={ARENA_URL} target="_blank" rel="noopener noreferrer">LMSYS Chatbot Arena</a>{' '}
-                  leaderboard when matched (often ELO-style values). If there is no match, a smaller fallback score is used, so Arena numbers may not be on one scale across every row.
+                  <strong>text</strong> leaderboard (ELO) when the weekly job matches your pricing model name. MMLU / Reasoning come from Hugging Face, not from this site — so they will not match numbers on LMArena. If there is no Arena match, a small <strong>0–100 tier estimate</strong> is used instead of ELO, so rows can mix scales until you refresh <code>benchmarks.json</code>.
                 </li>
               </ul>
               <p className="benchmark-sources-note">
-                The radar chart maps each metric to 0–100 for display (values above 100 appear at the outer edge). Heatmap bands (strong / average / weak) are for quick scanning, not official benchmark tiers.
+                The radar chart uses 0–100 on every axis: MMLU, Code, and Reasoning are clamped to 100; Arena <strong>ELO is linearly mapped</strong> into 0–100 (~1150–1650 → 0–100) so shapes are comparable. Heatmap colors use the same mapping for Arena; the table still shows raw ELO when available.
               </p>
             </div>
           </details>
@@ -298,9 +318,10 @@ export function Benchmarks() {
         </div>
       <div id="benchmark-dashboard-table" className="benchmark-dashboard-table">
         <p className="benchmark-heatmap-legend" aria-hidden="true">
-          <span className="benchmark-heatmap-legend-item"><span className="benchmark-heatmap-dot benchmark-heatmap-strong" /> Strong ({HEATMAP_STRONG}–100)</span>
+          <span className="benchmark-heatmap-legend-item"><span className="benchmark-heatmap-dot benchmark-heatmap-strong" /> Strong ({HEATMAP_STRONG}–100 scale)</span>
           <span className="benchmark-heatmap-legend-item"><span className="benchmark-heatmap-dot benchmark-heatmap-average" /> Average ({HEATMAP_AVERAGE}–{HEATMAP_STRONG - 1})</span>
           <span className="benchmark-heatmap-legend-item"><span className="benchmark-heatmap-dot benchmark-heatmap-weak" /> Weak (0–{HEATMAP_AVERAGE - 1})</span>
+          <span className="benchmark-heatmap-legend-item benchmark-heatmap-legend-note">Arena: table shows ELO; colors map ELO → 0–100 for bands.</span>
         </p>
         <div className="benchmark-table-scroll">
           <table className="model-table">
@@ -325,7 +346,7 @@ export function Benchmarks() {
                     <span className={`benchmark-sort-icon${sortColumn === 'reasoning' ? ' benchmark-sort-icon-active' : ''}`} aria-hidden="true">{sortColumn === 'reasoning' ? (sortDirection === 'asc' ? ' ↑' : ' ↓') : ' ↕'}</span>
                   </button>
                 </th>
-                <th className="benchmark-sortable" scope="col" title="LMSYS Chatbot Arena leaderboard when matched (often ELO-style); else fallback score — scales may differ between rows. Higher = better.">
+                <th className="benchmark-sortable" scope="col" title="LMArena text chat ELO when matched; else 0–100 tier estimate. Not comparable to MMLU (HF). Higher = better.">
                   <button type="button" className="benchmark-sort-btn" onClick={() => handleSort('arena')} aria-label={sortColumn === 'arena' ? `Sorted by Arena ${sortDirection === 'asc' ? 'ascending' : 'descending'}. Click to change.` : 'Sort by Arena'}>
                     Arena
                     <span className={`benchmark-sort-icon${sortColumn === 'arena' ? ' benchmark-sort-icon-active' : ''}`} aria-hidden="true">{sortColumn === 'arena' ? (sortDirection === 'asc' ? ' ↑' : ' ↓') : ' ↕'}</span>
@@ -343,10 +364,10 @@ export function Benchmarks() {
               {sortedRows.map((m, i) => (
                 <tr key={i}>
                   <td className="model-name">{m.name}</td>
-                  <td className="benchmark-score"><HeatmapCell score={m.mmlu} /></td>
-                  <td className="benchmark-score"><HeatmapCell score={m.code} /></td>
-                  <td className="benchmark-score"><HeatmapCell score={m.reasoning} /></td>
-                  <td className="benchmark-score"><HeatmapCell score={m.arena} /></td>
+                  <td className="benchmark-score"><HeatmapCell score={m.mmlu} metricKey="mmlu" /></td>
+                  <td className="benchmark-score"><HeatmapCell score={m.code} metricKey="code" /></td>
+                  <td className="benchmark-score"><HeatmapCell score={m.reasoning} metricKey="reasoning" /></td>
+                  <td className="benchmark-score"><HeatmapCell score={m.arena} metricKey="arena" /></td>
                   <td className="cost-tier" title={m.costTitle}>{m.costTier}</td>
                 </tr>
               ))}
@@ -364,7 +385,9 @@ export function Benchmarks() {
           <strong className="benchmark-radar-how-to-title">How to read this chart</strong>
           <ul className="benchmark-radar-how-to-list">
             <li><strong>Each axis</strong> is one benchmark: <strong>Reasoning</strong> (top), <strong>Code</strong> (left), <strong>Arena</strong> (right), <strong>MMLU</strong> (bottom).</li>
-            <li><strong>Scale 0–100:</strong> The center is 0, the outer edge is 100. Higher is better.</li>
+            <li>
+              <strong>Scale 0–100 on the chart:</strong> MMLU, Code, and Reasoning are shown up to 100. Arena uses <strong>ELO mapped</strong> into 0–100 (see note above); tooltips list the raw value (ELO or score).
+            </li>
             <li><strong>Each colored shape</strong> is one model. The farther a point is from the center on an axis, the better that model scores on that benchmark.</li>
             <li>Compare models by shape size and overlap: a larger area toward the edges means stronger all-round performance.</li>
           </ul>
@@ -433,6 +456,7 @@ export function Benchmarks() {
                       if (!active || !payload || !payload.length || !radarChartData.selected.length) return null;
                       const point = payload[0].payload;
                       const subject = point?.subject ?? label ?? '—';
+                      const metricKey = RADAR_SUBJECT_TO_KEY[subject] || 'mmlu';
                       return (
                         <div className="benchmark-radar-tooltip">
                           <div className="benchmark-radar-tooltip-title">{subject}</div>
@@ -440,7 +464,9 @@ export function Benchmarks() {
                             {radarChartData.selected.map((row, i) => (
                               <li key={row.name} style={{ color: RADAR_COLORS[i % RADAR_COLORS.length] }}>
                                 <span className="benchmark-radar-tooltip-name">{row.name}</span>
-                                <span className="benchmark-radar-tooltip-value">{point['m' + i] ?? '—'}</span>
+                                <span className="benchmark-radar-tooltip-value">
+                                  {formatBenchmarkTooltipValue(row[metricKey], metricKey)}
+                                </span>
                               </li>
                             ))}
                           </ul>

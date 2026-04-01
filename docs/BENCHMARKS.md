@@ -33,10 +33,10 @@ update-pricing.js            Arena + HF → update-benchmarks.js
 
 ### 1. LMSYS Chatbot Arena (best for overall model quality)
 
-- **URL:** https://lmarena.ai/leaderboard (official Chatbot Arena site; `arena.lmsys.org` is deprecated)
-- **What it measures:** Human preference ranking, conversation quality, reasoning ability, real-world usefulness. One of the most trusted LLM benchmarks.
-- **Data:** Leaderboard table (model name + ELO/Arena score). Example: GPT-4o 1320, Claude 3 Opus 1290, Gemini 1.5 Pro 1275.
-- **How we fetch it:** The script scrapes the Arena HTML table (using `cheerio`). If the fetch or parse fails (e.g. timeout, page structure change), the script falls back to embedded scores and still writes `benchmarks.json`.
+- **URL:** https://lmarena.ai/leaderboard/text — **text chat** leaderboard only. The main `/leaderboard` page embeds several arenas (code, vision, …); scraping it mixed different ELO tables and did not match a single tab on the site.
+- **What it measures:** Human preference ranking for **chat** (ELO). This is **not** the same metric as MMLU or Reasoning (those come from Hugging Face in this app).
+- **Data:** HTML table (model name + ELO + vote count). Example ELO values are often ~1200–1600.
+- **How we fetch it:** The script scrapes that page with `cheerio`. The table is **7 columns** (rank, extra, model+license, **ELO±CI**, votes, …); ELO is parsed with a regex so values like `1504±6` become **1504**. Matching prefers **exact** normalized names, then the **longest** arena slug that contains the pricing model key. If the fetch or parse fails, embedded **0–100 tier** scores are used for Arena — so values will **not** match the portal until `benchmarks.json` is regenerated with a successful scrape.
 - **Update frequency:** Weekly (with the benchmark workflow).
 
 ### 2. Hugging Face Open LLM Leaderboard (technical benchmarks)

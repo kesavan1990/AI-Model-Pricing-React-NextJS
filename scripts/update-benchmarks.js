@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Builds benchmarks.json by merging:
- * 1. LMSYS Chatbot Arena (human preference / overall quality) — scraped from lmarena.ai/leaderboard
+ * 1. LMSYS Chatbot Arena text leaderboard (human preference / ELO) — scraped from lmarena.ai/leaderboard/text
  * 2. Hugging Face Open LLM Leaderboard (MMLU, reasoning, etc.) — from datasets-server API
  * 3. Embedded fallback — when external data is missing or no match
  *
@@ -19,7 +19,8 @@
 const OUT_FILE = 'public/benchmarks.json';
 const SCHEMA_PATH = 'schemas/benchmarks.schema.json';
 const PRICING_FILE = 'public/pricing.json';
-const ARENA_URL = 'https://lmarena.ai/leaderboard';
+/** Text chat leaderboard only — `/leaderboard` embeds multiple arenas (code, vision, …) and would mix ELO scales. */
+const ARENA_URL = 'https://lmarena.ai/leaderboard/text';
 const HF_ROWS_URL = 'https://datasets-server.huggingface.co/rows';
 const FETCH_TIMEOUT_MS = 25_000;
 
@@ -41,20 +42,30 @@ async function fetchArenaScores() {
     const { load } = await import('cheerio');
     const $ = load(html);
     const scores = [];
+    /** First numeric token (handles "1504±6", "1,504", "1491±7Preliminary"). */
+    function parseLeaderboardNumber(s) {
+      const m = String(s || '').match(/[\d,]+(?:\.\d+)?/);
+      if (!m) return NaN;
+      return parseFloat(m[0].replace(/,/g, ''), 10);
+    }
     $('table tbody tr').each((_, row) => {
       const tds = $(row).find('td');
       if (tds.length < 2) return;
-      // LMArena: Rank | Model | ELO | votes; legacy arena: Model | ELO
       let model;
       let scoreText;
-      if (tds.length >= 4) {
+      // LMArena text (2025+): Rank | ? | Model+org | ELO±ci | votes | price | ctx — 7 cols
+      if (tds.length >= 7) {
+        model = $(tds[2]).text().trim();
+        scoreText = $(tds[3]).text().trim();
+      } else if (tds.length >= 4) {
+        // Older 4-col: Rank | Model | ELO | votes
         model = $(tds[1]).text().trim();
         scoreText = $(tds[2]).text().trim();
       } else {
         model = $(tds[0]).text().trim();
         scoreText = $(tds[1]).text().trim();
       }
-      const num = parseFloat(scoreText.replace(/[,]/g, ''), 10);
+      const num = parseLeaderboardNumber(scoreText);
       if (model && !Number.isNaN(num)) scores.push({ model, arena: num });
     });
     if (scores.length > 0) console.log('Arena: fetched', scores.length, 'scores');
@@ -133,16 +144,34 @@ function getScoresForModel(name, providerKey) {
   return { mmlu: 75, code: 78, reasoning: 80, arena: 82 };
 }
 
-/** Find best Arena match for a pricing model name. */
+/** Find best Arena match for a pricing model name (prefer exact, then longest arena slug containing pricing key). */
 function findArenaScore(pricingModelName, arenaList) {
   const key = normalizeName(pricingModelName);
   if (!key) return null;
   for (const { model, arena } of arenaList) {
     const k = normalizeName(model);
     if (k === key) return arena;
-    if (k.includes(key) || key.includes(k)) return arena;
   }
-  return null;
+  let bestArena = null;
+  let bestLen = -1;
+  for (const { model, arena } of arenaList) {
+    const k = normalizeName(model);
+    if (k.includes(key) && k.length > bestLen) {
+      bestArena = arena;
+      bestLen = k.length;
+    }
+  }
+  if (bestArena != null) return bestArena;
+  bestLen = -1;
+  const minK = Math.min(12, Math.max(6, Math.floor(key.length * 0.5)));
+  for (const { model, arena } of arenaList) {
+    const k = normalizeName(model);
+    if (key.includes(k) && k.length >= minK && k.length > bestLen) {
+      bestArena = arena;
+      bestLen = k.length;
+    }
+  }
+  return bestArena;
 }
 
 /** Find best HF match for a pricing model name. */

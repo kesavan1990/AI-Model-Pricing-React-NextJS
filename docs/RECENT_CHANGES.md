@@ -213,7 +213,7 @@ Details and edge-case table: [PRICING_UPDATES.md](PRICING_UPDATES.md) § Pricing
 ## 12. Benchmarks: score sources in the UI
 
 - **Goal:** Make it clear **where MMLU, Code, Reasoning, and Arena** numbers come from (HF Open LLM Leaderboard, LMSYS Arena, in-app tier fallbacks) and how that relates to **`benchmarks.json`** vs the footer clock.
-- **UI:** **`components/sections/Benchmarks.js`** — collapsible **Where these scores come from** (`<details>`) with links to [Hugging Face Open LLM Leaderboard dataset](https://huggingface.co/datasets/open-llm-leaderboard/contents) and [LMSYS Chatbot Arena](https://lmarena.ai/leaderboard); shows **`benchmarksLastUpdated`** (from the file’s **`updated`** field). Table header **`title`** tooltips match **`scripts/update-benchmarks.js`** (e.g. Code = in-app tier only; no incorrect HumanEval/GSM8K labels).
+- **UI:** **`components/sections/Benchmarks.js`** — collapsible **Where these scores come from** (`<details>`) with links to [Hugging Face Open LLM Leaderboard dataset](https://huggingface.co/datasets/open-llm-leaderboard/contents) and [LMSYS Chatbot Arena](https://lmarena.ai/leaderboard/text); shows **`benchmarksLastUpdated`** (from the file’s **`updated`** field). Table header **`title`** tooltips match **`scripts/update-benchmarks.js`** (e.g. Code = in-app tier only; no incorrect HumanEval/GSM8K labels).
 - **Styles:** **`css/styles.css`** — `#section-benchmark .benchmark-sources-*` (including light theme).
 - **Docs:** [UI.md](UI.md) § Model benchmark dashboard → **Where scores come from (UI)**.
 
@@ -221,17 +221,30 @@ Details and edge-case table: [PRICING_UPDATES.md](PRICING_UPDATES.md) § Pricing
 
 ## 13. Chatbot Arena: LMArena URL and leaderboard scrape
 
-- **Context:** **`https://arena.lmsys.org/`** is no longer the canonical Chatbot Arena site; it may return errors or be unavailable. LMSYS announced a dedicated product site in [September 2024](https://lmsys.org/blog/2024-09-20-arena-new-site/): **[https://lmarena.ai/](https://lmarena.ai/)** (leaderboard: **[https://lmarena.ai/leaderboard](https://lmarena.ai/leaderboard)**).
+- **Context:** **`https://arena.lmsys.org/`** is no longer the canonical Chatbot Arena site; it may return errors or be unavailable. LMSYS announced a dedicated product site in [September 2024](https://lmsys.org/blog/2024-09-20-arena-new-site/): **[https://lmarena.ai/](https://lmarena.ai/)** (text leaderboard: **[https://lmarena.ai/leaderboard/text](https://lmarena.ai/leaderboard/text)**).
 - **`scripts/update-benchmarks.js`**
-  - **`ARENA_URL`** set to **`https://lmarena.ai/leaderboard`** (was `https://arena.lmsys.org/`).
-  - **`fetchArenaScores()`** parses the LMArena HTML table: **Rank | Model | ELO | vote count** (four `<td>` cells per row). A **fallback** still treats the first two cells as **Model | ELO** for any legacy-style table.
-  - File header comment updated to mention **lmarena.ai**.
-- **`components/sections/Benchmarks.js`** — **`ARENA_URL`** and the **Where these scores come from** link point to **`https://lmarena.ai/leaderboard`** (label remains **LMSYS Chatbot Arena**).
-- **Docs:** [BENCHMARKS.md](BENCHMARKS.md) (Arena URL + note on deprecated `arena.lmsys.org`), [UI.md](UI.md) (benchmark pipeline sentence), and §12 above (link already uses LMArena).
+  - **`ARENA_URL`** is **`https://lmarena.ai/leaderboard/text`** (text chat ELO only). The generic **`/leaderboard`** page mixes several HTML tables (code, vision, …); scraping it could attach the wrong ELO to a model.
+  - **`fetchArenaScores()`** parses the **7-column** text table (model + org in one cell, **ELO±CI** in the next — numeric prefix only), with fallbacks for older **4-column** or **2-column** layouts.
+  - **`findArenaScore()`** prefers **exact** normalized matches, then the **longest** arena model string that **contains** the pricing key, then reverse substring matches with a minimum key length (reduces bogus matches).
+- **`components/sections/Benchmarks.js`** — link target matches **`/leaderboard/text`**.
+- **Docs:** [BENCHMARKS.md](BENCHMARKS.md), [UI.md](UI.md), §12 (sources link).
 
 ### How to verify
 
-- **`node scripts/update-benchmarks.js`** — expect a log line like **`Arena: fetched`** with a **non-zero** count when the site is reachable; then validate **`public/benchmarks.json`** against the schema as today.
+- **`node scripts/update-benchmarks.js`** — expect **`Arena: fetched`** with a **non-zero** count when the site is reachable; validate **`public/benchmarks.json`**.
+
+---
+
+## 14. Benchmark columns vs LMArena / HF (scales and UI)
+
+- **Why numbers differed from the Arena site**
+  - **MMLU** and **Reasoning** in this app come from the **Hugging Face Open LLM Leaderboard** (and tier estimates when unmatched), **not** from LMArena — so they will not match anything on lmarena.ai.
+  - **Code** is an **in-app tier estimate** only (not scraped from Arena or HF HumanEval in the current pipeline).
+  - **Arena** should be **text chat ELO** (~1200–1600) when `benchmarks.json` was built with a successful scrape; the bundled file often had **only 0–100 embedded fallbacks** (e.g. 84–97), which look nothing like portal ELO. Regenerate **`benchmarks.json`** after a successful weekly or manual **`update-benchmarks`** run to align Arena with the text leaderboard.
+- **Radar chart** — Previously **`Math.min(100, arena)`** capped ELO at **100**, so the chart lied next to the portal. Now **Arena** is mapped **linearly** from ~**1150–1650 → 0–100** for the radar only; **tooltips** show the **raw** value (**ELO** when ≥ 250).
+- **Heatmap** — The same **ELO → 0–100** mapping drives **color bands** for the Arena column; the **cell still shows raw ELO** when it is a real leaderboard value.
+- **Value Analysis** — Y-axis label for Arena is **“Arena (ELO or 0–100 est.)”** when that metric is selected, to reflect mixed data until all rows use scraped ELO.
+- **Implementation:** **`src/benchmarkScales.js`** (`arenaValueToChartScale`, `heatmapTierForMetric`, `formatBenchmarkTooltipValue`); **`components/sections/Benchmarks.js`**; **`src/valueChart.js`**; **`src/render.js`** table header titles; **`css/styles.css`** legend note.
 
 ---
 

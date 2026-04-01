@@ -307,7 +307,7 @@ export function renderBenchmarkDashboard(data, fileBenchmarks = null) {
   const table = document.createElement('table');
   table.className = 'model-table';
   table.innerHTML =
-    '<thead><tr><th>Model</th><th title="Massive Multitask Language Understanding — broad knowledge across 57 subjects (STEM, humanities, etc.). Higher = better.">MMLU</th><th title="HumanEval — code generation benchmark (Python). Higher = better.">Code</th><th title="GSM8K — grade-school math word problems; measures reasoning. Higher = better.">Reasoning</th><th title="Arena / leaderboard-style ranking (e.g. LMSys Chatbot Arena). Higher = better overall preference.">Arena</th><th title="Based on blended price per 1M tokens (70% input + 30% output). $ = free/low, $$ = budget, $$$ = premium.">Cost</th></tr></thead><tbody></tbody>';
+    '<thead><tr><th>Model</th><th title="MMLU-PRO from Hugging Face Open LLM Leaderboard when matched; else tier estimate. Higher = better.">MMLU</th><th title="In-app code tier estimate only (not HumanEval from HF in this pipeline). Higher = better.">Code</th><th title="MATH Lvl 5 / BBH from Hugging Face when matched; else tier estimate. Higher = better.">Reasoning</th><th title="LMArena text chat ELO when matched; else 0–100 tier estimate. Higher = better.">Arena</th><th title="Based on blended price per 1M tokens (70% input + 30% output). $ = free/low, $$ = budget, $$$ = premium.">Cost</th></tr></thead><tbody></tbody>';
   const tbody = table.querySelector('tbody');
   appendRowsWithFragment(tbody, rowHtmlArray);
   container.innerHTML = '';

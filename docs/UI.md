@@ -314,7 +314,7 @@ Below the table, **Benchmark Radar Comparison** lets you compare **2 or more mod
 
 ### Benchmark pipeline and data
 
-**Benchmark pipeline** — The UI loads both `pricing.json` and `benchmarks.json` and merges by **model name** and **provider**. The benchmark script fetches **LMSYS Chatbot Arena** (lmarena.ai; overall quality / ELO) and **Hugging Face Open LLM Leaderboard** (MMLU, reasoning via datasets-server API), merges with pricing models, and writes `benchmarks.json`. When external data is missing, embedded scores from `getBenchmarkForModel()` in `src/calculator.js` are used. See [Benchmark pipeline](BENCHMARKS.md).
+**Benchmark pipeline** — The UI loads both `pricing.json` and `benchmarks.json` and merges by **model name** and **provider**. The benchmark script fetches **LMSYS Chatbot Arena** text leaderboard (lmarena.ai/leaderboard/text; **ELO**) and **Hugging Face Open LLM Leaderboard** (MMLU, reasoning via datasets-server API), merges with pricing models, and writes `benchmarks.json`. When external data is missing, embedded scores from `getBenchmarkForModel()` in `src/calculator.js` are used. See [Benchmark pipeline](BENCHMARKS.md).
 
 **Update frequency** — **Pricing** updates **daily** (06:00 UTC); **benchmarks** update **weekly** (Sunday 03:00 UTC via `.github/workflows/update-benchmarks.yml`). The benchmark workflow reads `pricing.json`, assigns scores per model, and writes `benchmarks.json`; the frontend fetches both and merges by model.
 

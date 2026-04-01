@@ -146,7 +146,8 @@ export function renderQuadrantChart(canvasOrId, mergedModels, options = {}) {
     order: 1,
   };
 
-  const metricLabel = performanceMetric === 'arena' ? 'Arena' : performanceMetric === 'mmlu' ? 'MMLU' : 'Code';
+  const metricLabel =
+    performanceMetric === 'arena' ? 'Arena (ELO or 0–100 est.)' : performanceMetric === 'mmlu' ? 'MMLU' : 'Code';
 
   const costs = list.map((m) => m.cost).filter((c) => Number.isFinite(c));
   const perfs = list.map((m) => m.performance).filter((p) => Number.isFinite(p));
