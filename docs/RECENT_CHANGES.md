@@ -212,10 +212,10 @@ Details and edge-case table: [PRICING_UPDATES.md](PRICING_UPDATES.md) § Pricing
 
 ## 12. Benchmarks: score sources in the UI
 
-- **Goal:** Make it clear **where MMLU, Code, Reasoning, and Arena** numbers come from (HF Open LLM Leaderboard, LMSYS Arena, in-app tier fallbacks) and how that relates to **`benchmarks.json`** vs the footer clock.
-- **UI:** **`components/sections/Benchmarks.js`** — collapsible **Where these scores come from** (`<details>`) with links to [Hugging Face Open LLM Leaderboard dataset](https://huggingface.co/datasets/open-llm-leaderboard/contents) and [LMSYS Chatbot Arena](https://lmarena.ai/leaderboard/text); shows **`benchmarksLastUpdated`** (from the file’s **`updated`** field). Table header **`title`** tooltips match **`scripts/update-benchmarks.js`** (e.g. Code = in-app tier only; no incorrect HumanEval/GSM8K labels).
-- **Styles:** **`css/styles.css`** — `#section-benchmark .benchmark-sources-*` (including light theme).
-- **Docs:** [UI.md](UI.md) § Model benchmark dashboard → **Where scores come from (UI)**.
+- **Goal:** Make it clear **where each column** comes from (HF, LMArena, in-app tiers) with **correct URLs** and how that relates to **`benchmarks.json`** vs the footer.
+- **UI:** **`components/sections/Benchmarks.js`** — open **How scores are fetched** card (three-column table: column name, scale, source + links to [HF dataset](https://huggingface.co/datasets/open-llm-leaderboard/contents), [Datasets Server API](https://datasets-server.huggingface.co/rows?dataset=open-llm-leaderboard%2Fcontents&config=default&split=train&offset=0&length=500), [LMArena text/code/document](https://lmarena.ai/leaderboard/text)); header shows **`benchmarksLastUpdated`**. Mini leaderboard cards removed; main table + radar retained.
+- **Styles:** **`css/styles.css`** — `#section-benchmark` layout (`.benchmark-page-head`, `.benchmark-sources-card`, `.benchmark-data-table` numeric alignment).
+- **Docs:** [UI.md](UI.md) § Model benchmark dashboard.
 
 ---
 
@@ -245,6 +245,15 @@ Details and edge-case table: [PRICING_UPDATES.md](PRICING_UPDATES.md) § Pricing
 - **Heatmap** — **Text / Code / Doc ELO** columns use the same ELO→color mapping; **MMLU / Code cap. / Reasoning** use literal **0–100** bands.
 - **Value Analysis** — Performance metric **Arena** still uses the **text** ELO field (`arena`); axis label notes ELO vs estimate.
 - **Implementation:** **`src/benchmarkScales.js`** (`isArenaEloMetric`, …); **`scripts/update-benchmarks.js`** (three LMArena URLs); **`schemas/benchmarks.schema.json`** (`arenaCode`, `arenaDocument`); **`components/sections/Benchmarks.js`**; **`src/calculator.js`**; **`src/render.js`** / **`src/app.js`** exports; **`src/valueChart.js`**; **`css/styles.css`**.
+
+---
+
+## 15. Benchmarks page layout (redesign)
+
+- **Scope:** Single-column flow: header + **sources table** + filter/legend + **aligned data table** + **Compare models** radar. Removed four **top-5 mini leaderboards**, long subtitle, collapsible `<details>`, and the long radar “how to read” list — replaced with a short radar subtitle.
+- **Sources:** One visible table lists each dashboard column, its **scale** (0–100 vs ELO vs cost tier), and **how** it is fetched with the **same URLs** as `update-benchmarks.js` (HF dataset + API query string; `lmarena.ai/leaderboard/{text,code,document}`).
+- **Alignment:** Numeric columns use **right-aligned** headers/cells, **tabular numerals**, heatmap values **right-aligned** in cells; model names **left** with wrapping. Sources table is **horizontally scrollable** on narrow viewports.
+- **Files:** **`components/sections/Benchmarks.js`**, **`css/styles.css`**, **[UI.md](UI.md)** § Model benchmark dashboard.
 
 ---
 

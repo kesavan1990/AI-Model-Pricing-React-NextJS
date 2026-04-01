@@ -270,47 +270,19 @@ In the **Value Analysis** section, a **Cost vs Performance** scatter chart helps
 
 ## Model benchmark dashboard
 
-On the **Benchmarks** tab (React: `/benchmarks`), the **Model benchmark dashboard** shows leaderboard cards, one main table, and a radar comparison. All content uses merged pricing + benchmarks; **one row per model name** (duplicates removed so the same model does not appear twice).
+On the **Benchmarks** tab (React: `/benchmarks`), the page shows: (1) a **header** with title, `benchmarks.json` updated date, and **CSV / PDF** export; (2) a **How scores are fetched** card — a three-column table (**Column**, **Scale**, **Source & method**) with the same URLs used by `scripts/update-benchmarks.js` (Hugging Face dataset + Datasets Server API link, and LMArena text/code/document leaderboard links); (3) a **filter + compact heatmap legend** row; (4) the **main data table**; (5) **Compare models** (radar). Merged pricing + benchmarks; **one row per model name** (deduplicated).
 
-**Layout and alignment** — The **Benchmarks Leaderboard** title and subtitle are **left-aligned**. The heatmap legend is **right-aligned** above the table. The **Benchmark Radar Comparison** section title and instructions are left-aligned.
+**Alignment** — Header text is **left-aligned**; export buttons **right-aligned** in the same row. The sources table is **full width** with aligned columns (horizontal scroll on small screens). Numeric score columns (**MMLU** through **Cost**) use **right-aligned** headers and cells, **tabular numerals**, and sort controls **right-aligned** in headers. **Model** names are **left-aligned** with `word-break` for long IDs.
 
-**Where scores come from (UI)** — A collapsible **Where these scores come from** (`<details>`) under the subtitle explains **MMLU** (HF Open LLM Leaderboard MMLU-PRO when matched), **Reasoning** (HF MATH Lvl 5 / BBH when matched), **Code** (in-app tier estimates only in the current pipeline), and **Arena** (LMSYS Chatbot Arena when matched, with a note on mixed scales). It shows the **`benchmarks.json` `updated` date** from context and clarifies footer vs dataset date. **Column header** `title` tooltips match these sources. Implementation: `components/sections/Benchmarks.js`, styles `#section-benchmark .benchmark-sources-*` in `css/styles.css`.
+**Heatmap** — Strong / Mid / Weak bands (0–100-style columns); ELO columns map ELO into the same band colors. Optional **Code ELO** / **Doc ELO** show **—** when unmatched.
 
-### Leaderboard cards
+**Sort & search** — All score columns and **Cost** are sortable (↕ / ↑ / ↓). **Filter models** narrows rows; sort applies to the filtered list.
 
-Four cards show **top 5** models each: **Best Reasoning Models**, **Best Coding Models**, **Best General Intelligence** (MMLU), **Best Arena Score**. Each lists model name and score.
+**Export** — CSV/PDF include **Text ELO**, **Code ELO**, **Doc ELO** columns plus MMLU, Code cap., Reasoning, Cost.
 
-### Benchmark table
+### Compare models (radar)
 
-One table with columns: **Model**, **MMLU**, **Code**, **Reasoning**, **Arena**, **Cost** (tier from current pricing). Scores are indicative from published results.
-
-**Deduplication** — The table shows **at most one row per model name** (first occurrence when merging pricing and tiers). This avoids duplicate model names from multiple context tiers or providers.
-
-**Heatmap** — Each score cell (MMLU, Code, Reasoning, Arena) shows a **color indicator plus the numeric score** for quick scanning:
-
-| Level   | Range   | Color  |
-|---------|---------|--------|
-| Strong  | 70–100  | Green  |
-| Average | 40–69   | Yellow |
-| Weak    | 0–39    | Red    |
-
-Missing or invalid scores show a neutral indicator and "—". A **legend** above the table (right-aligned) explains **Strong (70–100)**, **Average (40–69)**, **Weak (0–39)** with colored dots. The exact number remains visible in each cell and in tooltips.
-
-**Sort by column** — The columns **MMLU**, **Code**, **Reasoning**, **Arena**, and **Cost** are **sortable**. Click a column header to sort by that column; click again to toggle **ascending** / **descending**. A **sort icon** is always visible in each sortable header: **↕** when that column is not active, **↑** when sorted ascending, **↓** when sorted descending. Score columns default to descending (best first) when first selected; Cost defaults to ascending (cheapest first). Ties are broken by model name.
-
-**Search** — A **Search models** field filters the table by model name. The sorted order applies to the filtered list.
-
-**Export (CSV / PDF)** — **Export: CSV** and **Export: PDF** download the full benchmark table (same data as the on-screen table, including heatmap values). CSV columns: Model, MMLU, Code, Reasoning, Arena, Cost tier. PDF uses the same data in a landscape table. Buttons are in the benchmark export toolbar (right-aligned with the header).
-
-### Benchmark Radar Comparison
-
-Below the table, **Benchmark Radar Comparison** lets you compare **2 or more models** on a radar chart (Reasoning, Code, Arena, MMLU). Select models from a **scrollable list** (all models are listed; search narrows the list). Each model is drawn as an **outline-only** polygon (no fill) in a **distinct color** so overlapping models stay distinguishable.
-
-**Hover tooltip** — Hovering over the chart shows a **tooltip** with the **actual scores** for each selected model on the benchmark axis under the cursor (e.g. Reasoning: model A 92, model B 96). Model names in the tooltip are colored to match the chart.
-
-**Legend** — Below the chart, a legend lists each selected model with its color. A short **How to read this chart** block explains axes and scale (0–100).
-
-**Export** — CSV/PDF export for the benchmarks section includes the same table data as above; the radar is for on-screen comparison only.
+Select **two or more** models from the checklist (with search). Axes: **Reasoning**, **Code**, **Text ELO**, **MMLU** — chart scale 0–100 with **Text ELO** mapped from raw ELO; **tooltips** show raw values. Outline-only polygons per model; legend under chart.
 
 ### Benchmark pipeline and data
 

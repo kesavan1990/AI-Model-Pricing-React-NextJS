@@ -17,9 +17,6 @@ const RADAR_COLORS = [
   '#3b82f6', '#ef4444', '#22c55e', '#f97316', '#a855f7', '#06b6d4', '#ec4899', '#eab308', '#f43f5e', '#14b8a6',
 ];
 
-const HEATMAP_STRONG = 70;
-const HEATMAP_AVERAGE = 40;
-
 const RADAR_SUBJECT_TO_KEY = {
   Reasoning: 'reasoning',
   Code: 'code',
@@ -27,11 +24,20 @@ const RADAR_SUBJECT_TO_KEY = {
   MMLU: 'mmlu',
 };
 
+/** Hugging Face Datasets Server — same query as scripts/update-benchmarks.js */
+const HF_ROWS_API =
+  'https://datasets-server.huggingface.co/rows?dataset=open-llm-leaderboard%2Fcontents&config=default&split=train&offset=0&length=500';
+
+const HF_DATASET_URL = 'https://huggingface.co/datasets/open-llm-leaderboard/contents';
+const ARENA_TEXT_URL = 'https://lmarena.ai/leaderboard/text';
+const ARENA_CODE_URL = 'https://lmarena.ai/leaderboard/code';
+const ARENA_DOCUMENT_URL = 'https://lmarena.ai/leaderboard/document';
+
 function HeatmapCell({ score, metricKey }) {
   const optionalArena = metricKey === 'arenaCode' || metricKey === 'arenaDocument';
   if (optionalArena && (score == null || typeof score !== 'number' || Number.isNaN(score))) {
     return (
-      <span className="benchmark-heatmap-cell" title="No matching row on this LMArena leaderboard">
+      <span className="benchmark-heatmap-cell benchmark-heatmap-cell--empty" title="No row matched on this leaderboard">
         <span className="benchmark-heatmap-value">—</span>
       </span>
     );
@@ -50,7 +56,7 @@ function HeatmapCell({ score, metricKey }) {
     metricKey === 'arenaCode' ? 'code' : metricKey === 'arenaDocument' ? 'document' : 'text';
   const titleHint =
     isArenaEloMetric(metricKey) && typeof score === 'number' && score >= ARENA_ELO_THRESHOLD
-      ? `${display} ELO (${board}); heatmap maps ELO → 0–100 for color bands`
+      ? `${display} ELO (${board}); colors map ELO → band`
       : tier
         ? `${display} — ${tier}`
         : 'No data';
@@ -62,10 +68,25 @@ function HeatmapCell({ score, metricKey }) {
   );
 }
 
-const HF_LEADERBOARD_URL = 'https://huggingface.co/datasets/open-llm-leaderboard/contents';
-const ARENA_TEXT_URL = 'https://lmarena.ai/leaderboard/text';
-const ARENA_CODE_URL = 'https://lmarena.ai/leaderboard/code';
-const ARENA_DOCUMENT_URL = 'https://lmarena.ai/leaderboard/document';
+function SortTh({ column, label, sortColumn, sortDirection, onSort, title }) {
+  const active = sortColumn === column;
+  const dirWord = sortDirection === 'asc' ? 'ascending' : 'descending';
+  return (
+    <th className="benchmark-th-num benchmark-sortable" scope="col" title={title}>
+      <button
+        type="button"
+        className="benchmark-sort-btn"
+        onClick={() => onSort(column)}
+        aria-label={active ? `${label} sorted ${dirWord}. Click to reverse.` : `Sort by ${label}`}
+      >
+        <span className="benchmark-sort-btn-label">{label}</span>
+        <span className={`benchmark-sort-icon${active ? ' benchmark-sort-icon-active' : ''}`} aria-hidden="true">
+          {active ? (sortDirection === 'asc' ? '↑' : '↓') : '↕'}
+        </span>
+      </button>
+    </th>
+  );
+}
 
 export function Benchmarks() {
   const { getData, getBenchmarksData, showToast, benchmarksLastUpdated } = usePricing();
@@ -105,7 +126,6 @@ export function Benchmarks() {
     [allUniqueByName, fileBenchmarks]
   );
 
-  const TOP_N = 5;
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRadarModels, setSelectedRadarModels] = useState([]);
   const [radarModelSearch, setRadarModelSearch] = useState('');
@@ -145,7 +165,8 @@ export function Benchmarks() {
     const num = (v) => (typeof v === 'number' && !Number.isNaN(v) ? v : -1);
     const costOrder = (t) => (t === '$' ? 1 : t === '$$' ? 2 : t === '$$$' ? 3 : 0);
     list.sort((a, b) => {
-      let va, vb;
+      let va;
+      let vb;
       if (sortColumn === 'cost') {
         va = costOrder(a.costTier);
         vb = costOrder(b.costTier);
@@ -159,18 +180,6 @@ export function Benchmarks() {
     });
     return list;
   }, [filteredRows, sortColumn, sortDirection]);
-
-  const leaderboards = useMemo(() => {
-    const num = (v) => (typeof v === 'number' && !Number.isNaN(v) ? v : -1);
-    const byReasoning = [...rows].filter((r) => num(r.reasoning) >= 0).sort((a, b) => num(b.reasoning) - num(a.reasoning)).slice(0, TOP_N);
-    const byCode = [...rows].filter((r) => num(r.code) >= 0).sort((a, b) => num(b.code) - num(a.code)).slice(0, TOP_N);
-    const byMmlu = [...rows].filter((r) => num(r.mmlu) >= 0).sort((a, b) => num(b.mmlu) - num(a.mmlu)).slice(0, TOP_N);
-    const byArena = [...rows]
-      .filter((r) => num(r.arena) >= ARENA_ELO_THRESHOLD)
-      .sort((a, b) => num(b.arena) - num(a.arena))
-      .slice(0, TOP_N);
-    return { byReasoning, byCode, byMmlu, byArena };
-  }, [rows]);
 
   const radarChartData = useMemo(() => {
     const selected = rows.filter((r) => selectedRadarModels.includes(r.name));
@@ -240,227 +249,281 @@ export function Benchmarks() {
     }
   };
 
+  const externalLinkProps = { target: '_blank', rel: 'noopener noreferrer' };
+
   return (
     <section className="page-section" id="section-benchmark">
-      <div className="benchmark-header-row">
-        <div>
-          <h2 className="section-title">📊 Benchmarks Leaderboard</h2>
-          <p className="section-subtitle">
-            <strong>MMLU, Code (capability), and Reasoning</strong> use a <strong>0–100-style</strong> scale (Hugging Face % or in-app tier estimates) — not LMArena ELO.
-            <strong> Arena text / code / document</strong> columns show <strong>four-digit ELO</strong> from LMArena when <code>benchmarks.json</code> is up to date; if you only see ~80–97 in Arena text, refresh benchmarks (workflow or <code>node scripts/update-benchmarks.js</code>).
+      <header className="benchmark-page-head">
+        <div className="benchmark-page-head-text">
+          <h2 className="section-title benchmark-page-title">Benchmarks</h2>
+          <p className="benchmark-page-meta">
+            Data file <code className="benchmark-code">public/benchmarks.json</code>
+            <span className="benchmark-meta-sep" aria-hidden="true">
+              ·
+            </span>
+            <span className="benchmark-meta-label">Updated</span> {benchmarksLastUpdated}
           </p>
-          <details className="benchmark-sources-panel">
-            <summary className="benchmark-sources-summary">Where these scores come from</summary>
-            <div className="benchmark-sources-body">
-              <p className="benchmark-sources-lead">
-                Numbers are merged from public leaderboards where possible, then filled with tier-based estimates when there is no match.
-                The bundled file&apos;s <strong>updated</strong> date is <strong>{benchmarksLastUpdated}</strong>.
-                Your footer shows when this browser last loaded pricing and benchmarks.
-              </p>
-              <ul className="benchmark-sources-list">
-                <li>
-                  <strong>MMLU</strong> — From the{' '}
-                  <a href={HF_LEADERBOARD_URL} target="_blank" rel="noopener noreferrer">Hugging Face Open LLM Leaderboard</a>{' '}
-                  (<em>MMLU-PRO</em>) when the weekly build matches the model name; otherwise an in-app tier estimate.
-                </li>
-                <li>
-                  <strong>Reasoning</strong> — From the same HF leaderboard (<em>MATH Lvl 5</em> / <em>BBH</em>) when matched; otherwise tier estimates.
-                </li>
-                <li>
-                  <strong>Code</strong> — In-app tier estimates only (the pipeline does not pull a separate code benchmark column from that HF slice today).
-                </li>
-                <li>
-                  <strong>Arena</strong> — From the{' '}
-                  <a href={ARENA_TEXT_URL} target="_blank" rel="noopener noreferrer">LMArena text</a>,{' '}
-                  <a href={ARENA_CODE_URL} target="_blank" rel="noopener noreferrer">code</a>, and{' '}
-                  <a href={ARENA_DOCUMENT_URL} target="_blank" rel="noopener noreferrer">document</a> leaderboards (each is its own <strong>ELO</strong> scale, typically four digits). Image / video arenas on the site are separate URLs and are not imported here yet. If there is no row match, <strong>Text</strong> falls back to a 0–100 tier estimate; <strong>Code</strong> / <strong>Doc</strong> show —.
-                </li>
-              </ul>
-              <p className="benchmark-sources-note">
-                The radar chart uses 0–100 on every axis: MMLU, Code, and Reasoning are clamped to 100; Arena <strong>ELO is linearly mapped</strong> into 0–100 (~1150–1650 → 0–100) so shapes are comparable. Heatmap colors use the same mapping for Arena; the table still shows raw ELO when available.
-              </p>
-            </div>
-          </details>
         </div>
-        <div className="benchmark-export-toolbar">
-          <span className="export-label">Export:</span>
-          <button type="button" className="export-btn csv" onClick={exportCSV} title="Download benchmarks as CSV">📄 CSV</button>
-          <button type="button" className="export-btn pdf" onClick={exportPDF} title="Download benchmarks as PDF">📕 PDF</button>
+        <div className="benchmark-export-toolbar" role="toolbar" aria-label="Export benchmarks">
+          <button type="button" className="export-btn csv" onClick={exportCSV}>
+            CSV
+          </button>
+          <button type="button" className="export-btn pdf" onClick={exportPDF}>
+            PDF
+          </button>
         </div>
-      </div>
-      <div className="benchmark-content-wrap">
-      <div className="benchmark-leaderboard" aria-label="Benchmark leaderboards">
-        <div className="benchmark-leaderboard-card">
-          <h3 className="benchmark-leaderboard-title">🏆 Best Reasoning Models</h3>
-          <ol className="benchmark-leaderboard-list">
-            {leaderboards.byReasoning.map((m, i) => (
-              <li key={i}>
-                <span className="benchmark-leaderboard-rank">#{i + 1}</span>
-                <span className="benchmark-leaderboard-name">{m.name}</span>
-                <span className="benchmark-leaderboard-score">{m.reasoning}</span>
-              </li>
-            ))}
-            {leaderboards.byReasoning.length === 0 && <li className="benchmark-leaderboard-empty">No data</li>}
-          </ol>
-        </div>
-        <div className="benchmark-leaderboard-card">
-          <h3 className="benchmark-leaderboard-title">🏆 Best Coding Models</h3>
-          <ol className="benchmark-leaderboard-list">
-            {leaderboards.byCode.map((m, i) => (
-              <li key={i}>
-                <span className="benchmark-leaderboard-rank">#{i + 1}</span>
-                <span className="benchmark-leaderboard-name">{m.name}</span>
-                <span className="benchmark-leaderboard-score">{m.code}</span>
-              </li>
-            ))}
-            {leaderboards.byCode.length === 0 && <li className="benchmark-leaderboard-empty">No data</li>}
-          </ol>
-        </div>
-        <div className="benchmark-leaderboard-card">
-          <h3 className="benchmark-leaderboard-title">🏆 Best General Intelligence</h3>
-          <ol className="benchmark-leaderboard-list">
-            {leaderboards.byMmlu.map((m, i) => (
-              <li key={i}>
-                <span className="benchmark-leaderboard-rank">#{i + 1}</span>
-                <span className="benchmark-leaderboard-name">{m.name}</span>
-                <span className="benchmark-leaderboard-score">{m.mmlu}</span>
-              </li>
-            ))}
-            {leaderboards.byMmlu.length === 0 && <li className="benchmark-leaderboard-empty">No data</li>}
-          </ol>
-        </div>
-        <div className="benchmark-leaderboard-card">
-          <h3 className="benchmark-leaderboard-title">🏆 Best text Arena (ELO)</h3>
-          <ol className="benchmark-leaderboard-list">
-            {leaderboards.byArena.map((m, i) => (
-              <li key={i}>
-                <span className="benchmark-leaderboard-rank">#{i + 1}</span>
-                <span className="benchmark-leaderboard-name">{m.name}</span>
-                <span className="benchmark-leaderboard-score">{m.arena}</span>
-              </li>
-            ))}
-            {leaderboards.byArena.length === 0 && (
-              <li className="benchmark-leaderboard-empty">No text ELO in data (run benchmark update or check matches).</li>
-            )}
-          </ol>
-        </div>
-      </div>
-      <div className="benchmark-table-col">
-        <div className="benchmark-search-wrap">
-          <label htmlFor="benchmark-search" className="benchmark-search-label">Search models</label>
-          <input
-            type="search"
-            id="benchmark-search"
-            className="benchmark-search-input"
-            placeholder="e.g. gpt-4, gemini, claude…"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            aria-label="Filter benchmark table by model name"
-          />
-          {searchQuery.trim() && (
-            <span className="benchmark-search-hint">{filteredRows.length} of {rows.length} models</span>
-          )}
-        </div>
-      <div id="benchmark-dashboard-table" className="benchmark-dashboard-table">
-        <p className="benchmark-heatmap-legend" aria-hidden="true">
-          <span className="benchmark-heatmap-legend-item"><span className="benchmark-heatmap-dot benchmark-heatmap-strong" /> Strong ({HEATMAP_STRONG}–100 scale)</span>
-          <span className="benchmark-heatmap-legend-item"><span className="benchmark-heatmap-dot benchmark-heatmap-average" /> Average ({HEATMAP_AVERAGE}–{HEATMAP_STRONG - 1})</span>
-          <span className="benchmark-heatmap-legend-item"><span className="benchmark-heatmap-dot benchmark-heatmap-weak" /> Weak (0–{HEATMAP_AVERAGE - 1})</span>
-          <span className="benchmark-heatmap-legend-item benchmark-heatmap-legend-note">Arena columns: raw ELO in cells; colors map ELO → 0–100. MMLU / Code / Reasoning stay on 0–100.</span>
+      </header>
+
+      <div className="benchmark-sources-card">
+        <h3 className="benchmark-sources-heading">How scores are fetched</h3>
+        <p className="benchmark-sources-intro">
+          Built by <code className="benchmark-code">scripts/update-benchmarks.js</code> (weekly GitHub Action). The footer shows when your browser last loaded data.
         </p>
-        <div className="benchmark-table-scroll">
-          <table className="model-table">
+        <div className="benchmark-sources-table-wrap">
+          <table className="benchmark-sources-table">
             <thead>
               <tr>
-                <th>Model</th>
-                <th className="benchmark-sortable" scope="col" title="MMLU-PRO (or similar) from Hugging Face Open LLM Leaderboard when matched; else tier estimate. Higher = better.">
-                  <button type="button" className="benchmark-sort-btn" onClick={() => handleSort('mmlu')} aria-label={sortColumn === 'mmlu' ? `Sorted by MMLU ${sortDirection === 'asc' ? 'ascending' : 'descending'}. Click to change.` : 'Sort by MMLU'}>
-                    MMLU
-                    <span className={`benchmark-sort-icon${sortColumn === 'mmlu' ? ' benchmark-sort-icon-active' : ''}`} aria-hidden="true">{sortColumn === 'mmlu' ? (sortDirection === 'asc' ? ' ↑' : ' ↓') : ' ↕'}</span>
-                  </button>
-                </th>
-                <th className="benchmark-sortable" scope="col" title="Approximate code capability tier (in-app estimates). Not from HumanEval in the current pipeline. Higher = better.">
-                  <button type="button" className="benchmark-sort-btn" onClick={() => handleSort('code')} aria-label={sortColumn === 'code' ? `Sorted by Code ${sortDirection === 'asc' ? 'ascending' : 'descending'}. Click to change.` : 'Sort by Code'}>
-                    Code
-                    <span className={`benchmark-sort-icon${sortColumn === 'code' ? ' benchmark-sort-icon-active' : ''}`} aria-hidden="true">{sortColumn === 'code' ? (sortDirection === 'asc' ? ' ↑' : ' ↓') : ' ↕'}</span>
-                  </button>
-                </th>
-                <th className="benchmark-sortable" scope="col" title="MATH Lvl 5 / BBH from Hugging Face Open LLM Leaderboard when matched; else tier estimate. Higher = better.">
-                  <button type="button" className="benchmark-sort-btn" onClick={() => handleSort('reasoning')} aria-label={sortColumn === 'reasoning' ? `Sorted by Reasoning ${sortDirection === 'asc' ? 'ascending' : 'descending'}. Click to change.` : 'Sort by Reasoning'}>
-                    Reasoning
-                    <span className={`benchmark-sort-icon${sortColumn === 'reasoning' ? ' benchmark-sort-icon-active' : ''}`} aria-hidden="true">{sortColumn === 'reasoning' ? (sortDirection === 'asc' ? ' ↑' : ' ↓') : ' ↕'}</span>
-                  </button>
-                </th>
-                <th className="benchmark-sortable" scope="col" title="LMArena text chat ELO (four digits) when matched; else 0–100 tier estimate. Higher = better.">
-                  <button type="button" className="benchmark-sort-btn" onClick={() => handleSort('arena')} aria-label={sortColumn === 'arena' ? `Sorted by text ELO ${sortDirection === 'asc' ? 'ascending' : 'descending'}. Click to change.` : 'Sort by text ELO'}>
-                    Text ELO
-                    <span className={`benchmark-sort-icon${sortColumn === 'arena' ? ' benchmark-sort-icon-active' : ''}`} aria-hidden="true">{sortColumn === 'arena' ? (sortDirection === 'asc' ? ' ↑' : ' ↓') : ' ↕'}</span>
-                  </button>
-                </th>
-                <th className="benchmark-sortable" scope="col" title="LMArena code arena ELO when this model appears on that leaderboard; — if no match.">
-                  <button type="button" className="benchmark-sort-btn" onClick={() => handleSort('arenaCode')} aria-label={sortColumn === 'arenaCode' ? `Sorted by code ELO ${sortDirection === 'asc' ? 'ascending' : 'descending'}. Click to change.` : 'Sort by code ELO'}>
-                    Code ELO
-                    <span className={`benchmark-sort-icon${sortColumn === 'arenaCode' ? ' benchmark-sort-icon-active' : ''}`} aria-hidden="true">{sortColumn === 'arenaCode' ? (sortDirection === 'asc' ? ' ↑' : ' ↓') : ' ↕'}</span>
-                  </button>
-                </th>
-                <th className="benchmark-sortable" scope="col" title="LMArena document arena ELO when matched; — if no match.">
-                  <button type="button" className="benchmark-sort-btn" onClick={() => handleSort('arenaDocument')} aria-label={sortColumn === 'arenaDocument' ? `Sorted by document ELO ${sortDirection === 'asc' ? 'ascending' : 'descending'}. Click to change.` : 'Sort by document ELO'}>
-                    Doc ELO
-                    <span className={`benchmark-sort-icon${sortColumn === 'arenaDocument' ? ' benchmark-sort-icon-active' : ''}`} aria-hidden="true">{sortColumn === 'arenaDocument' ? (sortDirection === 'asc' ? ' ↑' : ' ↓') : ' ↕'}</span>
-                  </button>
-                </th>
-                <th className="benchmark-sortable" scope="col" title="Cost tier: $ = free/low, $$ = budget, $$$ = premium.">
-                  <button type="button" className="benchmark-sort-btn" onClick={() => handleSort('cost')} aria-label={sortColumn === 'cost' ? `Sorted by Cost ${sortDirection === 'asc' ? 'ascending' : 'descending'}. Click to change.` : 'Sort by Cost'}>
-                    Cost
-                    <span className={`benchmark-sort-icon${sortColumn === 'cost' ? ' benchmark-sort-icon-active' : ''}`} aria-hidden="true">{sortColumn === 'cost' ? (sortDirection === 'asc' ? ' ↑' : ' ↓') : ' ↕'}</span>
-                  </button>
-                </th>
+                <th scope="col">Column</th>
+                <th scope="col">Scale</th>
+                <th scope="col">Source &amp; method</th>
               </tr>
             </thead>
             <tbody>
-              {sortedRows.map((m, i) => (
-                <tr key={i}>
-                  <td className="model-name">{m.name}</td>
-                  <td className="benchmark-score"><HeatmapCell score={m.mmlu} metricKey="mmlu" /></td>
-                  <td className="benchmark-score"><HeatmapCell score={m.code} metricKey="code" /></td>
-                  <td className="benchmark-score"><HeatmapCell score={m.reasoning} metricKey="reasoning" /></td>
-                  <td className="benchmark-score"><HeatmapCell score={m.arena} metricKey="arena" /></td>
-                  <td className="benchmark-score"><HeatmapCell score={m.arenaCode} metricKey="arenaCode" /></td>
-                  <td className="benchmark-score"><HeatmapCell score={m.arenaDocument} metricKey="arenaDocument" /></td>
-                  <td className="cost-tier" title={m.costTitle}>{m.costTier}</td>
-                </tr>
-              ))}
+              <tr>
+                <td>MMLU</td>
+                <td className="benchmark-sources-scale">0–100</td>
+                <td>
+                  <a href={HF_DATASET_URL} {...externalLinkProps}>
+                    huggingface.co/datasets/open-llm-leaderboard/contents
+                  </a>
+                  <span className="benchmark-sources-detail">
+                    {' '}
+                    — field <code>MMLU-PRO</code> via{' '}
+                    <a href={HF_ROWS_API} {...externalLinkProps}>
+                      Datasets Server API
+                    </a>
+                    . No match → tier estimate.
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td>Reasoning</td>
+                <td className="benchmark-sources-scale">0–100</td>
+                <td>
+                  Same dataset/API — <code>MATH Lvl 5</code> / <code>BBH</code>. No match → estimate.
+                </td>
+              </tr>
+              <tr>
+                <td>Code</td>
+                <td className="benchmark-sources-scale">0–100</td>
+                <td>In-app capability tier only (not LMArena Code ELO).</td>
+              </tr>
+              <tr>
+                <td>Text ELO</td>
+                <td className="benchmark-sources-scale">ELO</td>
+                <td>
+                  HTML table scrape of{' '}
+                  <a href={ARENA_TEXT_URL} {...externalLinkProps}>
+                    lmarena.ai/leaderboard/text
+                  </a>
+                  . No match → 0–100 fallback.
+                </td>
+              </tr>
+              <tr>
+                <td>Code ELO</td>
+                <td className="benchmark-sources-scale">ELO</td>
+                <td>
+                  Scrape{' '}
+                  <a href={ARENA_CODE_URL} {...externalLinkProps}>
+                    lmarena.ai/leaderboard/code
+                  </a>
+                  . No match → —.
+                </td>
+              </tr>
+              <tr>
+                <td>Doc ELO</td>
+                <td className="benchmark-sources-scale">ELO</td>
+                <td>
+                  Scrape{' '}
+                  <a href={ARENA_DOCUMENT_URL} {...externalLinkProps}>
+                    lmarena.ai/leaderboard/document
+                  </a>
+                  . No match → —.
+                </td>
+              </tr>
+              <tr>
+                <td>Cost</td>
+                <td className="benchmark-sources-scale">Tier</td>
+                <td>From live pricing (70% input + 30% output blend per 1M tokens).</td>
+              </tr>
             </tbody>
           </table>
         </div>
       </div>
-      </div>
+
+      <div className="benchmark-table-block">
+        <div className="benchmark-toolbar-row">
+          <div className="benchmark-search-wrap">
+            <label htmlFor="benchmark-search" className="benchmark-search-label">
+              Filter models
+            </label>
+            <input
+              type="search"
+              id="benchmark-search"
+              className="benchmark-search-input"
+              placeholder="Search by name…"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              aria-label="Filter benchmark table by model name"
+            />
+            {searchQuery.trim() ? (
+              <span className="benchmark-search-hint">
+                {filteredRows.length} / {rows.length}
+              </span>
+            ) : null}
+          </div>
+          <div className="benchmark-legend-compact" aria-hidden="true">
+            <span className="benchmark-legend-compact-item">
+              <span className="benchmark-heatmap-dot benchmark-heatmap-strong" /> Strong
+            </span>
+            <span className="benchmark-legend-compact-item">
+              <span className="benchmark-heatmap-dot benchmark-heatmap-average" /> Mid
+            </span>
+            <span className="benchmark-legend-compact-item">
+              <span className="benchmark-heatmap-dot benchmark-heatmap-weak" /> Weak
+            </span>
+            <span className="benchmark-legend-compact-note">ELO columns use color bands mapped from score</span>
+          </div>
+        </div>
+
+        <div id="benchmark-dashboard-table" className="benchmark-dashboard-table">
+          <div className="benchmark-table-scroll">
+            <table className="model-table benchmark-data-table">
+              <thead>
+                <tr>
+                  <th scope="col" className="benchmark-th-model">
+                    Model
+                  </th>
+                  <SortTh
+                    column="mmlu"
+                    label="MMLU"
+                    sortColumn={sortColumn}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                    title="0–100 from HF or estimate"
+                  />
+                  <SortTh
+                    column="code"
+                    label="Code"
+                    sortColumn={sortColumn}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                    title="0–100 capability tier"
+                  />
+                  <SortTh
+                    column="reasoning"
+                    label="Reasoning"
+                    sortColumn={sortColumn}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                    title="0–100 from HF or estimate"
+                  />
+                  <SortTh
+                    column="arena"
+                    label="Text ELO"
+                    sortColumn={sortColumn}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                    title="LMArena text chat ELO"
+                  />
+                  <SortTh
+                    column="arenaCode"
+                    label="Code ELO"
+                    sortColumn={sortColumn}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                    title="LMArena code arena ELO"
+                  />
+                  <SortTh
+                    column="arenaDocument"
+                    label="Doc ELO"
+                    sortColumn={sortColumn}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                    title="LMArena document arena ELO"
+                  />
+                  <th className="benchmark-th-num benchmark-sortable" scope="col" title="Cost tier">
+                    <button
+                      type="button"
+                      className="benchmark-sort-btn"
+                      onClick={() => handleSort('cost')}
+                      aria-label={
+                        sortColumn === 'cost'
+                          ? `Cost sorted ${sortDirection === 'asc' ? 'ascending' : 'descending'}. Click to reverse.`
+                          : 'Sort by cost tier'
+                      }
+                    >
+                      <span className="benchmark-sort-btn-label">Cost</span>
+                      <span className={`benchmark-sort-icon${sortColumn === 'cost' ? ' benchmark-sort-icon-active' : ''}`} aria-hidden="true">
+                        {sortColumn === 'cost' ? (sortDirection === 'asc' ? '↑' : '↓') : '↕'}
+                      </span>
+                    </button>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedRows.map((m, i) => (
+                  <tr key={i}>
+                    <td className="model-name benchmark-td-model">{m.name}</td>
+                    <td className="benchmark-td-num benchmark-score">
+                      <HeatmapCell score={m.mmlu} metricKey="mmlu" />
+                    </td>
+                    <td className="benchmark-td-num benchmark-score">
+                      <HeatmapCell score={m.code} metricKey="code" />
+                    </td>
+                    <td className="benchmark-td-num benchmark-score">
+                      <HeatmapCell score={m.reasoning} metricKey="reasoning" />
+                    </td>
+                    <td className="benchmark-td-num benchmark-score">
+                      <HeatmapCell score={m.arena} metricKey="arena" />
+                    </td>
+                    <td className="benchmark-td-num benchmark-score">
+                      <HeatmapCell score={m.arenaCode} metricKey="arenaCode" />
+                    </td>
+                    <td className="benchmark-td-num benchmark-score">
+                      <HeatmapCell score={m.arenaDocument} metricKey="arenaDocument" />
+                    </td>
+                    <td className="benchmark-td-num cost-tier benchmark-td-cost" title={m.costTitle}>
+                      {m.costTier}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
-      <div className="benchmark-radar-section" aria-label="Benchmark radar comparison">
-        <h3 className="benchmark-radar-title">📡 Benchmark Radar Comparison</h3>
-        <p className="benchmark-radar-subtitle">Select 2 or more models to compare strengths across four benchmarks.</p>
-        <div className="benchmark-radar-how-to" role="region" aria-label="How to read the radar chart">
-          <strong className="benchmark-radar-how-to-title">How to read this chart</strong>
-          <ul className="benchmark-radar-how-to-list">
-            <li><strong>Each axis</strong> is one benchmark: <strong>Reasoning</strong> (top), <strong>Code</strong> (capability, left), <strong>Text ELO</strong> (LMArena chat, right), <strong>MMLU</strong> (bottom).</li>
-            <li>
-              <strong>Scale 0–100 on the chart:</strong> MMLU, Code, and Reasoning are shown up to 100. Arena uses <strong>ELO mapped</strong> into 0–100 (see note above); tooltips list the raw value (ELO or score).
-            </li>
-            <li><strong>Each colored shape</strong> is one model. The farther a point is from the center on an axis, the better that model scores on that benchmark.</li>
-            <li>Compare models by shape size and overlap: a larger area toward the edges means stronger all-round performance.</li>
-          </ul>
-        </div>
+      <div className="benchmark-radar-section" aria-label="Compare models on radar chart">
+        <h3 className="benchmark-radar-title">Compare models</h3>
+        <p className="benchmark-radar-subtitle">
+          Pick two or more models. Axes are 0–100 on the chart; <strong>Text ELO</strong> is scaled from raw ELO for shape comparison — see tooltips for raw values.
+        </p>
         <div className="benchmark-radar-layout">
           <div className="benchmark-radar-checkboxes-wrap">
             <div className="benchmark-radar-checkboxes-header">
-              <label htmlFor="benchmark-radar-search" className="benchmark-radar-checkboxes-label">Search & select models</label>
+              <label htmlFor="benchmark-radar-search" className="benchmark-radar-checkboxes-label">
+                Models
+              </label>
               <button
                 type="button"
                 className="benchmark-radar-clear-btn"
-                onClick={() => { setSelectedRadarModels([]); setRadarModelSearch(''); }}
+                onClick={() => {
+                  setSelectedRadarModels([]);
+                  setRadarModelSearch('');
+                }}
                 disabled={selectedRadarModels.length === 0 && !radarModelSearch.trim()}
-                aria-label="Clear selection and search"
+                aria-label="Clear selection"
               >
                 Clear
               </button>
@@ -469,10 +532,10 @@ export function Benchmarks() {
               type="search"
               id="benchmark-radar-search"
               className="benchmark-radar-search-input"
-              placeholder="e.g. gpt-4, gemini, claude…"
+              placeholder="Search…"
               value={radarModelSearch}
               onChange={(e) => setRadarModelSearch(e.target.value)}
-              aria-label="Search models to add to radar comparison"
+              aria-label="Search models for radar"
             />
             <div className="benchmark-radar-checkboxes">
               {radarModelList.map((m) => (
@@ -481,35 +544,25 @@ export function Benchmarks() {
                     type="checkbox"
                     checked={selectedRadarModels.includes(m.name)}
                     onChange={() => toggleRadarModel(m.name)}
-                    aria-label={`Compare ${m.name} in radar`}
+                    aria-label={`Include ${m.name}`}
                   />
                   <span className="benchmark-radar-checkbox-text">{m.name}</span>
                 </label>
               ))}
             </div>
-            {radarModelList.length === 0 && (
-              <p className="benchmark-radar-hint">No models match your search.</p>
-            )}
-            {radarModelSearch.trim() && (
-              <p className="benchmark-radar-hint">{radarModelList.length} model{radarModelList.length !== 1 ? 's' : ''} match.</p>
-            )}
+            {radarModelList.length === 0 ? <p className="benchmark-radar-hint">No matches.</p> : null}
           </div>
           <div className="benchmark-radar-chart-wrap">
             {radarChartData.selected.length >= 2 ? (
-              <ResponsiveContainer width="100%" height={520}>
+              <ResponsiveContainer width="100%" height={480}>
                 <RadarChart data={radarChartData.data} margin={{ top: 28, right: 28, bottom: 28, left: 28 }}>
                   <PolarGrid stroke="rgba(255,255,255,0.25)" />
                   <PolarAngleAxis
                     dataKey="subject"
-                    tick={{ fill: 'var(--theme-text-muted)', fontSize: 14 }}
+                    tick={{ fill: 'var(--theme-text-muted)', fontSize: 13 }}
                     tickLine={{ stroke: 'rgba(255,255,255,0.2)' }}
                   />
-                  <PolarRadiusAxis
-                    angle={90}
-                    domain={[0, 100]}
-                    tick={{ fill: 'var(--theme-text-muted)', fontSize: 12 }}
-                    tickCount={5}
-                  />
+                  <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: 'var(--theme-text-muted)', fontSize: 11 }} tickCount={5} />
                   <Tooltip
                     content={({ active, payload, label }) => {
                       if (!active || !payload || !payload.length || !radarChartData.selected.length) return null;
@@ -523,9 +576,7 @@ export function Benchmarks() {
                             {radarChartData.selected.map((row, i) => (
                               <li key={row.name} style={{ color: RADAR_COLORS[i % RADAR_COLORS.length] }}>
                                 <span className="benchmark-radar-tooltip-name">{row.name}</span>
-                                <span className="benchmark-radar-tooltip-value">
-                                  {formatBenchmarkTooltipValue(row[metricKey], metricKey)}
-                                </span>
+                                <span className="benchmark-radar-tooltip-value">{formatBenchmarkTooltipValue(row[metricKey], metricKey)}</span>
                               </li>
                             ))}
                           </ul>
@@ -542,14 +593,14 @@ export function Benchmarks() {
                       stroke={RADAR_COLORS[i % RADAR_COLORS.length]}
                       fill={RADAR_COLORS[i % RADAR_COLORS.length]}
                       fillOpacity={0}
-                      strokeWidth={5}
+                      strokeWidth={4}
                     />
                   ))}
-                  <Legend wrapperStyle={{ fontSize: '14px' }} iconType="circle" iconSize={14} />
+                  <Legend wrapperStyle={{ fontSize: '13px' }} iconType="circle" iconSize={12} />
                 </RadarChart>
               </ResponsiveContainer>
             ) : (
-              <p className="benchmark-radar-placeholder">Select 2 or more models above to see the radar comparison.</p>
+              <p className="benchmark-radar-placeholder">Select at least two models.</p>
             )}
           </div>
         </div>
