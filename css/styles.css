@@ -1820,10 +1820,15 @@ h1 {
 [data-theme="light"] .benchmark-leaderboard-rank { color: var(--theme-text-muted); }
 [data-theme="light"] .benchmark-leaderboard-score { color: #6366f1; }
 #calculators.dashboard-section.active { display: flex; flex-direction: column; }
-#benchmarks.dashboard-section.active {
-  max-height: calc(100vh - 140px);
-  overflow-y: auto;
-  overflow-x: hidden;
+/* Retired benchmarks block: .active used to override .hidden (higher specificity); keep hidden no matter what */
+#benchmarks.dashboard-section {
+  display: none !important;
+  visibility: hidden;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
 .benchmark-dashboard-wrap { max-width: 900px; margin: 0 auto; overflow-x: auto; }
 .benchmark-dashboard-table { margin-bottom: 12px; }

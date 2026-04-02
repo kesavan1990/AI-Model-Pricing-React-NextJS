@@ -1160,13 +1160,19 @@ function switchCalcSub(subId) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-const SECTION_IDS = ['overview', 'value-analysis', 'recommend-section', 'models', 'calculators', 'benchmarks'];
+const SECTION_IDS = ['overview', 'value-analysis', 'recommend-section', 'models', 'calculators'];
 
 function showSection(sectionId) {
   SECTION_IDS.forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.classList.toggle('active', id === sectionId);
   });
+  const benchEl = document.getElementById('benchmarks');
+  if (benchEl) {
+    benchEl.classList.remove('active');
+    benchEl.classList.add('hidden');
+    benchEl.setAttribute('aria-hidden', 'true');
+  }
   setActiveSidebarLink(sectionId);
   if (sectionId === 'value-analysis') setTimeout(updateValueChartIfVisible, 0);
 }
@@ -1293,7 +1299,7 @@ function init() {
     if (h === 'value-analysis') return 'value-analysis';
     if (h === 'recommend') return 'recommend-section';
     if (h === 'calculators' || h.startsWith('calc-')) return 'calculators';
-    if (h === 'benchmarks') return 'benchmarks';
+    if (h === 'benchmarks') return 'overview';
     return 'overview';
   };
   const sectionId = hash ? sectionFromHash(hash) : 'overview';
