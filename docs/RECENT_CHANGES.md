@@ -253,7 +253,8 @@ Details and edge-case table: [PRICING_UPDATES.md](PRICING_UPDATES.md) § Pricing
 - **Scope:** Single-column flow: header + **collapsible sources** (`<details>`) + filter/legend + **aligned data table** + **Compare models** radar. Removed four **top-5 mini leaderboards**, long subtitle, and the long radar “how to read” list — replaced with a short radar subtitle.
 - **Sources:** When expanded, a table lists each dashboard column, its **scale**, and **how** it is fetched with the **same URLs** as `update-benchmarks.js` (HF dataset + API; `lmarena.ai/leaderboard/{text,code,document}`).
 - **Alignment:** Numeric columns use **right-aligned** headers/cells, **tabular numerals**, heatmap values **right-aligned** in cells; model names **left** with wrapping. Sources table is **horizontally scrollable** on narrow viewports.
-- **Files:** **`components/sections/Benchmarks.js`**, **`css/styles.css`**, **[UI.md](UI.md)** § Model benchmark dashboard.
+- **Easier to read (common users):** **Quick guide** callout; friendlier column headers (**Knowledge**, **Chat rank**, etc.) with subtitles; plain-language **Where do these numbers come from?** rows; simpler heatmap legend and cell tooltips; radar subtitle and axis labels in everyday wording; CSV/PDF headers aligned with those names.
+- **Files:** **`components/sections/Benchmarks.js`**, **`css/styles.css`**, **`src/app.js`**, **`src/render.js`**, **[UI.md](UI.md)** § Model benchmark dashboard.
 
 ---
 

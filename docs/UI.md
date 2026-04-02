@@ -272,9 +272,11 @@ In the **Value Analysis** section, a **Cost vs Performance** scatter chart helps
 
 On the **Benchmarks** tab (React: `/benchmarks`), the page shows: (1) a **header** with title, `benchmarks.json` updated date, and **CSV / PDF** export; (2) a collapsible **How these values are fetched** control (`<details>` / `<summary>`) — closed by default; clicking opens a three-column table (**Column**, **Scale**, **Source & method**) with the same URLs as `scripts/update-benchmarks.js`; (3) a **filter + compact heatmap legend** row; (4) the **main data table**; (5) **Compare models** (radar). Merged pricing + benchmarks; **one row per model name** (deduplicated).
 
-**Alignment** — Header text is **left-aligned**; export buttons **right-aligned** in the same row. The sources table is **full width** with aligned columns (horizontal scroll on small screens). Numeric score columns (**MMLU** through **Cost**) use **right-aligned** headers and cells, **tabular numerals**, and sort controls **right-aligned** in headers. **Model** names are **left-aligned** with `word-break` for long IDs.
+**Plain-language UX** — A **Quick guide** box above the table explains that 0–100 columns differ from big **ranking** numbers, what the colored dots mean, and that **—** is “not on that list,” not zero. Column headers use friendly labels (**Knowledge**, **Coding** + subtitle, **Reasoning**, **Chat rank**, **Code rank**, **Doc rank**, **Cost** + $–$$$). The expandable **Where do these numbers come from?** table uses columns **What you see**, **In plain words**, and **Where we get it**. Radar spokes use short labels (**Knowledge**, **Coding (est.)**, **Chat rank**, **Reasoning**).
 
-**Heatmap** — Strong / Mid / Weak bands (0–100-style columns); ELO columns map ELO into the same band colors. Optional **Code ELO** / **Doc ELO** show **—** when unmatched.
+**Alignment** — Header text is **left-aligned**; export buttons **right-aligned** in the same row. The sources table is **full width** with aligned columns (horizontal scroll on small screens). Numeric score columns use **right-aligned** headers and cells, **tabular numerals**, and sort controls **right-aligned** in headers. **Model** names are **left-aligned** with `word-break` for long IDs.
+
+**Heatmap** — **Stronger / Middle / Lower** bands (0–100-style columns); ranking columns map ELO into the same colors after scaling. **—** when unmatched on a leaderboard.
 
 **Sort & search** — All score columns and **Cost** are sortable (↕ / ↑ / ↓). **Filter models** narrows rows; sort applies to the filtered list.
 

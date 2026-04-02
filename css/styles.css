@@ -1275,8 +1275,6 @@ h1 {
   background: rgba(0, 0, 0, 0.2);
   color: var(--theme-text);
 }
-#section-benchmark .benchmark-meta-sep { margin: 0 0.35rem; opacity: 0.5; }
-#section-benchmark .benchmark-meta-label { font-weight: 600; color: var(--theme-text-muted); margin-right: 0.25rem; }
 #section-benchmark .benchmark-export-toolbar {
   display: inline-flex;
   align-items: center;
