@@ -21,7 +21,6 @@ export function Sidebar({ onOpenHistory }) {
     { href: '/calculator/', label: 'Calculator' },
     { href: '/comparison/', label: 'Comparison' },
     { href: '/value-analysis/', label: 'Value Analysis' },
-    { href: '/benchmarks/', label: 'Benchmarks' },
     { href: '/recommend/', label: 'Recommend' },
   ];
 

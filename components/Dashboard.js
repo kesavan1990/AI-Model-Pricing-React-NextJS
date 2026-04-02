@@ -8,19 +8,17 @@ import { Overview } from './sections/Overview';
 import { Models } from './sections/Models';
 import { ValueAnalysis } from './sections/ValueAnalysis';
 import { Calculators } from './sections/Calculators';
-import { Benchmarks } from './sections/Benchmarks';
 import { Recommend } from './sections/Recommend';
 import { HistoryModal } from './HistoryModal';
 import { Toast } from './Toast';
 import { Footer } from './Footer';
 
-const SECTION_IDS = ['overview', 'models', 'value-analysis', 'calculators', 'benchmarks', 'recommend-section'];
+const SECTION_IDS = ['overview', 'models', 'value-analysis', 'calculators', 'recommend-section'];
 const HASH_TO_SECTION = {
   '#overview': 'overview',
   '#models': 'models',
   '#value-analysis': 'value-analysis',
   '#calculators': 'calculators',
-  '#benchmarks': 'benchmarks',
   '#recommend': 'recommend-section',
 };
 
@@ -68,9 +66,6 @@ export function Dashboard() {
           </section>
           <section id="calculators" className={'dashboard-section' + (activeSection === 'calculators' ? ' active' : '')}>
             <Calculators />
-          </section>
-          <section id="benchmarks" className={'dashboard-section' + (activeSection === 'benchmarks' ? ' active' : '')}>
-            <Benchmarks />
           </section>
           <section id="recommend-section" className={'dashboard-section' + (activeSection === 'recommend-section' ? ' active' : '')}>
             <Recommend />
