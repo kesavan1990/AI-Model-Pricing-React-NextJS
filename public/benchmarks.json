@@ -1,5 +1,5 @@
 {
-  "updated": "2026-04-01",
+  "updated": "2026-04-05",
   "benchmarks": [
     {
       "model": "gemini-2.0-flash-lite",
@@ -458,7 +458,7 @@
       "code": 82,
       "reasoning": 83,
       "arena": 1494,
-      "arenaCode": 1455,
+      "arenaCode": 1456,
       "arenaDocument": 1457
     },
     {
@@ -484,7 +484,7 @@
       "code": 82,
       "reasoning": 83,
       "arena": 1438,
-      "arenaCode": 1242
+      "arenaCode": 1238
     },
     {
       "model": "gemini-embedding-2-preview",
@@ -948,7 +948,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1312
+      "arena": 1313
     },
     {
       "model": "gpt-3.5-turbo",
@@ -1190,8 +1190,8 @@
       "mmlu": 87,
       "code": 89,
       "reasoning": 90,
-      "arena": 1453,
-      "arenaCode": 1389,
+      "arena": 1452,
+      "arenaCode": 1388,
       "arenaDocument": 1450
     },
     {
@@ -1200,8 +1200,8 @@
       "mmlu": 87,
       "code": 89,
       "reasoning": 90,
-      "arena": 1453,
-      "arenaCode": 1389,
+      "arena": 1452,
+      "arenaCode": 1388,
       "arenaDocument": 1450
     },
     {
@@ -1211,7 +1211,7 @@
       "code": 86,
       "reasoning": 87,
       "arena": 1407,
-      "arenaCode": 1309,
+      "arenaCode": 1312,
       "arenaDocument": 1427
     },
     {
@@ -1221,7 +1221,7 @@
       "code": 86,
       "reasoning": 87,
       "arena": 1407,
-      "arenaCode": 1309,
+      "arenaCode": 1312,
       "arenaDocument": 1427
     },
     {
@@ -1267,7 +1267,7 @@
       "code": 91,
       "reasoning": 93,
       "arena": 1504,
-      "arenaCode": 1545,
+      "arenaCode": 1546,
       "arenaDocument": 1524
     },
     {
@@ -1285,7 +1285,7 @@
       "code": 89,
       "reasoning": 90,
       "arena": 1462,
-      "arenaCode": 1523,
+      "arenaCode": 1521,
       "arenaDocument": 1491
     },
     {
@@ -1326,7 +1326,7 @@
       "mmlu": 83,
       "code": 86,
       "reasoning": 85,
-      "arena": 1387
+      "arena": 1386
     },
     {
       "model": "mistral-medium-2312",
@@ -1343,7 +1343,7 @@
       "code": 88,
       "reasoning": 89,
       "arena": 1313,
-      "arenaCode": 1220
+      "arenaCode": 1221
     },
     {
       "model": "mistral-large-2411",
@@ -1497,7 +1497,7 @@
       "code": 88,
       "reasoning": 89,
       "arena": 1416,
-      "arenaCode": 1220
+      "arenaCode": 1221
     },
     {
       "model": "codestral-2508",
