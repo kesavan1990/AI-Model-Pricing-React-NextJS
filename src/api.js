@@ -89,18 +89,20 @@ async function fetchHistoryOnce(url) {
   }
 }
 
-/** Merges into localStorage after load; retry once for slow GitHub Pages / flaky networks. */
+function delay(ms) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+/** Merges into localStorage after load; retries with backoff for slow GitHub Pages / flaky networks. */
 export async function getServerHistory() {
   const url = getHistoryJsonUrl();
-  try {
-    return await fetchHistoryOnce(url);
-  } catch (_) {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt > 0) await delay(600 * attempt);
     try {
       return await fetchHistoryOnce(url);
-    } catch (_) {
-      return [];
-    }
+    } catch (_) {}
   }
+  return [];
 }
 
 /**

@@ -175,12 +175,12 @@ The **Pricing History** modal merges two sources:
 | **Server** | Automated; no need to open the site | `public/pricing-history.json` on the deployed host (e.g. GitHub Pages) |
 | **Browser** | When someone loads the app in that browser | `localStorage` (per device) |
 
-If you only see history **after** you’ve opened the app, the **server file** may be missing, not deployed, or **Update pricing** never committed it. After pricing loads, the app merges **`pricing-history.json`** into `localStorage` via `syncMergedHistoryToLocalStorage()` in `src/pricingService.js`. A failed fetch yields only **local** snapshots until the next successful merge.
+If you only see history **after** you’ve opened the app, the **server file** may be missing, not deployed, or **Update pricing** never committed it. After pricing loads (and again after **Refresh**), the app runs **`syncHistoryAfterPricingLoad()`** in `src/pricingService.js`, which calls **`syncMergedHistoryToLocalStorage()`** so **`pricing-history.json`** merges into **`localStorage`** even when the first fetch returns an empty array (merge still runs; retries reduce transient failures). Opening the **History** modal also persists the merged list to **`localStorage`**. Until **`localStorage`** contains merged server rows, other UI that reads history only from the browser may look one day behind.
 
 ### Automated server history
 
 - **Primary:** [`.github/workflows/update-pricing.yml`](../.github/workflows/update-pricing.yml) — after `scripts/update-pricing.js`, runs **`scripts/update-pricing-history.js`**, then commits **both** `public/pricing.json` and `public/pricing-history.json` when either file changed. So a new daily history row is written **even when pricing.json is unchanged**, as long as that day’s snapshot is not already in the history file.
-- **Backup:** [`.github/workflows/update-pricing-history.yml`](../.github/workflows/update-pricing-history.yml) — **daily cron** at **12:00 AM IST** (`30 18 * * *` UTC) and **workflow_dispatch** (no `workflow_run` link, to avoid duplicate runs).
+- **Backup:** [`.github/workflows/update-pricing-history.yml`](../.github/workflows/update-pricing-history.yml) — **daily cron** at **12:00 AM IST** (`30 18 * * *` UTC), **workflow_dispatch**, and **`workflow_run`** when **Update pricing** **completes** (script dedupe prevents duplicate IST-day rows if both the main job and this job append).
 - **Script:** `scripts/update-pricing-history.js` — appends one entry per IST calendar day (deduped), caps at 90 days, writes `public/pricing-history.json`.
 - **Deploy:** A push to `main` (including the history commit) should run **Deploy to GitHub Pages** so the live site serves the updated JSON.
 - **Push serialization:** Both workflows use the same **`concurrency` group** (`pricing-data-${{ github.repository }}`) so they do not run two `git push`es at the same time (avoids non-fast-forward failures). Each commit step does **`git pull --rebase`** before **`git push`**.
@@ -194,7 +194,7 @@ If you only see history **after** you’ve opened the app, the **server file** m
 | **History step fails in Update pricing** | Step uses `continue-on-error` so **pricing.json** can still commit. A **GitHub warning** is printed; IST fallback workflow or **manual** run can append history. |
 | **Both workflows skip commit** | No file change (e.g. history already has today + pricing unchanged) — expected. |
 | **Deploy not run** | Pushes to `main` without **Deploy to GitHub Pages** leave the live URL stale until the next deploy. |
-| **Browser offline / fetch timeout** | `getServerHistory()` retries once (15s timeout); failure yields `[]` until the next load. |
+| **Browser offline / fetch timeout** | `getServerHistory()` retries **three** times with backoff (15s timeout per attempt); failure yields `[]` until the next successful merge. |
 | **Clock skew** | Snapshots are defined in **IST** on the runner and in the script; extreme skew is unlikely on `ubuntu-latest`. |
 | **Concurrent edits to `pricing-history.json`** | Concurrency group + rebase reduces races; manual edits while Actions run can still conflict (resolve in git). |
 

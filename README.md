@@ -49,7 +49,7 @@ The app loads **two datasets**: `pricing.json` (daily) and `benchmarks.json` (we
 | Pricing          | Daily (06:00 UTC) |
 | Arena leaderboard| Weekly (Sun 03:00 UTC) |
 | HF leaderboard   | Weekly (Sun 03:00 UTC) |
-| **Pricing history** (server snapshots) | After **Update pricing** completes + daily 00:00 IST fallback | `public/pricing-history.json` via [`.github/workflows/update-pricing-history.yml`](.github/workflows/update-pricing-history.yml) — see [docs/PRICING_UPDATES.md#pricing-history-daily-snapshots-without-opening-the-app](docs/PRICING_UPDATES.md#pricing-history-daily-snapshots-without-opening-the-app) |
+| **Pricing history** (server snapshots) | Same repo as **Update pricing** (script in that workflow) + **Update pricing history** workflow: IST midnight cron, manual dispatch, and **`workflow_run`** when **Update pricing** finishes | `public/pricing-history.json` via [`.github/workflows/update-pricing-history.yml`](.github/workflows/update-pricing-history.yml) — see [docs/PRICING_UPDATES.md#pricing-history-daily-snapshots-without-opening-the-app](docs/PRICING_UPDATES.md#pricing-history-daily-snapshots-without-opening-the-app) |
 
 ---
 

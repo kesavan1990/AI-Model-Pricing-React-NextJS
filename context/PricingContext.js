@@ -99,23 +99,10 @@ export function PricingProvider({ children }) {
         setToast({ msg: 'Using embedded default pricing (no file or cache).', type: 'success', show: true });
         setTimeout(() => setToast((t) => ({ ...t, show: false })), 3500);
       }
-      // Merge server pricing-history.json into localStorage, then optional local daily snapshot
       if (typeof window !== 'undefined' && merged?.gemini?.length) {
         try {
-          await pricing.syncMergedHistoryToLocalStorage();
-          const last = localStorage.getItem(pricing.LAST_DAILY_KEY);
-          const today = pricing.getTodayIST();
-          const todayKey = pricing.getHistoryDateMergeKey(pricing.getToday12AMIST());
-          const listAfter = pricing.getHistory();
-          const hasToday = listAfter.some((e) => pricing.getHistoryDateMergeKey(e.date) === todayKey);
-          if (!hasToday && last !== today) {
-            pricing.saveToHistory(merged.gemini, merged.openai, {
-              daily: true,
-              date: pricing.getToday12AMIST(),
-              anthropic: merged.anthropic || [],
-              mistral: merged.mistral || [],
-            });
-            localStorage.setItem(pricing.LAST_DAILY_KEY, today);
+          const { appendedDaily } = await pricing.syncHistoryAfterPricingLoad(merged);
+          if (appendedDaily) {
             setToast({ msg: 'Daily snapshot saved to History.', type: 'success', show: true });
             setTimeout(() => setToast((t) => ({ ...t, show: false })), 3500);
           }
@@ -151,6 +138,15 @@ export function PricingProvider({ children }) {
       setToast({ msg: 'Pricing updated.', type: 'success', show: true });
       const hideToast = () => setToast((t) => ({ ...t, show: false }));
       setTimeout(hideToast, 3500);
+      if (typeof window !== 'undefined' && merged?.gemini?.length) {
+        try {
+          const { appendedDaily } = await pricing.syncHistoryAfterPricingLoad(merged);
+          if (appendedDaily) {
+            setToast({ msg: 'Daily snapshot saved to History.', type: 'success', show: true });
+            setTimeout(hideToast, 3500);
+          }
+        } catch (_) {}
+      }
     } catch (err) {
       setToast({ msg: 'Refresh failed. Kept current pricing.', type: 'error', show: true });
       setTimeout(() => setToast((t) => ({ ...t, show: false })), 3500);

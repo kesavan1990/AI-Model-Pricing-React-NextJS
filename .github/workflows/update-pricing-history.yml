@@ -12,6 +12,11 @@ on:
     # Run daily at 12:00 AM IST (18:30 UTC)
     - cron: '30 18 * * *'
   workflow_dispatch:
+  # When the main pricing workflow finishes, append history if that job skipped or failed history
+  workflow_run:
+    workflows: ['Update pricing']
+    types:
+      - completed
 
 concurrency:
   group: pricing-data-${{ github.repository }}

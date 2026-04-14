@@ -214,12 +214,14 @@ export function mergeServerAndLocalHistory(serverList, localList) {
 /**
  * Pull GitHub Pages pricing-history.json into localStorage merged with existing rows.
  * Called after pricing loads so History reflects server snapshots even before opening the modal.
+ * Empty server array still merges (normalizes sort) so a failed fetch does not skip the write path
+ * when local rows already exist.
  */
 export async function syncMergedHistoryToLocalStorage() {
   if (typeof window === 'undefined') return;
   try {
-    const server = await getServerHistory();
-    if (!Array.isArray(server) || server.length === 0) return;
+    const raw = await getServerHistory();
+    const server = Array.isArray(raw) ? raw : [];
     const local = getHistory();
     const merged = mergeServerAndLocalHistory(server, local);
     const mergedStr = JSON.stringify(merged);
@@ -227,6 +229,45 @@ export async function syncMergedHistoryToLocalStorage() {
       localStorage.setItem(HISTORY_KEY, mergedStr);
     }
   } catch (_) {}
+}
+
+/**
+ * After pricing payload is loaded: merge server history into localStorage, then append a local
+ * daily snapshot only if this calendar day (IST) is still missing. Aligns LAST_DAILY_KEY when
+ * the day is already satisfied by the server merge so reopening the app does not depend on
+ * order of operations.
+ * @returns {{ appendedDaily: boolean }}
+ */
+export async function syncHistoryAfterPricingLoad(merged) {
+  const out = { appendedDaily: false };
+  if (typeof window === 'undefined' || !merged?.gemini?.length) return out;
+  try {
+    await syncMergedHistoryToLocalStorage();
+    const today = getTodayIST();
+    const todayKey = getHistoryDateMergeKey(getToday12AMIST());
+    const listAfter = getHistory();
+    const hasToday = listAfter.some((e) => getHistoryDateMergeKey(e.date) === todayKey);
+    if (hasToday) {
+      try {
+        localStorage.setItem(LAST_DAILY_KEY, today);
+      } catch (_) {}
+      return out;
+    }
+    const last = localStorage.getItem(LAST_DAILY_KEY);
+    if (last !== today) {
+      saveToHistory(merged.gemini, merged.openai, {
+        daily: true,
+        date: getToday12AMIST(),
+        anthropic: merged.anthropic || [],
+        mistral: merged.mistral || [],
+      });
+      try {
+        localStorage.setItem(LAST_DAILY_KEY, today);
+      } catch (_) {}
+      out.appendedDaily = true;
+    }
+  } catch (_) {}
+  return out;
 }
 
 export function cleanupHistoryToDailyOnly() {

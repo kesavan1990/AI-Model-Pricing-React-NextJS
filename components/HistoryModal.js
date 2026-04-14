@@ -2,9 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { usePricing } from '../context/PricingContext';
-import { getServerHistory } from '../src/api.js';
 import { formatHistoryDate } from '../src/render.js';
-import { dedupeModelsByName, mergeServerAndLocalHistory } from '../src/pricingService.js';
+import { dedupeModelsByName } from '../src/pricingService.js';
 import { escapeCsvCell, drawPdfBorderedTable } from '../src/render.js';
 
 const fmt = (v) => (v === 0 ? 'Free' : '$' + Number(v).toFixed(2));
@@ -20,15 +19,16 @@ export function HistoryModal({ open, onClose }) {
   useEffect(() => {
     if (!open || !pricing) return;
     setLoadingHistory(true);
-    const local = pricing.getHistory() || [];
-    getServerHistory()
-      .then((server) => {
-        setHistoryList(mergeServerAndLocalHistory(server, local));
-      })
-      .catch(() => {
-        setHistoryList(local);
-      })
-      .finally(() => setLoadingHistory(false));
+    (async () => {
+      try {
+        await pricing.syncMergedHistoryToLocalStorage();
+        setHistoryList(pricing.getHistory() || []);
+      } catch (_) {
+        setHistoryList(pricing.getHistory() || []);
+      } finally {
+        setLoadingHistory(false);
+      }
+    })();
   }, [open, pricing]);
 
   useEffect(() => {

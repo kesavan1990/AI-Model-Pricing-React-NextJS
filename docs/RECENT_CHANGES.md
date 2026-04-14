@@ -66,8 +66,8 @@ This document summarizes recent updates to the AI Model Pricing app (dashboard, 
 
 ### Pricing history workflow and CI (Node 22)
 
-- **Update pricing history** runs on **`workflow_run`** after **Update pricing** completes on **`main`**, plus a daily **12:00 AM IST** cron and **workflow_dispatch**. Workflow name matching is exact: `Update pricing`.
-- **`concurrency: update-pricing-history`** avoids overlapping commits to `pricing-history.json`. If the default branch is not `main`, adjust `workflow_run.branches` in the YAML.
+- **Update pricing history** (`.github/workflows/update-pricing-history.yml`) runs on **`workflow_run`** when workflow **Update pricing** **completes**, plus a daily **12:00 AM IST** cron and **workflow_dispatch**. The `workflows` name must match exactly: **`Update pricing`**.
+- **Concurrency:** both pricing workflows use **`pricing-data-${{ github.repository }}`** so pushes do not race.
 - **Update pricing** uses **Node.js 22** in Actions (aligned with **Update pricing history** and **Deploy to GitHub Pages**).
 - **Docs:** [README](../README.md) (pipelines table + data-flow), [PRICING_UPDATES.md](PRICING_UPDATES.md) (timeline + **Pricing history** troubleshooting).
 
@@ -142,13 +142,13 @@ See [PRICING_UPDATES.md](PRICING_UPDATES.md) and [BENCHMARKS.md](BENCHMARKS.md) 
 | Area | Change |
 |------|--------|
 | **Pricing pipeline** | Writes `public/pricing.json`; includes all model types and providers; preserves `modelType` and alternate pricing; allows 0/0 when type or alternate pricing present. **Actions use Node 22.** |
-| **Pricing history pipeline** | **`update-pricing.yml`** runs **`update-pricing-history.js`** and commits **`pricing-history.json`** with **`pricing.json`**; **`update-pricing-history.yml`** = IST cron + manual backup; shared **`pricing-data-${{ github.repository }}`** concurrency + rebase push. See **§11** and [PRICING_UPDATES.md](PRICING_UPDATES.md). |
+| **Pricing history pipeline** | **`update-pricing.yml`** runs **`update-pricing-history.js`** and commits **`pricing-history.json`** with **`pricing.json`**; **`update-pricing-history.yml`** = IST cron + manual + **`workflow_run`** after **Update pricing**; shared **`pricing-data-${{ github.repository }}`** concurrency + rebase push. See **§11** and [PRICING_UPDATES.md](PRICING_UPDATES.md). |
 | **Benchmarks pipeline** | Reads/writes `public/pricing.json` and `public/benchmarks.json`; one entry per model (all types, all providers); chat uses Arena/HF, others use fallback. |
 | **Dashboard** | Model type filter (Chat/Text default); provider filter via clickable cards; 5 decimals; empty state; compact layout; Cost per 1M: all results, scrollable, sticky header, sort by Cost header, legend below. |
 | **Calculator** | Chat-only models for Pricing and Prompt cost; sticky headers and no-gap scroll on result tables (Pricing, Prompt cost, Context window, Production cost). |
 | **Navigation** | Next.js **Link** for all in-app routes; **prefetch** enabled; **NProgress** top bar shown while route loads. See [UI.md](UI.md). |
 | **Security** | HTML escaping for legacy `innerHTML` builders; React notes without `dangerouslySetInnerHTML`; bundled **`gpt-tokenizer`** instead of CDN script. See **§10** below. |
-| **Pricing history** | **Update pricing** run now commits **`pricing-history.json`** with **`pricing.json`**; client merges server history into **`localStorage`** after load. See **§11**. |
+| **Pricing history** | **Update pricing** commits **`pricing-history.json`** with **`pricing.json`**; client uses **`syncHistoryAfterPricingLoad`** after load and **Refresh**, **`syncMergedHistoryToLocalStorage`** on **History** open. See **§11**. |
 | **Benchmarks transparency** | Collapsible **Where these scores come from** on **`/benchmarks`**, accurate column tooltips, **`benchmarks.json` `updated`** in copy. See **§12** and [UI.md](UI.md) § Model benchmark dashboard. |
 
 ---
@@ -198,13 +198,14 @@ Doc snippets in the **legacy** `renderRecommendations` path are treated as **tex
 
 ---
 
-## 11. Pricing history: server snapshots without opening the app
+## 11. Pricing history: server snapshots and browser merge
 
-- **Problem:** `public/pricing-history.json` could lag because **Update pricing** only committed when **`pricing.json`** changed, while **Update pricing history** relied on a separate **`workflow_run`** (easy to miss or fail independently).
-- **CI:** **`update-pricing.yml`** now runs **`scripts/update-pricing-history.js`** after every pricing fetch and commits **both** `public/pricing.json` and `public/pricing-history.json` when **either** changes—so a new IST-day snapshot is still written when Vizra data is unchanged.
-- **Backup:** **`update-pricing-history.yml`** keeps the **IST midnight** cron and **workflow_dispatch**; **`workflow_run`** was removed to avoid duplicate runs.
-- **Client:** After load, **`syncMergedHistoryToLocalStorage()`** (`src/pricingService.js`) merges **`getServerHistory()`** into **`localStorage`**; the first-open-of-day local snapshot is skipped if that day already exists (server or merged). **`mergeServerAndLocalHistory`** is shared with **`HistoryModal`**.
-- **Hardening:** Shared **`src/historyDateKey.js`** for CI + app dedupe; **shared `concurrency`** + **`git pull --rebase`** before push on both workflows; history fetch **retry** and **15s** timeout in **`getServerHistory()`**; explicit **GitHub warning** if the history step fails inside **Update pricing**; **60s** Vizra timeout in the history script fallback fetch.
+- **Problem (CI):** `public/pricing-history.json` could lag when **Update pricing** finished without a successful history commit (e.g. append step skipped or failed).
+- **Problem (client):** **`syncMergedHistoryToLocalStorage()`** used to **return immediately** when **`getServerHistory()`** yielded an empty array, so a failed or empty fetch could skip merging even when **`pricing-history.json`** later had data—history felt like it only “caught up” on some loads. **Refresh** did not run merge + daily snapshot logic. The **History** modal merged server + local for **display** only and did not **persist** the merge into **`localStorage`**.
+- **CI:** **`update-pricing.yml`** runs **`scripts/update-pricing-history.js`** after **`update-pricing.js`** and commits **`public/pricing.json`** and/or **`public/pricing-history.json`** when either file changes (IST-day dedupe in the script).
+- **Backup:** **`update-pricing-history.yml`** — **IST midnight** cron, **workflow_dispatch**, and **`workflow_run`** after **Update pricing** **completes** (script dedupe avoids duplicate rows for the same IST day; shared **`concurrency`** group **`pricing-data-${{ github.repository }}`**).
+- **Client:** **`syncMergedHistoryToLocalStorage()`** always runs **`mergeServerAndLocalHistory`** (server list may be empty). **`syncHistoryAfterPricingLoad(merged)`** (`src/pricingService.js`) runs after **initial pricing load** and after **Refresh**: merge server into **`localStorage`**, set **`LAST_DAILY_KEY`** when today’s row is already present after merge, and append a **local** daily snapshot only if the IST day key is still missing. **`getServerHistory()`** retries **three** times with short backoff (15s timeout per attempt). **`HistoryModal`** calls **`syncMergedHistoryToLocalStorage()`** on open, then reads **`getHistory()`**, so merged server rows are stored before the modal list is shown.
+- **Hardening:** Shared **`src/historyDateKey.js`**; **`git pull --rebase`** before push; **continue-on-error** + **GitHub warning** on the history step inside **Update pricing**; **60s** Vizra timeout in the history script fallback fetch.
 
 Details and edge-case table: [PRICING_UPDATES.md](PRICING_UPDATES.md) § Pricing history.
 
