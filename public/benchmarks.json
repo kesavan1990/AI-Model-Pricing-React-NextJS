@@ -1,5 +1,5 @@
 {
-  "updated": "2026-05-03",
+  "updated": "2026-05-10",
   "benchmarks": [
     {
       "model": "gemini-2.0-flash-lite",
@@ -41,7 +41,7 @@
       "reasoning": 83,
       "arena": 1448,
       "arenaCode": 1203,
-      "arenaDocument": 1429
+      "arenaDocument": 1431
     },
     {
       "model": "gemini-pro",
@@ -457,9 +457,9 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1493,
-      "arenaCode": 1453,
-      "arenaDocument": 1449
+      "arena": 1492,
+      "arenaCode": 1452,
+      "arenaDocument": 1444
     },
     {
       "model": "gemini-3.1-pro-preview-customtools",
@@ -483,8 +483,8 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1439,
-      "arenaCode": 1238
+      "arena": 1438,
+      "arenaCode": 1240
     },
     {
       "model": "gemini-embedding-2-preview",
@@ -828,7 +828,7 @@
       "mmlu": 88,
       "code": 90,
       "reasoning": 92,
-      "arena": 1335
+      "arena": 1334
     },
     {
       "model": "gpt-4o-2024-11-20",
@@ -1218,9 +1218,9 @@
       "mmlu": 84,
       "code": 86,
       "reasoning": 87,
-      "arena": 1408,
-      "arenaCode": 1317,
-      "arenaDocument": 1424
+      "arena": 1409,
+      "arenaCode": 1318,
+      "arenaDocument": 1423
     },
     {
       "model": "claude-haiku-4-5",
@@ -1228,9 +1228,9 @@
       "mmlu": 84,
       "code": 86,
       "reasoning": 87,
-      "arena": 1408,
-      "arenaCode": 1317,
-      "arenaDocument": 1424
+      "arena": 1409,
+      "arenaCode": 1318,
+      "arenaDocument": 1423
     },
     {
       "model": "claude-3-haiku",
@@ -1255,8 +1255,8 @@
       "code": 91,
       "reasoning": 93,
       "arena": 1473,
-      "arenaCode": 1491,
-      "arenaDocument": 1470
+      "arenaCode": 1490,
+      "arenaDocument": 1467
     },
     {
       "model": "claude-opus-4-5",
@@ -1265,8 +1265,8 @@
       "code": 91,
       "reasoning": 93,
       "arena": 1473,
-      "arenaCode": 1491,
-      "arenaDocument": 1470
+      "arenaCode": 1490,
+      "arenaDocument": 1467
     },
     {
       "model": "claude-opus-4-6",
@@ -1275,8 +1275,8 @@
       "code": 91,
       "reasoning": 93,
       "arena": 1502,
-      "arenaCode": 1548,
-      "arenaDocument": 1526
+      "arenaCode": 1549,
+      "arenaDocument": 1523
     },
     {
       "model": "claude-opus-4-6-20260205",
@@ -1292,9 +1292,9 @@
       "mmlu": 87,
       "code": 89,
       "reasoning": 90,
-      "arena": 1463,
-      "arenaCode": 1527,
-      "arenaDocument": 1500
+      "arena": 1466,
+      "arenaCode": 1524,
+      "arenaDocument": 1494
     },
     {
       "model": "claude-opus-4-7",
@@ -1303,8 +1303,8 @@
       "code": 91,
       "reasoning": 93,
       "arena": 1503,
-      "arenaCode": 1571,
-      "arenaDocument": 1511
+      "arenaCode": 1570,
+      "arenaDocument": 1512
     },
     {
       "model": "claude-opus-4-7-20260416",
@@ -1368,7 +1368,7 @@
       "mmlu": 86,
       "code": 88,
       "reasoning": 89,
-      "arena": 1314,
+      "arena": 1313,
       "arenaCode": 1222
     },
     {
@@ -1393,7 +1393,7 @@
       "mmlu": 86,
       "code": 88,
       "reasoning": 89,
-      "arena": 1314
+      "arena": 1313
     },
     {
       "model": "pixtral-large-2411",
@@ -1522,7 +1522,7 @@
       "mmlu": 86,
       "code": 88,
       "reasoning": 89,
-      "arena": 1414,
+      "arena": 1415,
       "arenaCode": 1222
     },
     {
