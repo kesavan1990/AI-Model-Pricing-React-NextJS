@@ -1,5 +1,5 @@
 {
-  "updated": "2026-05-10",
+  "updated": "2026-05-17",
   "benchmarks": [
     {
       "model": "gemini-2.0-flash-lite",
@@ -39,9 +39,9 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1448,
+      "arena": 1447,
       "arenaCode": 1203,
-      "arenaDocument": 1431
+      "arenaDocument": 1427
     },
     {
       "model": "gemini-pro",
@@ -241,7 +241,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1374
+      "arena": 1375
     },
     {
       "model": "gemini-2.5-flash-lite",
@@ -457,9 +457,9 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1492,
-      "arenaCode": 1452,
-      "arenaDocument": 1444
+      "arena": 1489,
+      "arenaCode": 1450,
+      "arenaDocument": 1443
     },
     {
       "model": "gemini-3.1-pro-preview-customtools",
@@ -484,7 +484,7 @@
       "code": 82,
       "reasoning": 83,
       "arena": 1438,
-      "arenaCode": 1240
+      "arenaCode": 1244
     },
     {
       "model": "gemini-embedding-2-preview",
@@ -828,7 +828,7 @@
       "mmlu": 88,
       "code": 90,
       "reasoning": 92,
-      "arena": 1334
+      "arena": 1335
     },
     {
       "model": "gpt-4o-2024-11-20",
@@ -1218,8 +1218,8 @@
       "mmlu": 84,
       "code": 86,
       "reasoning": 87,
-      "arena": 1409,
-      "arenaCode": 1318,
+      "arena": 1410,
+      "arenaCode": 1320,
       "arenaDocument": 1423
     },
     {
@@ -1228,8 +1228,8 @@
       "mmlu": 84,
       "code": 86,
       "reasoning": 87,
-      "arena": 1409,
-      "arenaCode": 1318,
+      "arena": 1410,
+      "arenaCode": 1320,
       "arenaDocument": 1423
     },
     {
@@ -1256,7 +1256,7 @@
       "reasoning": 93,
       "arena": 1473,
       "arenaCode": 1490,
-      "arenaDocument": 1467
+      "arenaDocument": 1466
     },
     {
       "model": "claude-opus-4-5",
@@ -1266,7 +1266,7 @@
       "reasoning": 93,
       "arena": 1473,
       "arenaCode": 1490,
-      "arenaDocument": 1467
+      "arenaDocument": 1466
     },
     {
       "model": "claude-opus-4-6",
@@ -1275,8 +1275,8 @@
       "code": 91,
       "reasoning": 93,
       "arena": 1502,
-      "arenaCode": 1549,
-      "arenaDocument": 1523
+      "arenaCode": 1546,
+      "arenaDocument": 1522
     },
     {
       "model": "claude-opus-4-6-20260205",
@@ -1292,9 +1292,9 @@
       "mmlu": 87,
       "code": 89,
       "reasoning": 90,
-      "arena": 1466,
+      "arena": 1468,
       "arenaCode": 1524,
-      "arenaDocument": 1494
+      "arenaDocument": 1495
     },
     {
       "model": "claude-opus-4-7",
@@ -1302,9 +1302,9 @@
       "mmlu": 89,
       "code": 91,
       "reasoning": 93,
-      "arena": 1503,
-      "arenaCode": 1570,
-      "arenaDocument": 1512
+      "arena": 1500,
+      "arenaCode": 1567,
+      "arenaDocument": 1509
     },
     {
       "model": "claude-opus-4-7-20260416",
@@ -1344,7 +1344,7 @@
       "mmlu": 83,
       "code": 86,
       "reasoning": 85,
-      "arena": 1409
+      "arena": 1410
     },
     {
       "model": "mistral-medium-2505",
@@ -1352,7 +1352,7 @@
       "mmlu": 83,
       "code": 86,
       "reasoning": 85,
-      "arena": 1386
+      "arena": 1387
     },
     {
       "model": "mistral-medium-2312",
@@ -1368,8 +1368,8 @@
       "mmlu": 86,
       "code": 88,
       "reasoning": 89,
-      "arena": 1313,
-      "arenaCode": 1222
+      "arena": 1314,
+      "arenaCode": 1223
     },
     {
       "model": "mistral-large-2411",
@@ -1393,7 +1393,7 @@
       "mmlu": 86,
       "code": 88,
       "reasoning": 89,
-      "arena": 1313
+      "arena": 1314
     },
     {
       "model": "pixtral-large-2411",
@@ -1490,7 +1490,7 @@
       "code": 86,
       "reasoning": 85,
       "arena": 87,
-      "arenaCode": 1091
+      "arenaCode": 1092
     },
     {
       "model": "magistral-medium-2506",
@@ -1498,7 +1498,7 @@
       "mmlu": 86,
       "code": 88,
       "reasoning": 89,
-      "arena": 1303
+      "arena": 1304
     },
     {
       "model": "magistral-small-2506",
@@ -1523,7 +1523,7 @@
       "code": 88,
       "reasoning": 89,
       "arena": 1415,
-      "arenaCode": 1222
+      "arenaCode": 1223
     },
     {
       "model": "codestral-2508",
