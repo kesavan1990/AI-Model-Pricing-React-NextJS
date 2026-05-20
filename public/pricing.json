@@ -1,5 +1,5 @@
 {
-  "updated": "2026-05-19",
+  "updated": "2026-05-20",
   "gemini": [
     {
       "name": "gemini-2.0-flash-lite",
@@ -377,6 +377,12 @@
       "name": "gemini-embedding-2",
       "input": 0.2,
       "output": 0,
+      "cachedInput": null
+    },
+    {
+      "name": "gemini-3.5-flash",
+      "input": 1.5,
+      "output": 9,
       "cachedInput": null
     }
   ],
