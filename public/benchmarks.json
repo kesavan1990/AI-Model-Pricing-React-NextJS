@@ -1,5 +1,5 @@
 {
-  "updated": "2026-05-17",
+  "updated": "2026-05-24",
   "benchmarks": [
     {
       "model": "gemini-2.0-flash-lite",
@@ -39,7 +39,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1447,
+      "arena": 1446,
       "arenaCode": 1203,
       "arenaDocument": 1427
     },
@@ -457,7 +457,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1489,
+      "arena": 1488,
       "arenaCode": 1450,
       "arenaDocument": 1443
     },
@@ -483,8 +483,8 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1438,
-      "arenaCode": 1244
+      "arena": 1436,
+      "arenaCode": 1245
     },
     {
       "model": "gemini-embedding-2-preview",
@@ -509,6 +509,24 @@
       "code": 82,
       "reasoning": 83,
       "arena": 84
+    },
+    {
+      "model": "gemini-3.5-flash",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 1480,
+      "arenaCode": 1507
+    },
+    {
+      "model": "gemini-3.1-flash-lite",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 1436,
+      "arenaCode": 1245
     },
     {
       "model": "chatgpt-4.1-nano",
@@ -1219,7 +1237,7 @@
       "code": 86,
       "reasoning": 87,
       "arena": 1410,
-      "arenaCode": 1320,
+      "arenaCode": 1321,
       "arenaDocument": 1423
     },
     {
@@ -1229,7 +1247,7 @@
       "code": 86,
       "reasoning": 87,
       "arena": 1410,
-      "arenaCode": 1320,
+      "arenaCode": 1321,
       "arenaDocument": 1423
     },
     {
@@ -1275,7 +1293,7 @@
       "code": 91,
       "reasoning": 93,
       "arena": 1502,
-      "arenaCode": 1546,
+      "arenaCode": 1545,
       "arenaDocument": 1522
     },
     {
@@ -1607,6 +1625,14 @@
     },
     {
       "model": "ministral-3-14b-2512",
+      "provider": "mistral",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "ministral-8b-2512",
       "provider": "mistral",
       "mmlu": 80,
       "code": 82,
