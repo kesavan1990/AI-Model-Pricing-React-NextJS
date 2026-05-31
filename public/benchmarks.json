@@ -1,5 +1,5 @@
 {
-  "updated": "2026-05-24",
+  "updated": "2026-05-31",
   "benchmarks": [
     {
       "model": "gemini-2.0-flash-lite",
@@ -40,7 +40,7 @@
       "code": 82,
       "reasoning": 83,
       "arena": 1446,
-      "arenaCode": 1203,
+      "arenaCode": 1204,
       "arenaDocument": 1427
     },
     {
@@ -457,8 +457,8 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1488,
-      "arenaCode": 1450,
+      "arena": 1487,
+      "arenaCode": 1448,
       "arenaDocument": 1443
     },
     {
@@ -483,8 +483,8 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1436,
-      "arenaCode": 1245
+      "arena": 1433,
+      "arenaCode": 1248
     },
     {
       "model": "gemini-embedding-2-preview",
@@ -516,8 +516,8 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1480,
-      "arenaCode": 1507
+      "arena": 1479,
+      "arenaCode": 1506
     },
     {
       "model": "gemini-3.1-flash-lite",
@@ -525,8 +525,8 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1436,
-      "arenaCode": 1245
+      "arena": 1433,
+      "arenaCode": 1248
     },
     {
       "model": "chatgpt-4.1-nano",
@@ -702,7 +702,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1444
+      "arena": 1445
     },
     {
       "model": "gpt-4o-audio-preview",
@@ -758,7 +758,7 @@
       "mmlu": 88,
       "code": 90,
       "reasoning": 92,
-      "arena": 1317
+      "arena": 1318
     },
     {
       "model": "gpt-4o-mini-search-preview-2025-03-11",
@@ -782,7 +782,7 @@
       "mmlu": 88,
       "code": 90,
       "reasoning": 92,
-      "arena": 1317
+      "arena": 1318
     },
     {
       "model": "o1-pro-2025-03-19",
@@ -838,7 +838,7 @@
       "mmlu": 88,
       "code": 90,
       "reasoning": 92,
-      "arena": 1345
+      "arena": 1346
     },
     {
       "model": "gpt-4o-2024-08-06",
@@ -974,7 +974,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1312
+      "arena": 1313
     },
     {
       "model": "gpt-3.5-turbo",
@@ -982,7 +982,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1223
+      "arena": 1224
     },
     {
       "model": "gpt-3.5-turbo-0301",
@@ -1014,7 +1014,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1223
+      "arena": 1224
     },
     {
       "model": "gpt-3.5-turbo-16k",
@@ -1167,7 +1167,7 @@
       "code": 91,
       "reasoning": 93,
       "arena": 1449,
-      "arenaCode": 1385
+      "arenaCode": 1386
     },
     {
       "model": "claude-opus-4-1-20250805",
@@ -1176,7 +1176,7 @@
       "code": 91,
       "reasoning": 93,
       "arena": 1449,
-      "arenaCode": 1385
+      "arenaCode": 1386
     },
     {
       "model": "claude-sonnet-4-20250514",
@@ -1216,7 +1216,7 @@
       "mmlu": 87,
       "code": 89,
       "reasoning": 90,
-      "arena": 1454,
+      "arena": 1455,
       "arenaCode": 1388,
       "arenaDocument": 1450
     },
@@ -1226,7 +1226,7 @@
       "mmlu": 87,
       "code": 89,
       "reasoning": 90,
-      "arena": 1454,
+      "arena": 1455,
       "arenaCode": 1388,
       "arenaDocument": 1450
     },
@@ -1236,8 +1236,8 @@
       "mmlu": 84,
       "code": 86,
       "reasoning": 87,
-      "arena": 1410,
-      "arenaCode": 1321,
+      "arena": 1411,
+      "arenaCode": 1322,
       "arenaDocument": 1423
     },
     {
@@ -1246,8 +1246,8 @@
       "mmlu": 84,
       "code": 86,
       "reasoning": 87,
-      "arena": 1410,
-      "arenaCode": 1321,
+      "arena": 1411,
+      "arenaCode": 1322,
       "arenaDocument": 1423
     },
     {
@@ -1293,7 +1293,7 @@
       "code": 91,
       "reasoning": 93,
       "arena": 1502,
-      "arenaCode": 1545,
+      "arenaCode": 1542,
       "arenaDocument": 1522
     },
     {
@@ -1310,8 +1310,8 @@
       "mmlu": 87,
       "code": 89,
       "reasoning": 90,
-      "arena": 1468,
-      "arenaCode": 1524,
+      "arena": 1470,
+      "arenaCode": 1523,
       "arenaDocument": 1495
     },
     {
@@ -1326,6 +1326,14 @@
     },
     {
       "model": "claude-opus-4-7-20260416",
+      "provider": "anthropic",
+      "mmlu": 89,
+      "code": 91,
+      "reasoning": 93,
+      "arena": 95
+    },
+    {
+      "model": "claude-opus-4-8",
       "provider": "anthropic",
       "mmlu": 89,
       "code": 91,
@@ -1508,7 +1516,7 @@
       "code": 86,
       "reasoning": 85,
       "arena": 87,
-      "arenaCode": 1092
+      "arenaCode": 1091
     },
     {
       "model": "magistral-medium-2506",
