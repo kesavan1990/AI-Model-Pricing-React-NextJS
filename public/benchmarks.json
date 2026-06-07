@@ -1,5 +1,5 @@
 {
-  "updated": "2026-05-31",
+  "updated": "2026-06-07",
   "benchmarks": [
     {
       "model": "gemini-2.0-flash-lite",
@@ -41,7 +41,7 @@
       "reasoning": 83,
       "arena": 1446,
       "arenaCode": 1204,
-      "arenaDocument": 1427
+      "arenaDocument": 1421
     },
     {
       "model": "gemini-pro",
@@ -121,7 +121,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1258
+      "arena": 1259
     },
     {
       "model": "gemini-1.5-flash-exp-0827",
@@ -241,7 +241,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1375
+      "arena": 1374
     },
     {
       "model": "gemini-2.5-flash-lite",
@@ -457,9 +457,9 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1487,
-      "arenaCode": 1448,
-      "arenaDocument": 1443
+      "arena": 1488,
+      "arenaCode": 1447,
+      "arenaDocument": 1439
     },
     {
       "model": "gemini-3.1-pro-preview-customtools",
@@ -484,7 +484,7 @@
       "code": 82,
       "reasoning": 83,
       "arena": 1433,
-      "arenaCode": 1248
+      "arenaCode": 1249
     },
     {
       "model": "gemini-embedding-2-preview",
@@ -516,7 +516,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1479,
+      "arena": 1477,
       "arenaCode": 1506
     },
     {
@@ -526,7 +526,7 @@
       "code": 82,
       "reasoning": 83,
       "arena": 1433,
-      "arenaCode": 1248
+      "arenaCode": 1249
     },
     {
       "model": "chatgpt-4.1-nano",
@@ -638,7 +638,7 @@
       "mmlu": 88,
       "code": 90,
       "reasoning": 92,
-      "arena": 1413
+      "arena": 1414
     },
     {
       "model": "gpt-4.1-mini",
@@ -1237,8 +1237,8 @@
       "code": 86,
       "reasoning": 87,
       "arena": 1411,
-      "arenaCode": 1322,
-      "arenaDocument": 1423
+      "arenaCode": 1324,
+      "arenaDocument": 1417
     },
     {
       "model": "claude-haiku-4-5",
@@ -1247,8 +1247,8 @@
       "code": 86,
       "reasoning": 87,
       "arena": 1411,
-      "arenaCode": 1322,
-      "arenaDocument": 1423
+      "arenaCode": 1324,
+      "arenaDocument": 1417
     },
     {
       "model": "claude-3-haiku",
@@ -1273,8 +1273,8 @@
       "code": 91,
       "reasoning": 93,
       "arena": 1473,
-      "arenaCode": 1490,
-      "arenaDocument": 1466
+      "arenaCode": 1491,
+      "arenaDocument": 1461
     },
     {
       "model": "claude-opus-4-5",
@@ -1283,8 +1283,8 @@
       "code": 91,
       "reasoning": 93,
       "arena": 1473,
-      "arenaCode": 1490,
-      "arenaDocument": 1466
+      "arenaCode": 1491,
+      "arenaDocument": 1461
     },
     {
       "model": "claude-opus-4-6",
@@ -1292,9 +1292,9 @@
       "mmlu": 89,
       "code": 91,
       "reasoning": 93,
-      "arena": 1502,
-      "arenaCode": 1542,
-      "arenaDocument": 1522
+      "arena": 1504,
+      "arenaCode": 1543,
+      "arenaDocument": 1507
     },
     {
       "model": "claude-opus-4-6-20260205",
@@ -1311,8 +1311,8 @@
       "code": 89,
       "reasoning": 90,
       "arena": 1470,
-      "arenaCode": 1523,
-      "arenaDocument": 1495
+      "arenaCode": 1522,
+      "arenaDocument": 1487
     },
     {
       "model": "claude-opus-4-7",
@@ -1320,9 +1320,9 @@
       "mmlu": 89,
       "code": 91,
       "reasoning": 93,
-      "arena": 1500,
+      "arena": 1501,
       "arenaCode": 1567,
-      "arenaDocument": 1509
+      "arenaDocument": 1495
     },
     {
       "model": "claude-opus-4-7-20260416",
@@ -1338,7 +1338,9 @@
       "mmlu": 89,
       "code": 91,
       "reasoning": 93,
-      "arena": 95
+      "arena": 1482,
+      "arenaCode": 1552,
+      "arenaDocument": 1471
     },
     {
       "model": "mistral-3.1-small",
@@ -1370,7 +1372,8 @@
       "mmlu": 83,
       "code": 86,
       "reasoning": 85,
-      "arena": 1410
+      "arena": 1410,
+      "arenaCode": 1269
     },
     {
       "model": "mistral-medium-2505",
@@ -1516,7 +1519,7 @@
       "code": 86,
       "reasoning": 85,
       "arena": 87,
-      "arenaCode": 1091
+      "arenaCode": 1092
     },
     {
       "model": "magistral-medium-2506",
