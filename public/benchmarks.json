@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-14",
+  "updated": "2026-06-21",
   "benchmarks": [
     {
       "model": "gemini-2.0-flash-lite",
@@ -361,7 +361,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1405
+      "arena": 1404
     },
     {
       "model": "gemini-2.5-flash-image",
@@ -457,7 +457,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1487,
+      "arena": 1486,
       "arenaCode": 1447,
       "arenaDocument": 1441
     },
@@ -483,7 +483,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1433,
+      "arena": 1432,
       "arenaCode": 1248
     },
     {
@@ -516,7 +516,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1477,
+      "arena": 1476,
       "arenaCode": 1506
     },
     {
@@ -525,7 +525,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1433,
+      "arena": 1432,
       "arenaCode": 1248
     },
     {
@@ -630,7 +630,7 @@
       "mmlu": 88,
       "code": 90,
       "reasoning": 92,
-      "arena": 1382
+      "arena": 1383
     },
     {
       "model": "gpt-4.1-2025-04-14",
@@ -646,7 +646,7 @@
       "mmlu": 88,
       "code": 90,
       "reasoning": 92,
-      "arena": 1382
+      "arena": 1383
     },
     {
       "model": "gpt-4.1-mini-2025-04-14",
@@ -654,7 +654,7 @@
       "mmlu": 88,
       "code": 90,
       "reasoning": 92,
-      "arena": 1382
+      "arena": 1383
     },
     {
       "model": "gpt-4.1-nano",
@@ -918,7 +918,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1286
+      "arena": 1287
     },
     {
       "model": "gpt-4-32k",
@@ -1150,7 +1150,7 @@
       "mmlu": 84,
       "code": 86,
       "reasoning": 87,
-      "arena": 1323
+      "arena": 1324
     },
     {
       "model": "claude-opus-4-20250514",
@@ -1216,7 +1216,7 @@
       "mmlu": 87,
       "code": 89,
       "reasoning": 90,
-      "arena": 1456,
+      "arena": 1455,
       "arenaCode": 1388,
       "arenaDocument": 1449
     },
@@ -1226,7 +1226,7 @@
       "mmlu": 87,
       "code": 89,
       "reasoning": 90,
-      "arena": 1456,
+      "arena": 1455,
       "arenaCode": 1388,
       "arenaDocument": 1449
     },
@@ -1237,7 +1237,7 @@
       "code": 86,
       "reasoning": 87,
       "arena": 1411,
-      "arenaCode": 1324,
+      "arenaCode": 1326,
       "arenaDocument": 1418
     },
     {
@@ -1247,7 +1247,7 @@
       "code": 86,
       "reasoning": 87,
       "arena": 1411,
-      "arenaCode": 1324,
+      "arenaCode": 1326,
       "arenaDocument": 1418
     },
     {
@@ -1293,7 +1293,7 @@
       "code": 91,
       "reasoning": 93,
       "arena": 1504,
-      "arenaCode": 1542,
+      "arenaCode": 1541,
       "arenaDocument": 1507
     },
     {
@@ -1310,8 +1310,8 @@
       "mmlu": 87,
       "code": 89,
       "reasoning": 90,
-      "arena": 1471,
-      "arenaCode": 1523,
+      "arena": 1472,
+      "arenaCode": 1522,
       "arenaDocument": 1487
     },
     {
@@ -1338,8 +1338,8 @@
       "mmlu": 89,
       "code": 91,
       "reasoning": 93,
-      "arena": 1486,
-      "arenaCode": 1559,
+      "arena": 1483,
+      "arenaCode": 1561,
       "arenaDocument": 1473
     },
     {
@@ -1348,8 +1348,8 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1510,
-      "arenaCode": 1665,
+      "arena": 1508,
+      "arenaCode": 1654,
       "arenaDocument": 1495
     },
     {
@@ -1383,7 +1383,7 @@
       "code": 86,
       "reasoning": 85,
       "arena": 1410,
-      "arenaCode": 1268
+      "arenaCode": 1269
     },
     {
       "model": "mistral-medium-2505",
