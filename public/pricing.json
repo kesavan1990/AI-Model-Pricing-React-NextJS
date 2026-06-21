@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-20",
+  "updated": "2026-06-21",
   "gemini": [
     {
       "name": "gemini-2.0-flash-lite",
@@ -1223,6 +1223,12 @@
       "name": "ministral-8b-2512",
       "input": 0.15,
       "output": 0.15,
+      "cachedInput": null
+    },
+    {
+      "name": "mistral-medium-3-5",
+      "input": 1.5,
+      "output": 7.5,
       "cachedInput": null
     }
   ]
