@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-26",
+  "updated": "2026-06-27",
   "gemini": [
     {
       "name": "gemini-2.0-flash-lite",
@@ -389,6 +389,18 @@
       "name": "gemini-3.1-flash-lite",
       "input": 0.25,
       "output": 1.5,
+      "cachedInput": null
+    },
+    {
+      "name": "gemini-3-pro-image",
+      "input": 2,
+      "output": 12,
+      "cachedInput": null
+    },
+    {
+      "name": "gemini-3.1-flash-image",
+      "input": 0.5,
+      "output": 3,
       "cachedInput": null
     }
   ],
@@ -1227,6 +1239,18 @@
     },
     {
       "name": "mistral-medium-3-5",
+      "input": 1.5,
+      "output": 7.5,
+      "cachedInput": null
+    },
+    {
+      "name": "mistral-medium-2508",
+      "input": 0.4,
+      "output": 2,
+      "cachedInput": null
+    },
+    {
+      "name": "mistral-medium-2604",
       "input": 1.5,
       "output": 7.5,
       "cachedInput": null
