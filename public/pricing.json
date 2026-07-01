@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-30",
+  "updated": "2026-07-01",
   "gemini": [
     {
       "name": "gemini-2.0-flash-lite",
@@ -1005,6 +1005,12 @@
       "name": "claude-fable-5",
       "input": 10,
       "output": 50,
+      "cachedInput": null
+    },
+    {
+      "name": "claude-sonnet-5",
+      "input": 3,
+      "output": 15,
       "cachedInput": null
     }
   ],
