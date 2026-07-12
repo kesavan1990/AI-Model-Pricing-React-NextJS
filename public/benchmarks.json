@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-05",
+  "updated": "2026-07-12",
   "benchmarks": [
     {
       "model": "gemini-2.0-flash-lite",
@@ -7,7 +7,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1353
+      "arena": 1354
     },
     {
       "model": "gemini-2.0-flash",
@@ -15,7 +15,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1353
+      "arena": 1354
     },
     {
       "model": "gemini-2.5-flash",
@@ -305,7 +305,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1353
+      "arena": 1354
     },
     {
       "model": "gemini-2.0-flash-live-preview-04-09",
@@ -457,7 +457,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1486,
+      "arena": 1485,
       "arenaCode": 1445,
       "arenaDocument": 1441
     },
@@ -483,7 +483,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1433,
+      "arena": 1432,
       "arenaCode": 1253
     },
     {
@@ -516,8 +516,8 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1479,
-      "arenaCode": 1510,
+      "arena": 1476,
+      "arenaCode": 1500,
       "arenaDocument": 1481
     },
     {
@@ -526,7 +526,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1433,
+      "arena": 1432,
       "arenaCode": 1253
     },
     {
@@ -1023,7 +1023,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1202
+      "arena": 1203
     },
     {
       "model": "gpt-3.5-turbo-0125",
@@ -1233,7 +1233,7 @@
       "mmlu": 87,
       "code": 89,
       "reasoning": 90,
-      "arena": 1455,
+      "arena": 1456,
       "arenaCode": 1388,
       "arenaDocument": 1447
     },
@@ -1243,7 +1243,7 @@
       "mmlu": 87,
       "code": 89,
       "reasoning": 90,
-      "arena": 1455,
+      "arena": 1456,
       "arenaCode": 1388,
       "arenaDocument": 1447
     },
@@ -1253,7 +1253,7 @@
       "mmlu": 84,
       "code": 86,
       "reasoning": 87,
-      "arena": 1411,
+      "arena": 1412,
       "arenaCode": 1327,
       "arenaDocument": 1421
     },
@@ -1263,7 +1263,7 @@
       "mmlu": 84,
       "code": 86,
       "reasoning": 87,
-      "arena": 1411,
+      "arena": 1412,
       "arenaCode": 1327,
       "arenaDocument": 1421
     },
@@ -1310,7 +1310,7 @@
       "code": 91,
       "reasoning": 93,
       "arena": 1504,
-      "arenaCode": 1542,
+      "arenaCode": 1543,
       "arenaDocument": 1505
     },
     {
@@ -1328,7 +1328,7 @@
       "code": 89,
       "reasoning": 90,
       "arena": 1472,
-      "arenaCode": 1522,
+      "arenaCode": 1521,
       "arenaDocument": 1488
     },
     {
@@ -1337,8 +1337,8 @@
       "mmlu": 89,
       "code": 91,
       "reasoning": 93,
-      "arena": 1502,
-      "arenaCode": 1559,
+      "arena": 1503,
+      "arenaCode": 1557,
       "arenaDocument": 1500
     },
     {
@@ -1355,8 +1355,8 @@
       "mmlu": 89,
       "code": 91,
       "reasoning": 93,
-      "arena": 1484,
-      "arenaCode": 1561,
+      "arena": 1482,
+      "arenaCode": 1560,
       "arenaDocument": 1477
     },
     {
@@ -1366,7 +1366,7 @@
       "code": 87,
       "reasoning": 88,
       "arena": 1509,
-      "arenaCode": 1653,
+      "arenaCode": 1649,
       "arenaDocument": 1497
     },
     {
@@ -1375,8 +1375,8 @@
       "mmlu": 87,
       "code": 89,
       "reasoning": 90,
-      "arena": 1464,
-      "arenaCode": 1551,
+      "arena": 1463,
+      "arenaCode": 1543,
       "arenaDocument": 1476
     },
     {
@@ -1410,7 +1410,7 @@
       "code": 86,
       "reasoning": 85,
       "arena": 1410,
-      "arenaCode": 1269
+      "arenaCode": 1267
     },
     {
       "model": "mistral-medium-2505",
@@ -1694,7 +1694,7 @@
       "code": 86,
       "reasoning": 85,
       "arena": 1427,
-      "arenaCode": 1269
+      "arenaCode": 1267
     },
     {
       "model": "mistral-medium-2508",
