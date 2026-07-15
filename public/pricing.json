@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-14",
+  "updated": "2026-07-15",
   "gemini": [
     {
       "name": "gemini-2.0-flash-lite",
@@ -401,6 +401,12 @@
       "name": "gemini-3.1-flash-image",
       "input": 0.5,
       "output": 3,
+      "cachedInput": null
+    },
+    {
+      "name": "gemini-omni-flash-preview",
+      "input": 1.5,
+      "output": 9,
       "cachedInput": null
     }
   ],
