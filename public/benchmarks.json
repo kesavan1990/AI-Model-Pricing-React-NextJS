@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-26",
+  "updated": "2026-08-02",
   "benchmarks": [
     {
       "model": "gemini-2.0-flash-lite",
@@ -7,7 +7,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1353
+      "arena": 1354
     },
     {
       "model": "gemini-2.0-flash",
@@ -15,7 +15,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1353
+      "arena": 1354
     },
     {
       "model": "gemini-2.5-flash",
@@ -305,7 +305,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1353
+      "arena": 1354
     },
     {
       "model": "gemini-2.0-flash-live-preview-04-09",
@@ -457,9 +457,9 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1486,
-      "arenaCode": 1446,
-      "arenaDocument": 1443
+      "arena": 1485,
+      "arenaCode": 1447,
+      "arenaDocument": 1445
     },
     {
       "model": "gemini-3.1-pro-preview-customtools",
@@ -517,8 +517,8 @@
       "code": 82,
       "reasoning": 83,
       "arena": 1474,
-      "arenaCode": 1484,
-      "arenaDocument": 1459
+      "arenaCode": 1486,
+      "arenaDocument": 1465
     },
     {
       "model": "gemini-3.1-flash-lite",
@@ -839,7 +839,7 @@
       "mmlu": 89,
       "code": 91,
       "reasoning": 96,
-      "arena": 1388
+      "arena": 1389
     },
     {
       "model": "o1-preview-2024-09-12",
@@ -1007,7 +1007,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1224
+      "arena": 1225
     },
     {
       "model": "gpt-3.5-turbo-0301",
@@ -1039,7 +1039,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1224
+      "arena": 1225
     },
     {
       "model": "gpt-3.5-turbo-16k",
@@ -1151,7 +1151,7 @@
       "mmlu": 87,
       "code": 89,
       "reasoning": 90,
-      "arena": 1387
+      "arena": 1388
     },
     {
       "model": "claude-4-sonnet",
@@ -1183,7 +1183,7 @@
       "mmlu": 89,
       "code": 91,
       "reasoning": 93,
-      "arena": 1424
+      "arena": 1425
     },
     {
       "model": "claude-opus-4-1",
@@ -1192,7 +1192,7 @@
       "code": 91,
       "reasoning": 93,
       "arena": 1449,
-      "arenaCode": 1388
+      "arenaCode": 1389
     },
     {
       "model": "claude-opus-4-1-20250805",
@@ -1201,7 +1201,7 @@
       "code": 91,
       "reasoning": 93,
       "arena": 1449,
-      "arenaCode": 1388
+      "arenaCode": 1389
     },
     {
       "model": "claude-sonnet-4-20250514",
@@ -1233,7 +1233,7 @@
       "mmlu": 87,
       "code": 89,
       "reasoning": 90,
-      "arena": 1387
+      "arena": 1388
     },
     {
       "model": "claude-sonnet-4-5",
@@ -1243,7 +1243,7 @@
       "reasoning": 90,
       "arena": 1456,
       "arenaCode": 1392,
-      "arenaDocument": 1445
+      "arenaDocument": 1446
     },
     {
       "model": "claude-sonnet-4-5-20250929",
@@ -1253,7 +1253,7 @@
       "reasoning": 90,
       "arena": 1456,
       "arenaCode": 1392,
-      "arenaDocument": 1445
+      "arenaDocument": 1446
     },
     {
       "model": "claude-haiku-4-5-20251001",
@@ -1262,8 +1262,8 @@
       "code": 86,
       "reasoning": 87,
       "arena": 1412,
-      "arenaCode": 1324,
-      "arenaDocument": 1422
+      "arenaCode": 1325,
+      "arenaDocument": 1423
     },
     {
       "model": "claude-haiku-4-5",
@@ -1272,8 +1272,8 @@
       "code": 86,
       "reasoning": 87,
       "arena": 1412,
-      "arenaCode": 1324,
-      "arenaDocument": 1422
+      "arenaCode": 1325,
+      "arenaDocument": 1423
     },
     {
       "model": "claude-3-haiku",
@@ -1289,7 +1289,7 @@
       "mmlu": 89,
       "code": 91,
       "reasoning": 93,
-      "arena": 1321
+      "arena": 1322
     },
     {
       "model": "claude-opus-4-5-20251101",
@@ -1299,7 +1299,7 @@
       "reasoning": 93,
       "arena": 1473,
       "arenaCode": 1494,
-      "arenaDocument": 1461
+      "arenaDocument": 1462
     },
     {
       "model": "claude-opus-4-5",
@@ -1309,7 +1309,7 @@
       "reasoning": 93,
       "arena": 1473,
       "arenaCode": 1494,
-      "arenaDocument": 1461
+      "arenaDocument": 1462
     },
     {
       "model": "claude-opus-4-6",
@@ -1318,8 +1318,8 @@
       "code": 91,
       "reasoning": 93,
       "arena": 1505,
-      "arenaCode": 1546,
-      "arenaDocument": 1509
+      "arenaCode": 1545,
+      "arenaDocument": 1506
     },
     {
       "model": "claude-opus-4-6-20260205",
@@ -1335,7 +1335,7 @@
       "mmlu": 87,
       "code": 89,
       "reasoning": 90,
-      "arena": 1473,
+      "arena": 1472,
       "arenaCode": 1523,
       "arenaDocument": 1483
     },
@@ -1346,8 +1346,8 @@
       "code": 91,
       "reasoning": 93,
       "arena": 1502,
-      "arenaCode": 1558,
-      "arenaDocument": 1499
+      "arenaCode": 1557,
+      "arenaDocument": 1497
     },
     {
       "model": "claude-opus-4-7-20260416",
@@ -1364,8 +1364,8 @@
       "code": 91,
       "reasoning": 93,
       "arena": 1484,
-      "arenaCode": 1568,
-      "arenaDocument": 1474
+      "arenaCode": 1566,
+      "arenaDocument": 1475
     },
     {
       "model": "claude-fable-5",
@@ -1373,9 +1373,9 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1507,
+      "arena": 1509,
       "arenaCode": 1630,
-      "arenaDocument": 1505
+      "arenaDocument": 1504
     },
     {
       "model": "claude-sonnet-5",
@@ -1383,9 +1383,9 @@
       "mmlu": 87,
       "code": 89,
       "reasoning": 90,
-      "arena": 1461,
-      "arenaCode": 1541,
-      "arenaDocument": 1471
+      "arena": 1462,
+      "arenaCode": 1542,
+      "arenaDocument": 1470
     },
     {
       "model": "mistral-3.1-small",
@@ -1417,7 +1417,7 @@
       "mmlu": 83,
       "code": 86,
       "reasoning": 85,
-      "arena": 1410,
+      "arena": 1409,
       "arenaCode": 1267
     },
     {
@@ -1710,7 +1710,7 @@
       "mmlu": 83,
       "code": 86,
       "reasoning": 85,
-      "arena": 1410
+      "arena": 1409
     },
     {
       "model": "mistral-medium-2604",
