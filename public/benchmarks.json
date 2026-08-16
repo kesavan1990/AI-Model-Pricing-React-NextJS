@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-09",
+  "updated": "2026-08-16",
   "benchmarks": [
     {
       "model": "gemini-2.0-flash-lite",
@@ -39,8 +39,8 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1446,
-      "arenaCode": 1224,
+      "arena": 1445,
+      "arenaCode": 1226,
       "arenaDocument": 1421
     },
     {
@@ -193,7 +193,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1361
+      "arena": 1360
     },
     {
       "model": "gemini-2.5-flash-image-preview",
@@ -457,8 +457,8 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1487,
-      "arenaCode": 1446,
+      "arena": 1486,
+      "arenaCode": 1447,
       "arenaDocument": 1445
     },
     {
@@ -484,7 +484,7 @@
       "code": 82,
       "reasoning": 83,
       "arena": 1432,
-      "arenaCode": 1256
+      "arenaCode": 1254
     },
     {
       "model": "gemini-embedding-2-preview",
@@ -517,7 +517,7 @@
       "code": 82,
       "reasoning": 83,
       "arena": 1474,
-      "arenaCode": 1487,
+      "arenaCode": 1489,
       "arenaDocument": 1465
     },
     {
@@ -527,7 +527,7 @@
       "code": 82,
       "reasoning": 83,
       "arena": 1432,
-      "arenaCode": 1256
+      "arenaCode": 1254
     },
     {
       "model": "gemini-3-pro-image",
@@ -1209,7 +1209,7 @@
       "mmlu": 87,
       "code": 89,
       "reasoning": 90,
-      "arena": 1399
+      "arena": 1400
     },
     {
       "model": "claude-4-opus-20250514",
@@ -1261,8 +1261,8 @@
       "mmlu": 84,
       "code": 86,
       "reasoning": 87,
-      "arena": 1412,
-      "arenaCode": 1325,
+      "arena": 1413,
+      "arenaCode": 1326,
       "arenaDocument": 1423
     },
     {
@@ -1271,8 +1271,8 @@
       "mmlu": 84,
       "code": 86,
       "reasoning": 87,
-      "arena": 1412,
-      "arenaCode": 1325,
+      "arena": 1413,
+      "arenaCode": 1326,
       "arenaDocument": 1423
     },
     {
@@ -1336,7 +1336,7 @@
       "code": 89,
       "reasoning": 90,
       "arena": 1472,
-      "arenaCode": 1522,
+      "arenaCode": 1524,
       "arenaDocument": 1483
     },
     {
@@ -1363,8 +1363,8 @@
       "mmlu": 89,
       "code": 91,
       "reasoning": 93,
-      "arena": 1483,
-      "arenaCode": 1565,
+      "arena": 1481,
+      "arenaCode": 1564,
       "arenaDocument": 1475
     },
     {
@@ -1373,8 +1373,8 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1507,
-      "arenaCode": 1630,
+      "arena": 1506,
+      "arenaCode": 1627,
       "arenaDocument": 1504
     },
     {
@@ -1383,8 +1383,8 @@
       "mmlu": 87,
       "code": 89,
       "reasoning": 90,
-      "arena": 1463,
-      "arenaCode": 1541,
+      "arena": 1462,
+      "arenaCode": 1540,
       "arenaDocument": 1470
     },
     {
@@ -1409,7 +1409,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1303
+      "arena": 1304
     },
     {
       "model": "mistral-medium",
@@ -1418,7 +1418,7 @@
       "code": 86,
       "reasoning": 85,
       "arena": 1409,
-      "arenaCode": 1267
+      "arenaCode": 1265
     },
     {
       "model": "mistral-medium-2505",
@@ -1564,7 +1564,7 @@
       "code": 86,
       "reasoning": 85,
       "arena": 87,
-      "arenaCode": 1079
+      "arenaCode": 1080
     },
     {
       "model": "magistral-medium-2506",
@@ -1702,7 +1702,7 @@
       "code": 86,
       "reasoning": 85,
       "arena": 1427,
-      "arenaCode": 1267
+      "arenaCode": 1265
     },
     {
       "model": "mistral-medium-2508",
