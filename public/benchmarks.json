@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-16",
+  "updated": "2026-08-23",
   "benchmarks": [
     {
       "model": "gemini-2.0-flash-lite",
@@ -458,7 +458,7 @@
       "code": 82,
       "reasoning": 83,
       "arena": 1486,
-      "arenaCode": 1447,
+      "arenaCode": 1446,
       "arenaDocument": 1445
     },
     {
@@ -517,7 +517,7 @@
       "code": 82,
       "reasoning": 83,
       "arena": 1474,
-      "arenaCode": 1489,
+      "arenaCode": 1490,
       "arenaDocument": 1465
     },
     {
@@ -991,7 +991,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1312
+      "arena": 1313
     },
     {
       "model": "gpt-4-0125-preview",
@@ -1031,7 +1031,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1203
+      "arena": 1204
     },
     {
       "model": "gpt-3.5-turbo-0125",
@@ -1143,7 +1143,7 @@
       "mmlu": 87,
       "code": 89,
       "reasoning": 90,
-      "arena": 1373
+      "arena": 1374
     },
     {
       "model": "claude-3.7-sonnet",
@@ -1262,7 +1262,7 @@
       "code": 86,
       "reasoning": 87,
       "arena": 1413,
-      "arenaCode": 1326,
+      "arenaCode": 1327,
       "arenaDocument": 1423
     },
     {
@@ -1272,7 +1272,7 @@
       "code": 86,
       "reasoning": 87,
       "arena": 1413,
-      "arenaCode": 1326,
+      "arenaCode": 1327,
       "arenaDocument": 1423
     },
     {
@@ -1317,8 +1317,8 @@
       "mmlu": 89,
       "code": 91,
       "reasoning": 93,
-      "arena": 1505,
-      "arenaCode": 1545,
+      "arena": 1504,
+      "arenaCode": 1546,
       "arenaDocument": 1506
     },
     {
@@ -1336,7 +1336,7 @@
       "code": 89,
       "reasoning": 90,
       "arena": 1472,
-      "arenaCode": 1524,
+      "arenaCode": 1522,
       "arenaDocument": 1483
     },
     {
@@ -1363,8 +1363,8 @@
       "mmlu": 89,
       "code": 91,
       "reasoning": 93,
-      "arena": 1481,
-      "arenaCode": 1564,
+      "arena": 1482,
+      "arenaCode": 1563,
       "arenaDocument": 1475
     },
     {
@@ -1373,8 +1373,8 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1506,
-      "arenaCode": 1627,
+      "arena": 1508,
+      "arenaCode": 1626,
       "arenaDocument": 1504
     },
     {
@@ -1383,8 +1383,8 @@
       "mmlu": 87,
       "code": 89,
       "reasoning": 90,
-      "arena": 1462,
-      "arenaCode": 1540,
+      "arena": 1461,
+      "arenaCode": 1539,
       "arenaDocument": 1470
     },
     {
@@ -1596,7 +1596,7 @@
       "mmlu": 86,
       "code": 88,
       "reasoning": 89,
-      "arena": 1415,
+      "arena": 1414,
       "arenaCode": 1230
     },
     {
