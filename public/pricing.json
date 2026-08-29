@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-28",
+  "updated": "2026-08-29",
   "gemini": [
     {
       "name": "gemini-2.5-flash",
@@ -63,8 +63,8 @@
     },
     {
       "name": "gemini-2.5-pro-preview-tts",
-      "input": 1.25,
-      "output": 10,
+      "input": 1,
+      "output": 20,
       "cachedInput": null
     },
     {
@@ -135,14 +135,14 @@
     },
     {
       "name": "gemini-2.5-flash-native-audio-preview-09-2025",
-      "input": 0.3,
-      "output": 2.5,
+      "input": 0.5,
+      "output": 2,
       "cachedInput": null
     },
     {
       "name": "gemini-2.5-flash-native-audio-preview-12-2025",
-      "input": 0.3,
-      "output": 2.5,
+      "input": 0.5,
+      "output": 2,
       "cachedInput": null
     },
     {
@@ -977,6 +977,30 @@
       "name": "glm-5-2",
       "input": 1.4,
       "output": 4.4,
+      "cachedInput": null
+    },
+    {
+      "name": "ministral-14b-2512",
+      "input": 0.2,
+      "output": 0.2,
+      "cachedInput": null
+    },
+    {
+      "name": "ministral-3b-2512",
+      "input": 0.1,
+      "output": 0.1,
+      "cachedInput": null
+    },
+    {
+      "name": "mistral-medium-3",
+      "input": 1.5,
+      "output": 7.5,
+      "cachedInput": null
+    },
+    {
+      "name": "voxtral-small-2507",
+      "input": 0.1,
+      "output": 0.4,
       "cachedInput": null
     }
   ]
