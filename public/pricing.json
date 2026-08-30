@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-29",
+  "updated": "2026-08-30",
   "gemini": [
     {
       "name": "gemini-2.5-flash",
@@ -167,6 +167,12 @@
       "name": "gemini-3.5-live-translate-preview",
       "input": 3.5,
       "output": 21,
+      "cachedInput": null
+    },
+    {
+      "name": "gemini-omni-1.1-flash",
+      "input": 1.5,
+      "output": 9,
       "cachedInput": null
     }
   ],
@@ -1001,6 +1007,24 @@
       "name": "voxtral-small-2507",
       "input": 0.1,
       "output": 0.4,
+      "cachedInput": null
+    },
+    {
+      "name": "mistral-medium-3.5",
+      "input": 1.5,
+      "output": 7.5,
+      "cachedInput": null
+    },
+    {
+      "name": "mistral-vibe-cli-with-tools",
+      "input": 1.5,
+      "output": 7.5,
+      "cachedInput": null
+    },
+    {
+      "name": "mistral-vibe-cli-fast",
+      "input": 0.15,
+      "output": 0.6,
       "cachedInput": null
     }
   ]
