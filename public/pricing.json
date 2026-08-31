@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-30",
+  "updated": "2026-08-31",
   "gemini": [
     {
       "name": "gemini-2.5-flash",
@@ -77,12 +77,6 @@
       "name": "gemini-robotics-er-2-preview",
       "input": 2,
       "output": 10,
-      "cachedInput": null
-    },
-    {
-      "name": "gemini-robotics-er-1.6-preview",
-      "input": 1,
-      "output": 5,
       "cachedInput": null
     },
     {
@@ -896,27 +890,9 @@
       "cachedInput": null
     },
     {
-      "name": "mistral-medium-2505",
-      "input": 0.4,
-      "output": 2,
-      "cachedInput": null
-    },
-    {
-      "name": "mistral-medium-2508",
-      "input": 0.4,
-      "output": 2,
-      "cachedInput": null
-    },
-    {
       "name": "mistral-medium-2604",
       "input": 1.5,
       "output": 7.5,
-      "cachedInput": null
-    },
-    {
-      "name": "mistral-medium-3-1-2508",
-      "input": 0.4,
-      "output": 2,
       "cachedInput": null
     },
     {
