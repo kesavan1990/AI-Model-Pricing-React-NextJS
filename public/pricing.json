@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-01",
+  "updated": "2026-09-02",
   "gemini": [
     {
       "name": "gemini-2.5-flash",
@@ -394,12 +394,6 @@
       "cachedInput": null
     },
     {
-      "name": "gpt-4o-audio-preview",
-      "input": 2.5,
-      "output": 10,
-      "cachedInput": null
-    },
-    {
       "name": "gpt-4o-audio-preview-2024-12-17",
       "input": 2.5,
       "output": 10,
@@ -449,12 +443,6 @@
     },
     {
       "name": "gpt-4o-mini-2024-07-18",
-      "input": 0.15,
-      "output": 0.6,
-      "cachedInput": null
-    },
-    {
-      "name": "gpt-4o-mini-audio-preview",
       "input": 0.15,
       "output": 0.6,
       "cachedInput": null
@@ -859,6 +847,12 @@
     },
     {
       "name": "claude-mythos-preview",
+      "input": 10,
+      "output": 50,
+      "cachedInput": null
+    },
+    {
+      "name": "claude-fable-5-1",
       "input": 10,
       "output": 50,
       "cachedInput": null
