@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-03",
+  "updated": "2026-09-04",
   "gemini": [
     {
       "name": "gemini-2.5-flash",
@@ -167,6 +167,12 @@
       "name": "gemini-omni-1.1-flash",
       "input": 1.5,
       "output": 9,
+      "cachedInput": null
+    },
+    {
+      "name": "gemini-3.8-flash",
+      "input": 0.75,
+      "output": 3.75,
       "cachedInput": null
     }
   ],
@@ -746,6 +752,12 @@
       "input": 12.5,
       "output": 75,
       "cachedInput": null
+    },
+    {
+      "name": "gpt-6-astra",
+      "input": 10,
+      "output": 50,
+      "cachedInput": null
     }
   ],
   "anthropic": [
@@ -879,8 +891,8 @@
     },
     {
       "name": "mistral-medium",
-      "input": 2.7,
-      "output": 8.1,
+      "input": 1.5,
+      "output": 7.5,
       "cachedInput": null
     },
     {
