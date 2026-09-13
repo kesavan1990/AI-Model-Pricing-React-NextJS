@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-06",
+  "updated": "2026-09-13",
   "benchmarks": [
     {
       "model": "gemini-2.5-flash",
@@ -34,7 +34,7 @@
       "code": 82,
       "reasoning": 83,
       "arena": 1457,
-      "arenaCode": 1449
+      "arenaCode": 1447
     },
     {
       "model": "gemini-2.5-flash-lite",
@@ -77,7 +77,7 @@
       "code": 82,
       "reasoning": 83,
       "arena": 1487,
-      "arenaCode": 1446,
+      "arenaCode": 1447,
       "arenaDocument": 1445
     },
     {
@@ -134,7 +134,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1476,
+      "arena": 1474,
       "arenaCode": 1492,
       "arenaDocument": 1465
     },
@@ -144,8 +144,8 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1480,
-      "arenaCode": 1538
+      "arena": 1479,
+      "arenaCode": 1537
     },
     {
       "model": "gemini-3.7-flash",
@@ -153,7 +153,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1491,
+      "arena": 1490,
       "arenaCode": 1587
     },
     {
@@ -181,30 +181,6 @@
       "arena": 84
     },
     {
-      "model": "gemini-2.5-flash-native-audio-preview-09-2025",
-      "provider": "gemini",
-      "mmlu": 80,
-      "code": 82,
-      "reasoning": 83,
-      "arena": 84
-    },
-    {
-      "model": "gemini-2.5-flash-native-audio-preview-12-2025",
-      "provider": "gemini",
-      "mmlu": 80,
-      "code": 82,
-      "reasoning": 83,
-      "arena": 84
-    },
-    {
-      "model": "gemini-3.1-flash-live-preview",
-      "provider": "gemini",
-      "mmlu": 80,
-      "code": 82,
-      "reasoning": 83,
-      "arena": 84
-    },
-    {
       "model": "gemini-exp-1206",
       "provider": "gemini",
       "mmlu": 80,
@@ -214,14 +190,6 @@
     },
     {
       "model": "gemini-robotics-er-2-streaming-preview",
-      "provider": "gemini",
-      "mmlu": 80,
-      "code": 82,
-      "reasoning": 83,
-      "arena": 84
-    },
-    {
-      "model": "gemini-3.5-live-translate-preview",
       "provider": "gemini",
       "mmlu": 80,
       "code": 82,
@@ -242,8 +210,8 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1494,
-      "arenaCode": 1567
+      "arena": 1493,
+      "arenaCode": 1568
     },
     {
       "model": "babbage-002",
@@ -395,7 +363,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1203
+      "arena": 1204
     },
     {
       "model": "gpt-3.5-turbo-16k",
@@ -435,7 +403,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1275
+      "arena": 1276
     },
     {
       "model": "gpt-4-1106-preview",
@@ -443,7 +411,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1312
+      "arena": 1313
     },
     {
       "model": "gpt-4-turbo",
@@ -603,7 +571,7 @@
       "mmlu": 88,
       "code": 90,
       "reasoning": 92,
-      "arena": 1317
+      "arena": 1318
     },
     {
       "model": "gpt-4o-mini-2024-07-18",
@@ -611,7 +579,7 @@
       "mmlu": 88,
       "code": 90,
       "reasoning": 92,
-      "arena": 1317
+      "arena": 1318
     },
     {
       "model": "gpt-4o-mini-audio-preview-2024-12-17",
@@ -644,7 +612,7 @@
       "code": 92,
       "reasoning": 95,
       "arena": 1476,
-      "arenaCode": 1520,
+      "arenaCode": 1521,
       "arenaDocument": 1479
     },
     {
@@ -672,7 +640,7 @@
       "code": 92,
       "reasoning": 95,
       "arena": 1476,
-      "arenaCode": 1338,
+      "arenaCode": 1339,
       "arenaDocument": 1405
     },
     {
@@ -706,7 +674,7 @@
       "code": 87,
       "reasoning": 88,
       "arena": 1466,
-      "arenaCode": 1520,
+      "arenaCode": 1521,
       "arenaDocument": 1479
     },
     {
@@ -715,7 +683,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1483,
+      "arena": 1482,
       "arenaCode": 1617,
       "arenaDocument": 1479
     },
@@ -726,7 +694,7 @@
       "code": 87,
       "reasoning": 88,
       "arena": 1466,
-      "arenaCode": 1520,
+      "arenaCode": 1521,
       "arenaDocument": 1479
     },
     {
@@ -780,7 +748,7 @@
       "code": 87,
       "reasoning": 88,
       "arena": 1448,
-      "arenaCode": 1442,
+      "arenaCode": 1443,
       "arenaDocument": 1470
     },
     {
@@ -887,7 +855,7 @@
       "mmlu": 85,
       "code": 88,
       "reasoning": 90,
-      "arena": 1389
+      "arena": 1390
     },
     {
       "model": "gpt-5-mini-2025-08-07",
@@ -919,7 +887,7 @@
       "mmlu": 89,
       "code": 91,
       "reasoning": 96,
-      "arena": 1203
+      "arena": 1204
     },
     {
       "model": "o1-2024-12-17",
@@ -1039,8 +1007,8 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 89,
-      "arenaCode": 1797
+      "arena": 1478,
+      "arenaCode": 1800
     },
     {
       "model": "claude-haiku-4-5-20251001",
@@ -1048,7 +1016,7 @@
       "mmlu": 84,
       "code": 86,
       "reasoning": 87,
-      "arena": 1413,
+      "arena": 1414,
       "arenaCode": 1329,
       "arenaDocument": 1423
     },
@@ -1058,7 +1026,7 @@
       "mmlu": 84,
       "code": 86,
       "reasoning": 87,
-      "arena": 1413,
+      "arena": 1414,
       "arenaCode": 1329,
       "arenaDocument": 1423
     },
@@ -1069,7 +1037,7 @@
       "code": 89,
       "reasoning": 90,
       "arena": 1456,
-      "arenaCode": 1392,
+      "arenaCode": 1393,
       "arenaDocument": 1446
     },
     {
@@ -1079,7 +1047,7 @@
       "code": 89,
       "reasoning": 90,
       "arena": 1456,
-      "arenaCode": 1392,
+      "arenaCode": 1393,
       "arenaDocument": 1446
     },
     {
@@ -1088,7 +1056,7 @@
       "mmlu": 87,
       "code": 89,
       "reasoning": 90,
-      "arena": 1462,
+      "arena": 1461,
       "arenaCode": 1537,
       "arenaDocument": 1470
     },
@@ -1098,7 +1066,7 @@
       "mmlu": 87,
       "code": 89,
       "reasoning": 90,
-      "arena": 1472,
+      "arena": 1473,
       "arenaCode": 1521,
       "arenaDocument": 1483
     },
@@ -1129,7 +1097,7 @@
       "code": 91,
       "reasoning": 93,
       "arena": 1505,
-      "arenaCode": 1546,
+      "arenaCode": 1547,
       "arenaDocument": 1506
     },
     {
@@ -1147,7 +1115,7 @@
       "code": 91,
       "reasoning": 93,
       "arena": 1502,
-      "arenaCode": 1556,
+      "arenaCode": 1555,
       "arenaDocument": 1497
     },
     {
@@ -1164,8 +1132,8 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1504,
-      "arenaCode": 1762,
+      "arena": 1501,
+      "arenaCode": 1758,
       "arenaDocument": 1504
     },
     {
@@ -1175,7 +1143,7 @@
       "code": 91,
       "reasoning": 93,
       "arena": 1493,
-      "arenaCode": 1661,
+      "arenaCode": 1660,
       "arenaDocument": 1520
     },
     {
@@ -1185,7 +1153,7 @@
       "code": 91,
       "reasoning": 93,
       "arena": 1482,
-      "arenaCode": 1563,
+      "arenaCode": 1559,
       "arenaDocument": 1475
     },
     {
@@ -1210,8 +1178,16 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1504,
-      "arenaCode": 1762
+      "arena": 1501,
+      "arenaCode": 1758
+    },
+    {
+      "model": "claude-mythos-5-1",
+      "provider": "anthropic",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
     },
     {
       "model": "codestral-2508",
@@ -1227,8 +1203,8 @@
       "mmlu": 86,
       "code": 88,
       "reasoning": 89,
-      "arena": 1414,
-      "arenaCode": 1229
+      "arena": 1413,
+      "arenaCode": 1230
     },
     {
       "model": "mistral-large-2512",
@@ -1261,7 +1237,7 @@
       "mmlu": 83,
       "code": 86,
       "reasoning": 85,
-      "arena": 1427,
+      "arena": 1426,
       "arenaCode": 1265
     },
     {
@@ -1343,7 +1319,7 @@
       "code": 82,
       "reasoning": 83,
       "arena": 1472,
-      "arenaCode": 1587
+      "arenaCode": 1592
     },
     {
       "model": "ministral-14b-2512",
@@ -1367,7 +1343,7 @@
       "mmlu": 83,
       "code": 86,
       "reasoning": 85,
-      "arena": 1427,
+      "arena": 1426,
       "arenaCode": 1265
     },
     {
@@ -1384,7 +1360,7 @@
       "mmlu": 83,
       "code": 86,
       "reasoning": 85,
-      "arena": 1427,
+      "arena": 1426,
       "arenaCode": 1265
     },
     {
