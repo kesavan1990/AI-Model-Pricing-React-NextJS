@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-14",
+  "updated": "2026-09-15",
   "gemini": [
     {
       "name": "gemini-2.5-flash",
@@ -739,6 +739,18 @@
       "name": "gpt-6-astra",
       "input": 10,
       "output": 50,
+      "cachedInput": null
+    },
+    {
+      "name": "gpt-5.5-cyber",
+      "input": 12.5,
+      "output": 75,
+      "cachedInput": null
+    },
+    {
+      "name": "gpt-rosalind-research",
+      "input": 5,
+      "output": 25,
       "cachedInput": null
     }
   ],
