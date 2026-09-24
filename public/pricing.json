@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-23",
+  "updated": "2026-09-24",
   "gemini": [
     {
       "name": "gemini-2.5-flash",
@@ -135,8 +135,8 @@
     },
     {
       "name": "gemini-robotics-er-2-streaming-preview",
-      "input": 2,
-      "output": 10,
+      "input": 1,
+      "output": 5,
       "cachedInput": null
     },
     {
@@ -149,6 +149,18 @@
       "name": "gemini-3.8-flash",
       "input": 0.75,
       "output": 3.75,
+      "cachedInput": null
+    },
+    {
+      "name": "deep-research-preview-04-2026",
+      "input": 2,
+      "output": 12,
+      "cachedInput": null
+    },
+    {
+      "name": "deep-research-max-preview-04-2026",
+      "input": 2,
+      "output": 12,
       "cachedInput": null
     }
   ],
@@ -764,6 +776,48 @@
       "input": 0.1,
       "output": 0.5,
       "cachedInput": null
+    },
+    {
+      "name": "gpt-5-codex",
+      "input": 1.25,
+      "output": 10,
+      "cachedInput": null
+    },
+    {
+      "name": "gpt-5.1-codex-mini",
+      "input": 0.25,
+      "output": 2,
+      "cachedInput": null
+    },
+    {
+      "name": "gpt-5.1-codex-max",
+      "input": 1.25,
+      "output": 10,
+      "cachedInput": null
+    },
+    {
+      "name": "gpt-5.1-codex",
+      "input": 1.25,
+      "output": 10,
+      "cachedInput": null
+    },
+    {
+      "name": "gpt-5.2-codex",
+      "input": 1.75,
+      "output": 14,
+      "cachedInput": null
+    },
+    {
+      "name": "o3-deep-research",
+      "input": 10,
+      "output": 40,
+      "cachedInput": null
+    },
+    {
+      "name": "o4-mini-deep-research",
+      "input": 2,
+      "output": 8,
+      "cachedInput": null
     }
   ],
   "anthropic": [
@@ -859,12 +913,6 @@
     },
     {
       "name": "claude-mythos-5",
-      "input": 10,
-      "output": 50,
-      "cachedInput": null
-    },
-    {
-      "name": "claude-mythos-preview",
       "input": 10,
       "output": 50,
       "cachedInput": null
