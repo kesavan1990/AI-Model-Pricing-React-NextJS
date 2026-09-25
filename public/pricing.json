@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-24",
+  "updated": "2026-09-25",
   "gemini": [
     {
       "name": "gemini-2.5-flash",
@@ -161,6 +161,12 @@
       "name": "deep-research-max-preview-04-2026",
       "input": 2,
       "output": 12,
+      "cachedInput": null
+    },
+    {
+      "name": "gemini-3.8-flash-cyber",
+      "input": 1.5,
+      "output": 7.5,
       "cachedInput": null
     }
   ],
@@ -622,12 +628,6 @@
       "cachedInput": null
     },
     {
-      "name": "gpt-5-chat",
-      "input": 1.25,
-      "output": 10,
-      "cachedInput": null
-    },
-    {
       "name": "gpt-5.3-codex",
       "input": 1.75,
       "output": 14,
@@ -775,36 +775,6 @@
       "name": "gpt-6-luna",
       "input": 0.1,
       "output": 0.5,
-      "cachedInput": null
-    },
-    {
-      "name": "gpt-5-codex",
-      "input": 1.25,
-      "output": 10,
-      "cachedInput": null
-    },
-    {
-      "name": "gpt-5.1-codex-mini",
-      "input": 0.25,
-      "output": 2,
-      "cachedInput": null
-    },
-    {
-      "name": "gpt-5.1-codex-max",
-      "input": 1.25,
-      "output": 10,
-      "cachedInput": null
-    },
-    {
-      "name": "gpt-5.1-codex",
-      "input": 1.25,
-      "output": 10,
-      "cachedInput": null
-    },
-    {
-      "name": "gpt-5.2-codex",
-      "input": 1.75,
-      "output": 14,
       "cachedInput": null
     },
     {
