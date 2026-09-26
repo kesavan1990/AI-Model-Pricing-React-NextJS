@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-25",
+  "updated": "2026-09-26",
   "gemini": [
     {
       "name": "gemini-2.5-flash",
@@ -175,12 +175,6 @@
       "name": "babbage-002",
       "input": 0.4,
       "output": 0.4,
-      "cachedInput": null
-    },
-    {
-      "name": "computer-use-preview",
-      "input": 3,
-      "output": 12,
       "cachedInput": null
     },
     {
