@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-28",
+  "updated": "2026-09-29",
   "gemini": [
     {
       "name": "gemini-2.5-flash",
@@ -746,18 +746,6 @@
       "input": 0.1,
       "output": 0.5,
       "cachedInput": null
-    },
-    {
-      "name": "o3-deep-research",
-      "input": 10,
-      "output": 40,
-      "cachedInput": null
-    },
-    {
-      "name": "o4-mini-deep-research",
-      "input": 2,
-      "output": 8,
-      "cachedInput": null
     }
   ],
   "anthropic": [
@@ -873,6 +861,12 @@
       "name": "claude-opus-5-5",
       "input": 4,
       "output": 20,
+      "cachedInput": null
+    },
+    {
+      "name": "claude-sonnet-5-5",
+      "input": 2,
+      "output": 10,
       "cachedInput": null
     }
   ],
