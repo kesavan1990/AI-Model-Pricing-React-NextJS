@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-29",
+  "updated": "2026-09-30",
   "gemini": [
     {
       "name": "gemini-2.5-flash",
@@ -167,6 +167,12 @@
       "name": "gemini-3.8-flash-cyber",
       "input": 1.5,
       "output": 7.5,
+      "cachedInput": null
+    },
+    {
+      "name": "deep-research-pro-preview-12-2025",
+      "input": 2,
+      "output": 12,
       "cachedInput": null
     }
   ],
@@ -745,6 +751,12 @@
       "name": "gpt-6-luna",
       "input": 0.1,
       "output": 0.5,
+      "cachedInput": null
+    },
+    {
+      "name": "gpt-6.1-sol",
+      "input": 2,
+      "output": 10,
       "cachedInput": null
     }
   ],
