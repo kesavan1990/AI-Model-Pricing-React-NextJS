@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-06",
+  "updated": "2026-10-07",
   "gemini": [
     {
       "name": "gemini-2.5-flash",
@@ -1031,6 +1031,18 @@
       "name": "zai-glm-5",
       "input": 1.4,
       "output": 4.4,
+      "cachedInput": null
+    },
+    {
+      "name": "mistral-large-4",
+      "input": 0.68,
+      "output": 2.09,
+      "cachedInput": null
+    },
+    {
+      "name": "mistral-large-4-0",
+      "input": 0.68,
+      "output": 2.09,
       "cachedInput": null
     }
   ]
