@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-09",
+  "updated": "2026-10-10",
   "gemini": [
     {
       "name": "gemini-2.5-flash",
@@ -757,6 +757,12 @@
       "name": "gpt-6.1-sol",
       "input": 2,
       "output": 10,
+      "cachedInput": null
+    },
+    {
+      "name": "gpt-rosalind-discovery",
+      "input": 5,
+      "output": 25,
       "cachedInput": null
     }
   ],
