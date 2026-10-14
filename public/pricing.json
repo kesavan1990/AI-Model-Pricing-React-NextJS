@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-13",
+  "updated": "2026-10-14",
   "gemini": [
     {
       "name": "gemini-2.5-flash",
@@ -173,6 +173,12 @@
       "name": "deep-research-pro-preview-12-2025",
       "input": 2,
       "output": 12,
+      "cachedInput": null
+    },
+    {
+      "name": "gemini-4-argon",
+      "input": 2,
+      "output": 10,
       "cachedInput": null
     }
   ],
