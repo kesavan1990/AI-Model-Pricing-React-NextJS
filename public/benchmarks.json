@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-11",
+  "updated": "2026-10-18",
   "benchmarks": [
     {
       "model": "gemini-2.5-flash",
@@ -7,7 +7,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1379
+      "arena": 84
     },
     {
       "model": "gemini-3.1-flash-lite-preview",
@@ -15,7 +15,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1433
+      "arena": 84
     },
     {
       "model": "gemini-3.1-flash-lite",
@@ -23,7 +23,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1433
+      "arena": 84
     },
     {
       "model": "gemini-3.5-flash-lite",
@@ -31,7 +31,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1455
+      "arena": 84
     },
     {
       "model": "gemini-2.5-flash-lite",
@@ -39,7 +39,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1379
+      "arena": 84
     },
     {
       "model": "gemini-2.5-flash-lite-preview-09-2025",
@@ -47,7 +47,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1379
+      "arena": 84
     },
     {
       "model": "gemini-2.5-flash-preview-09-2025",
@@ -55,7 +55,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1403
+      "arena": 84
     },
     {
       "model": "gemini-2.5-pro",
@@ -63,8 +63,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1445,
-      "arenaDocument": 1421
+      "arena": 84
     },
     {
       "model": "gemini-3.1-pro-preview",
@@ -72,8 +71,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1487,
-      "arenaDocument": 1444
+      "arena": 84
     },
     {
       "model": "gemini-3.1-pro-preview-customtools",
@@ -129,8 +127,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1476,
-      "arenaDocument": 1463
+      "arena": 84
     },
     {
       "model": "gemini-3.6-flash",
@@ -138,8 +135,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1482,
-      "arenaDocument": 1456
+      "arena": 84
     },
     {
       "model": "gemini-3.7-flash",
@@ -147,7 +143,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1486
+      "arena": 84
     },
     {
       "model": "gemini-omni-flash-preview",
@@ -203,7 +199,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1497
+      "arena": 84
     },
     {
       "model": "deep-research-preview-04-2026",
@@ -231,6 +227,14 @@
     },
     {
       "model": "deep-research-pro-preview-12-2025",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-4-argon",
       "provider": "gemini",
       "mmlu": 80,
       "code": 82,
@@ -355,7 +359,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1226
+      "arena": 89
     },
     {
       "model": "gpt-3.5-turbo-0125",
@@ -363,7 +367,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1226
+      "arena": 89
     },
     {
       "model": "gpt-3.5-turbo-16k",
@@ -387,7 +391,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1443
+      "arena": 89
     },
     {
       "model": "gpt-4-0613",
@@ -395,7 +399,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1276
+      "arena": 89
     },
     {
       "model": "gpt-4-1106-preview",
@@ -403,7 +407,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1313
+      "arena": 89
     },
     {
       "model": "gpt-4-turbo",
@@ -411,7 +415,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1324
+      "arena": 89
     },
     {
       "model": "gpt-4-turbo-2024-04-09",
@@ -419,7 +423,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1324
+      "arena": 89
     },
     {
       "model": "gpt-4.1",
@@ -427,7 +431,7 @@
       "mmlu": 88,
       "code": 90,
       "reasoning": 92,
-      "arena": 1383
+      "arena": 93
     },
     {
       "model": "gpt-4.1-2025-04-14",
@@ -435,7 +439,7 @@
       "mmlu": 88,
       "code": 90,
       "reasoning": 92,
-      "arena": 1415
+      "arena": 93
     },
     {
       "model": "gpt-4.1-mini",
@@ -443,7 +447,7 @@
       "mmlu": 88,
       "code": 90,
       "reasoning": 92,
-      "arena": 1383
+      "arena": 93
     },
     {
       "model": "gpt-4.1-mini-2025-04-14",
@@ -451,7 +455,7 @@
       "mmlu": 88,
       "code": 90,
       "reasoning": 92,
-      "arena": 1383
+      "arena": 93
     },
     {
       "model": "gpt-4.1-nano",
@@ -459,7 +463,7 @@
       "mmlu": 88,
       "code": 90,
       "reasoning": 92,
-      "arena": 1322
+      "arena": 93
     },
     {
       "model": "gpt-4.1-nano-2025-04-14",
@@ -467,7 +471,7 @@
       "mmlu": 88,
       "code": 90,
       "reasoning": 92,
-      "arena": 1322
+      "arena": 93
     },
     {
       "model": "gpt-4o",
@@ -475,7 +479,7 @@
       "mmlu": 88,
       "code": 90,
       "reasoning": 92,
-      "arena": 1443
+      "arena": 93
     },
     {
       "model": "gpt-4o-2024-05-13",
@@ -483,7 +487,7 @@
       "mmlu": 88,
       "code": 90,
       "reasoning": 92,
-      "arena": 1346
+      "arena": 93
     },
     {
       "model": "gpt-4o-2024-08-06",
@@ -491,7 +495,7 @@
       "mmlu": 88,
       "code": 90,
       "reasoning": 92,
-      "arena": 1336
+      "arena": 93
     },
     {
       "model": "gpt-4o-2024-11-20",
@@ -563,7 +567,7 @@
       "mmlu": 88,
       "code": 90,
       "reasoning": 92,
-      "arena": 1318
+      "arena": 93
     },
     {
       "model": "gpt-4o-mini-2024-07-18",
@@ -571,7 +575,7 @@
       "mmlu": 88,
       "code": 90,
       "reasoning": 92,
-      "arena": 1318
+      "arena": 93
     },
     {
       "model": "gpt-4o-mini-audio-preview-2024-12-17",
@@ -603,8 +607,7 @@
       "mmlu": 89,
       "code": 92,
       "reasoning": 95,
-      "arena": 1476,
-      "arenaDocument": 1472
+      "arena": 96
     },
     {
       "model": "gpt-5.1",
@@ -612,8 +615,7 @@
       "mmlu": 89,
       "code": 92,
       "reasoning": 95,
-      "arena": 1456,
-      "arenaDocument": 1403
+      "arena": 96
     },
     {
       "model": "gpt-5.1-2025-11-13",
@@ -629,8 +631,7 @@
       "mmlu": 89,
       "code": 92,
       "reasoning": 95,
-      "arena": 1476,
-      "arenaDocument": 1405
+      "arena": 96
     },
     {
       "model": "gpt-5.2-2025-12-11",
@@ -662,8 +663,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1466,
-      "arenaDocument": 1472
+      "arena": 89
     },
     {
       "model": "gpt-5.6-sol",
@@ -671,8 +671,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1485,
-      "arenaDocument": 1483
+      "arena": 89
     },
     {
       "model": "gpt-5.6-terra",
@@ -680,8 +679,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1466,
-      "arenaDocument": 1472
+      "arena": 89
     },
     {
       "model": "gpt-5.6-luna",
@@ -689,8 +687,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1452,
-      "arenaDocument": 1457
+      "arena": 89
     },
     {
       "model": "gpt-5.5",
@@ -698,8 +695,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1473,
-      "arenaDocument": 1403
+      "arena": 89
     },
     {
       "model": "gpt-5.5-2026-04-23",
@@ -731,8 +727,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1447,
-      "arenaDocument": 1471
+      "arena": 89
     },
     {
       "model": "gpt-5.4-2026-03-05",
@@ -764,7 +759,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1447
+      "arena": 89
     },
     {
       "model": "gpt-5.4-mini-2026-03-17",
@@ -780,7 +775,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1401
+      "arena": 89
     },
     {
       "model": "gpt-5.4-nano-2026-03-17",
@@ -828,7 +823,7 @@
       "mmlu": 85,
       "code": 88,
       "reasoning": 90,
-      "arena": 1390
+      "arena": 91
     },
     {
       "model": "gpt-5-mini-2025-08-07",
@@ -844,7 +839,7 @@
       "mmlu": 82,
       "code": 85,
       "reasoning": 87,
-      "arena": 1337
+      "arena": 88
     },
     {
       "model": "gpt-5-nano-2025-08-07",
@@ -860,7 +855,7 @@
       "mmlu": 89,
       "code": 91,
       "reasoning": 96,
-      "arena": 1204
+      "arena": 97
     },
     {
       "model": "o1-2024-12-17",
@@ -868,7 +863,7 @@
       "mmlu": 89,
       "code": 91,
       "reasoning": 96,
-      "arena": 1402
+      "arena": 97
     },
     {
       "model": "o1-pro",
@@ -892,7 +887,7 @@
       "mmlu": 89,
       "code": 91,
       "reasoning": 96,
-      "arena": 1314
+      "arena": 97
     },
     {
       "model": "o3-2025-04-16",
@@ -900,7 +895,7 @@
       "mmlu": 89,
       "code": 91,
       "reasoning": 96,
-      "arena": 1432
+      "arena": 97
     },
     {
       "model": "o3-mini",
@@ -908,7 +903,7 @@
       "mmlu": 89,
       "code": 91,
       "reasoning": 96,
-      "arena": 1364
+      "arena": 97
     },
     {
       "model": "o3-mini-2025-01-31",
@@ -940,7 +935,7 @@
       "mmlu": 89,
       "code": 91,
       "reasoning": 96,
-      "arena": 1391
+      "arena": 97
     },
     {
       "model": "o4-mini-2025-04-16",
@@ -948,7 +943,7 @@
       "mmlu": 89,
       "code": 91,
       "reasoning": 96,
-      "arena": 1391
+      "arena": 97
     },
     {
       "model": "gpt-5-search-api",
@@ -980,8 +975,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1475,
-      "arenaDocument": 1468
+      "arena": 89
     },
     {
       "model": "gpt-5.5-cyber",
@@ -1005,7 +999,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1456
+      "arena": 89
     },
     {
       "model": "gpt-6-luna",
@@ -1013,7 +1007,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1443
+      "arena": 89
     },
     {
       "model": "gpt-6.1-sol",
@@ -1021,10 +1015,18 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1484
+      "arena": 89
     },
     {
       "model": "gpt-rosalind-discovery",
+      "provider": "openai",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
+      "model": "gpt-5.5-cyber-preview",
       "provider": "openai",
       "mmlu": 85,
       "code": 87,
@@ -1037,8 +1039,7 @@
       "mmlu": 84,
       "code": 86,
       "reasoning": 87,
-      "arena": 1414,
-      "arenaDocument": 1420
+      "arena": 88
     },
     {
       "model": "claude-haiku-4-5",
@@ -1046,8 +1047,7 @@
       "mmlu": 84,
       "code": 86,
       "reasoning": 87,
-      "arena": 1414,
-      "arenaDocument": 1420
+      "arena": 88
     },
     {
       "model": "claude-sonnet-4-5",
@@ -1055,8 +1055,7 @@
       "mmlu": 87,
       "code": 89,
       "reasoning": 90,
-      "arena": 1456,
-      "arenaDocument": 1450
+      "arena": 92
     },
     {
       "model": "claude-sonnet-4-5-20250929",
@@ -1064,8 +1063,7 @@
       "mmlu": 87,
       "code": 89,
       "reasoning": 90,
-      "arena": 1456,
-      "arenaDocument": 1450
+      "arena": 92
     },
     {
       "model": "claude-sonnet-5",
@@ -1073,8 +1071,7 @@
       "mmlu": 87,
       "code": 89,
       "reasoning": 90,
-      "arena": 1476,
-      "arenaDocument": 1466
+      "arena": 92
     },
     {
       "model": "claude-sonnet-4-6",
@@ -1082,8 +1079,7 @@
       "mmlu": 87,
       "code": 89,
       "reasoning": 90,
-      "arena": 1472,
-      "arenaDocument": 1482
+      "arena": 92
     },
     {
       "model": "claude-opus-4-5-20251101",
@@ -1091,8 +1087,7 @@
       "mmlu": 89,
       "code": 91,
       "reasoning": 93,
-      "arena": 1474,
-      "arenaDocument": 1462
+      "arena": 95
     },
     {
       "model": "claude-opus-4-5",
@@ -1100,8 +1095,7 @@
       "mmlu": 89,
       "code": 91,
       "reasoning": 93,
-      "arena": 1474,
-      "arenaDocument": 1462
+      "arena": 95
     },
     {
       "model": "claude-opus-4-6",
@@ -1109,8 +1103,7 @@
       "mmlu": 89,
       "code": 91,
       "reasoning": 93,
-      "arena": 1504,
-      "arenaDocument": 1507
+      "arena": 95
     },
     {
       "model": "claude-opus-4-6-20260205",
@@ -1126,8 +1119,7 @@
       "mmlu": 89,
       "code": 91,
       "reasoning": 93,
-      "arena": 1501,
-      "arenaDocument": 1495
+      "arena": 95
     },
     {
       "model": "claude-opus-4-7-20260416",
@@ -1143,8 +1135,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1504,
-      "arenaDocument": 1513
+      "arena": 89
     },
     {
       "model": "claude-opus-5",
@@ -1152,8 +1143,7 @@
       "mmlu": 89,
       "code": 91,
       "reasoning": 93,
-      "arena": 1507,
-      "arenaDocument": 1516
+      "arena": 95
     },
     {
       "model": "claude-opus-4-8",
@@ -1161,8 +1151,7 @@
       "mmlu": 89,
       "code": 91,
       "reasoning": 93,
-      "arena": 1481,
-      "arenaDocument": 1475
+      "arena": 95
     },
     {
       "model": "claude-mythos-5",
@@ -1178,8 +1167,7 @@
       "mmlu": 85,
       "code": 87,
       "reasoning": 88,
-      "arena": 1501,
-      "arenaDocument": 1513
+      "arena": 89
     },
     {
       "model": "claude-mythos-5-1",
@@ -1195,7 +1183,7 @@
       "mmlu": 89,
       "code": 91,
       "reasoning": 93,
-      "arena": 1507
+      "arena": 95
     },
     {
       "model": "claude-sonnet-5-5",
@@ -1203,7 +1191,7 @@
       "mmlu": 87,
       "code": 89,
       "reasoning": 90,
-      "arena": 1476
+      "arena": 92
     },
     {
       "model": "claude-haiku-5-5",
@@ -1227,7 +1215,7 @@
       "mmlu": 86,
       "code": 88,
       "reasoning": 89,
-      "arena": 1414
+      "arena": 90
     },
     {
       "model": "mistral-large-2512",
@@ -1243,7 +1231,7 @@
       "mmlu": 83,
       "code": 86,
       "reasoning": 85,
-      "arena": 1408
+      "arena": 87
     },
     {
       "model": "mistral-medium-2604",
@@ -1259,7 +1247,7 @@
       "mmlu": 83,
       "code": 86,
       "reasoning": 85,
-      "arena": 1426
+      "arena": 87
     },
     {
       "model": "mistral-small",
@@ -1267,7 +1255,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1303
+      "arena": 84
     },
     {
       "model": "ministral-3-3b-2512",
@@ -1339,7 +1327,7 @@
       "mmlu": 80,
       "code": 82,
       "reasoning": 83,
-      "arena": 1475
+      "arena": 84
     },
     {
       "model": "ministral-14b-2512",
@@ -1363,7 +1351,7 @@
       "mmlu": 83,
       "code": 86,
       "reasoning": 85,
-      "arena": 1426
+      "arena": 87
     },
     {
       "model": "voxtral-small-2507",
@@ -1379,7 +1367,7 @@
       "mmlu": 83,
       "code": 86,
       "reasoning": 85,
-      "arena": 1426
+      "arena": 87
     },
     {
       "model": "mistral-vibe-cli-with-tools",
@@ -1419,7 +1407,7 @@
       "mmlu": 86,
       "code": 88,
       "reasoning": 89,
-      "arena": 1429
+      "arena": 90
     },
     {
       "model": "mistral-large-4-0",
