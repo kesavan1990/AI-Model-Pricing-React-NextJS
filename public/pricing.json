@@ -1,12 +1,6 @@
 {
-  "updated": "2026-10-19",
+  "updated": "2026-10-20",
   "gemini": [
-    {
-      "name": "gemini-2.5-flash",
-      "input": 0.3,
-      "output": 2.5,
-      "cachedInput": null
-    },
     {
       "name": "gemini-3.1-flash-lite-preview",
       "input": 0.25,
@@ -26,12 +20,6 @@
       "cachedInput": null
     },
     {
-      "name": "gemini-2.5-flash-lite",
-      "input": 0.1,
-      "output": 0.4,
-      "cachedInput": null
-    },
-    {
       "name": "gemini-2.5-flash-lite-preview-09-2025",
       "input": 0.1,
       "output": 0.4,
@@ -41,12 +29,6 @@
       "name": "gemini-2.5-flash-preview-09-2025",
       "input": 0.3,
       "output": 2.5,
-      "cachedInput": null
-    },
-    {
-      "name": "gemini-2.5-pro",
-      "input": 1.25,
-      "output": 10,
       "cachedInput": null
     },
     {
@@ -81,6 +63,24 @@
     },
     {
       "name": "gemini-2.5-computer-use-preview-10-2025",
+      "input": 1.25,
+      "output": 10,
+      "cachedInput": null
+    },
+    {
+      "name": "gemini-2.5-flash",
+      "input": 0.3,
+      "output": 2.5,
+      "cachedInput": null
+    },
+    {
+      "name": "gemini-2.5-flash-lite",
+      "input": 0.1,
+      "output": 0.4,
+      "cachedInput": null
+    },
+    {
+      "name": "gemini-2.5-pro",
       "input": 1.25,
       "output": 10,
       "cachedInput": null
