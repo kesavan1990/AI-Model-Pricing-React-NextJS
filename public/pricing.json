@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-22",
+  "updated": "2026-10-23",
   "gemini": [
     {
       "name": "gemini-3.1-flash-lite-preview",
@@ -184,48 +184,6 @@
   ],
   "openai": [
     {
-      "name": "ft:babbage-002",
-      "input": 1.6,
-      "output": 1.6,
-      "cachedInput": null
-    },
-    {
-      "name": "ft:davinci-002",
-      "input": 12,
-      "output": 12,
-      "cachedInput": null
-    },
-    {
-      "name": "ft:gpt-3.5-turbo",
-      "input": 3,
-      "output": 6,
-      "cachedInput": null
-    },
-    {
-      "name": "ft:gpt-3.5-turbo-0125",
-      "input": 3,
-      "output": 6,
-      "cachedInput": null
-    },
-    {
-      "name": "ft:gpt-3.5-turbo-0613",
-      "input": 3,
-      "output": 6,
-      "cachedInput": null
-    },
-    {
-      "name": "ft:gpt-3.5-turbo-1106",
-      "input": 3,
-      "output": 6,
-      "cachedInput": null
-    },
-    {
-      "name": "ft:gpt-4-0613",
-      "input": 30,
-      "output": 60,
-      "cachedInput": null
-    },
-    {
       "name": "ft:gpt-4o-2024-08-06",
       "input": 3.75,
       "output": 15,
@@ -256,69 +214,9 @@
       "cachedInput": null
     },
     {
-      "name": "ft:gpt-4.1-nano-2025-04-14",
-      "input": 0.2,
-      "output": 0.8,
-      "cachedInput": null
-    },
-    {
-      "name": "ft:o4-mini-2025-04-16",
-      "input": 4,
-      "output": 16,
-      "cachedInput": null
-    },
-    {
-      "name": "gpt-3.5-turbo",
-      "input": 0.5,
-      "output": 1.5,
-      "cachedInput": null
-    },
-    {
-      "name": "gpt-3.5-turbo-0125",
-      "input": 0.5,
-      "output": 1.5,
-      "cachedInput": null
-    },
-    {
-      "name": "gpt-3.5-turbo-16k",
-      "input": 3,
-      "output": 4,
-      "cachedInput": null
-    },
-    {
       "name": "gpt-3.5-turbo-instruct-0914",
       "input": 1.5,
       "output": 2,
-      "cachedInput": null
-    },
-    {
-      "name": "gpt-4",
-      "input": 30,
-      "output": 60,
-      "cachedInput": null
-    },
-    {
-      "name": "gpt-4-0613",
-      "input": 30,
-      "output": 60,
-      "cachedInput": null
-    },
-    {
-      "name": "gpt-4-1106-preview",
-      "input": 10,
-      "output": 30,
-      "cachedInput": null
-    },
-    {
-      "name": "gpt-4-turbo",
-      "input": 10,
-      "output": 30,
-      "cachedInput": null
-    },
-    {
-      "name": "gpt-4-turbo-2024-04-09",
-      "input": 10,
-      "output": 30,
       "cachedInput": null
     },
     {
@@ -346,27 +244,9 @@
       "cachedInput": null
     },
     {
-      "name": "gpt-4.1-nano",
-      "input": 0.1,
-      "output": 0.4,
-      "cachedInput": null
-    },
-    {
-      "name": "gpt-4.1-nano-2025-04-14",
-      "input": 0.1,
-      "output": 0.4,
-      "cachedInput": null
-    },
-    {
       "name": "gpt-4o",
       "input": 2.5,
       "output": 10,
-      "cachedInput": null
-    },
-    {
-      "name": "gpt-4o-2024-05-13",
-      "input": 5,
-      "output": 15,
       "cachedInput": null
     },
     {
@@ -640,30 +520,6 @@
       "cachedInput": null
     },
     {
-      "name": "o1",
-      "input": 15,
-      "output": 60,
-      "cachedInput": null
-    },
-    {
-      "name": "o1-2024-12-17",
-      "input": 15,
-      "output": 60,
-      "cachedInput": null
-    },
-    {
-      "name": "o1-pro",
-      "input": 150,
-      "output": 600,
-      "cachedInput": null
-    },
-    {
-      "name": "o1-pro-2025-03-19",
-      "input": 150,
-      "output": 600,
-      "cachedInput": null
-    },
-    {
       "name": "o3",
       "input": 2,
       "output": 8,
@@ -676,18 +532,6 @@
       "cachedInput": null
     },
     {
-      "name": "o3-mini",
-      "input": 1.1,
-      "output": 4.4,
-      "cachedInput": null
-    },
-    {
-      "name": "o3-mini-2025-01-31",
-      "input": 1.1,
-      "output": 4.4,
-      "cachedInput": null
-    },
-    {
       "name": "o3-pro",
       "input": 20,
       "output": 80,
@@ -697,18 +541,6 @@
       "name": "o3-pro-2025-06-10",
       "input": 20,
       "output": 80,
-      "cachedInput": null
-    },
-    {
-      "name": "o4-mini",
-      "input": 1.1,
-      "output": 4.4,
-      "cachedInput": null
-    },
-    {
-      "name": "o4-mini-2025-04-16",
-      "input": 1.1,
-      "output": 4.4,
       "cachedInput": null
     },
     {
