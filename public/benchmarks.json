@@ -1,14 +1,6 @@
 {
-  "updated": "2026-10-18",
+  "updated": "2026-10-25",
   "benchmarks": [
-    {
-      "model": "gemini-2.5-flash",
-      "provider": "gemini",
-      "mmlu": 80,
-      "code": 82,
-      "reasoning": 83,
-      "arena": 84
-    },
     {
       "model": "gemini-3.1-flash-lite-preview",
       "provider": "gemini",
@@ -34,14 +26,6 @@
       "arena": 84
     },
     {
-      "model": "gemini-2.5-flash-lite",
-      "provider": "gemini",
-      "mmlu": 80,
-      "code": 82,
-      "reasoning": 83,
-      "arena": 84
-    },
-    {
       "model": "gemini-2.5-flash-lite-preview-09-2025",
       "provider": "gemini",
       "mmlu": 80,
@@ -51,14 +35,6 @@
     },
     {
       "model": "gemini-2.5-flash-preview-09-2025",
-      "provider": "gemini",
-      "mmlu": 80,
-      "code": 82,
-      "reasoning": 83,
-      "arena": 84
-    },
-    {
-      "model": "gemini-2.5-pro",
       "provider": "gemini",
       "mmlu": 80,
       "code": 82,
@@ -107,6 +83,30 @@
     },
     {
       "model": "gemini-2.5-computer-use-preview-10-2025",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.5-flash",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.5-flash-lite",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-2.5-pro",
       "provider": "gemini",
       "mmlu": 80,
       "code": 82,
@@ -242,62 +242,6 @@
       "arena": 84
     },
     {
-      "model": "ft:babbage-002",
-      "provider": "openai",
-      "mmlu": 85,
-      "code": 87,
-      "reasoning": 88,
-      "arena": 89
-    },
-    {
-      "model": "ft:davinci-002",
-      "provider": "openai",
-      "mmlu": 85,
-      "code": 87,
-      "reasoning": 88,
-      "arena": 89
-    },
-    {
-      "model": "ft:gpt-3.5-turbo",
-      "provider": "openai",
-      "mmlu": 85,
-      "code": 87,
-      "reasoning": 88,
-      "arena": 89
-    },
-    {
-      "model": "ft:gpt-3.5-turbo-0125",
-      "provider": "openai",
-      "mmlu": 85,
-      "code": 87,
-      "reasoning": 88,
-      "arena": 89
-    },
-    {
-      "model": "ft:gpt-3.5-turbo-0613",
-      "provider": "openai",
-      "mmlu": 85,
-      "code": 87,
-      "reasoning": 88,
-      "arena": 89
-    },
-    {
-      "model": "ft:gpt-3.5-turbo-1106",
-      "provider": "openai",
-      "mmlu": 85,
-      "code": 87,
-      "reasoning": 88,
-      "arena": 89
-    },
-    {
-      "model": "ft:gpt-4-0613",
-      "provider": "openai",
-      "mmlu": 85,
-      "code": 87,
-      "reasoning": 88,
-      "arena": 89
-    },
-    {
       "model": "ft:gpt-4o-2024-08-06",
       "provider": "openai",
       "mmlu": 88,
@@ -338,87 +282,7 @@
       "arena": 93
     },
     {
-      "model": "ft:gpt-4.1-nano-2025-04-14",
-      "provider": "openai",
-      "mmlu": 88,
-      "code": 90,
-      "reasoning": 92,
-      "arena": 93
-    },
-    {
-      "model": "ft:o4-mini-2025-04-16",
-      "provider": "openai",
-      "mmlu": 89,
-      "code": 91,
-      "reasoning": 96,
-      "arena": 97
-    },
-    {
-      "model": "gpt-3.5-turbo",
-      "provider": "openai",
-      "mmlu": 85,
-      "code": 87,
-      "reasoning": 88,
-      "arena": 89
-    },
-    {
-      "model": "gpt-3.5-turbo-0125",
-      "provider": "openai",
-      "mmlu": 85,
-      "code": 87,
-      "reasoning": 88,
-      "arena": 89
-    },
-    {
-      "model": "gpt-3.5-turbo-16k",
-      "provider": "openai",
-      "mmlu": 85,
-      "code": 87,
-      "reasoning": 88,
-      "arena": 89
-    },
-    {
       "model": "gpt-3.5-turbo-instruct-0914",
-      "provider": "openai",
-      "mmlu": 85,
-      "code": 87,
-      "reasoning": 88,
-      "arena": 89
-    },
-    {
-      "model": "gpt-4",
-      "provider": "openai",
-      "mmlu": 85,
-      "code": 87,
-      "reasoning": 88,
-      "arena": 89
-    },
-    {
-      "model": "gpt-4-0613",
-      "provider": "openai",
-      "mmlu": 85,
-      "code": 87,
-      "reasoning": 88,
-      "arena": 89
-    },
-    {
-      "model": "gpt-4-1106-preview",
-      "provider": "openai",
-      "mmlu": 85,
-      "code": 87,
-      "reasoning": 88,
-      "arena": 89
-    },
-    {
-      "model": "gpt-4-turbo",
-      "provider": "openai",
-      "mmlu": 85,
-      "code": 87,
-      "reasoning": 88,
-      "arena": 89
-    },
-    {
-      "model": "gpt-4-turbo-2024-04-09",
       "provider": "openai",
       "mmlu": 85,
       "code": 87,
@@ -458,31 +322,7 @@
       "arena": 93
     },
     {
-      "model": "gpt-4.1-nano",
-      "provider": "openai",
-      "mmlu": 88,
-      "code": 90,
-      "reasoning": 92,
-      "arena": 93
-    },
-    {
-      "model": "gpt-4.1-nano-2025-04-14",
-      "provider": "openai",
-      "mmlu": 88,
-      "code": 90,
-      "reasoning": 92,
-      "arena": 93
-    },
-    {
       "model": "gpt-4o",
-      "provider": "openai",
-      "mmlu": 88,
-      "code": 90,
-      "reasoning": 92,
-      "arena": 93
-    },
-    {
-      "model": "gpt-4o-2024-05-13",
       "provider": "openai",
       "mmlu": 88,
       "code": 90,
@@ -850,38 +690,6 @@
       "arena": 88
     },
     {
-      "model": "o1",
-      "provider": "openai",
-      "mmlu": 89,
-      "code": 91,
-      "reasoning": 96,
-      "arena": 97
-    },
-    {
-      "model": "o1-2024-12-17",
-      "provider": "openai",
-      "mmlu": 89,
-      "code": 91,
-      "reasoning": 96,
-      "arena": 97
-    },
-    {
-      "model": "o1-pro",
-      "provider": "openai",
-      "mmlu": 89,
-      "code": 91,
-      "reasoning": 96,
-      "arena": 97
-    },
-    {
-      "model": "o1-pro-2025-03-19",
-      "provider": "openai",
-      "mmlu": 89,
-      "code": 91,
-      "reasoning": 96,
-      "arena": 97
-    },
-    {
       "model": "o3",
       "provider": "openai",
       "mmlu": 89,
@@ -898,22 +706,6 @@
       "arena": 97
     },
     {
-      "model": "o3-mini",
-      "provider": "openai",
-      "mmlu": 89,
-      "code": 91,
-      "reasoning": 96,
-      "arena": 97
-    },
-    {
-      "model": "o3-mini-2025-01-31",
-      "provider": "openai",
-      "mmlu": 89,
-      "code": 91,
-      "reasoning": 96,
-      "arena": 97
-    },
-    {
       "model": "o3-pro",
       "provider": "openai",
       "mmlu": 89,
@@ -923,22 +715,6 @@
     },
     {
       "model": "o3-pro-2025-06-10",
-      "provider": "openai",
-      "mmlu": 89,
-      "code": 91,
-      "reasoning": 96,
-      "arena": 97
-    },
-    {
-      "model": "o4-mini",
-      "provider": "openai",
-      "mmlu": 89,
-      "code": 91,
-      "reasoning": 96,
-      "arena": 97
-    },
-    {
-      "model": "o4-mini-2025-04-16",
       "provider": "openai",
       "mmlu": 89,
       "code": 91,
