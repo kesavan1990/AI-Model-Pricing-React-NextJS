@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26",
+  "updated": "2026-10-27",
   "gemini": [
     {
       "name": "gemini-3.1-flash-lite-preview",
@@ -607,6 +607,12 @@
       "name": "gpt-5.5-cyber-preview",
       "input": 12.5,
       "output": 75,
+      "cachedInput": null
+    },
+    {
+      "name": "gpt-6.1-terra",
+      "input": 1,
+      "output": 5,
       "cachedInput": null
     }
   ],
