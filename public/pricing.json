@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-28",
+  "updated": "2026-10-29",
   "gemini": [
     {
       "name": "gemini-3.1-flash-lite-preview",
@@ -897,20 +897,26 @@
     },
     {
       "name": "mistral-large-4",
-      "input": 0.68,
-      "output": 2.09,
+      "input": 1.36,
+      "output": 4.18,
       "cachedInput": null
     },
     {
       "name": "mistral-large-4-0",
-      "input": 0.68,
-      "output": 2.09,
+      "input": 1.36,
+      "output": 4.18,
       "cachedInput": null
     },
     {
       "name": "zai-glm-5-3-flash",
       "input": 0.15,
       "output": 0.5,
+      "cachedInput": null
+    },
+    {
+      "name": "deepseek-v4-1-flash-1017",
+      "input": 0.3,
+      "output": 1.2,
       "cachedInput": null
     }
   ]
