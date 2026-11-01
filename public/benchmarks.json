@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25",
+  "updated": "2026-11-01",
   "benchmarks": [
     {
       "model": "gemini-3.1-flash-lite-preview",
@@ -810,6 +810,22 @@
       "arena": 89
     },
     {
+      "model": "gpt-6.1-terra",
+      "provider": "openai",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
+      "model": "gpt-6-rosalind",
+      "provider": "openai",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
       "model": "claude-haiku-4-5-20251001",
       "provider": "anthropic",
       "mmlu": 84,
@@ -1090,14 +1106,6 @@
       "arena": 84
     },
     {
-      "model": "zai-glm-5-2",
-      "provider": "mistral",
-      "mmlu": 80,
-      "code": 82,
-      "reasoning": 83,
-      "arena": 84
-    },
-    {
       "model": "glm-5-2",
       "provider": "mistral",
       "mmlu": 80,
@@ -1192,6 +1200,22 @@
       "code": 88,
       "reasoning": 89,
       "arena": 90
+    },
+    {
+      "model": "zai-glm-5-3-flash",
+      "provider": "mistral",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "deepseek-v4-1-flash-1017",
+      "provider": "mistral",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
     }
   ]
 }
