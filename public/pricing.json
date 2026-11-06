@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-05",
+  "updated": "2026-11-06",
   "gemini": [
     {
       "name": "gemini-3.1-flash-lite-preview",
@@ -110,12 +110,6 @@
       "cachedInput": null
     },
     {
-      "name": "gemini-omni-flash-preview",
-      "input": 1.5,
-      "output": 9,
-      "cachedInput": null
-    },
-    {
       "name": "gemini-gemma-2-27b-it",
       "input": 0.35,
       "output": 1.05,
@@ -179,6 +173,12 @@
       "name": "gemini-4-argon",
       "input": 2,
       "output": 10,
+      "cachedInput": null
+    },
+    {
+      "name": "gemini-omni-1.2-flash",
+      "input": 1.5,
+      "output": 9,
       "cachedInput": null
     }
   ],
@@ -625,6 +625,12 @@
       "name": "gpt-6-astra-law",
       "input": 10,
       "output": 50,
+      "cachedInput": null
+    },
+    {
+      "name": "gpt-6-cyber",
+      "input": 20,
+      "output": 100,
       "cachedInput": null
     }
   ],
