@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-01",
+  "updated": "2026-11-08",
   "benchmarks": [
     {
       "model": "gemini-3.1-flash-lite-preview",
@@ -146,14 +146,6 @@
       "arena": 84
     },
     {
-      "model": "gemini-omni-flash-preview",
-      "provider": "gemini",
-      "mmlu": 80,
-      "code": 82,
-      "reasoning": 83,
-      "arena": 84
-    },
-    {
       "model": "gemini-gemma-2-27b-it",
       "provider": "gemini",
       "mmlu": 80,
@@ -235,6 +227,14 @@
     },
     {
       "model": "gemini-4-argon",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-omni-1.2-flash",
       "provider": "gemini",
       "mmlu": 80,
       "code": 82,
@@ -819,6 +819,22 @@
     },
     {
       "model": "gpt-6-rosalind",
+      "provider": "openai",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
+      "model": "gpt-6-astra-law",
+      "provider": "openai",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
+      "model": "gpt-6-cyber",
       "provider": "openai",
       "mmlu": 85,
       "code": 87,
