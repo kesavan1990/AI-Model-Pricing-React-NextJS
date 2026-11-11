@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-10",
+  "updated": "2026-11-11",
   "gemini": [
     {
       "name": "gemini-3.1-flash-lite-preview",
@@ -179,6 +179,12 @@
       "name": "gemini-omni-1.2-flash",
       "input": 1.5,
       "output": 9,
+      "cachedInput": null
+    },
+    {
+      "name": "gemini-4-carbon",
+      "input": 2,
+      "output": 10,
       "cachedInput": null
     }
   ],
@@ -763,6 +769,12 @@
     },
     {
       "name": "claude-fable-5-2",
+      "input": 8,
+      "output": 40,
+      "cachedInput": null
+    },
+    {
+      "name": "claude-mythos-5-2",
       "input": 8,
       "output": 40,
       "cachedInput": null
