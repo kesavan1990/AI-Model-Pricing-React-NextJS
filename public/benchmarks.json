@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-08",
+  "updated": "2026-11-15",
   "benchmarks": [
     {
       "model": "gemini-3.1-flash-lite-preview",
@@ -235,6 +235,22 @@
     },
     {
       "model": "gemini-omni-1.2-flash",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-4-carbon",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-4-hydrogen",
       "provider": "gemini",
       "mmlu": 80,
       "code": 82,
@@ -1008,6 +1024,22 @@
       "code": 86,
       "reasoning": 87,
       "arena": 88
+    },
+    {
+      "model": "claude-fable-5-2",
+      "provider": "anthropic",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
+      "model": "claude-mythos-5-2",
+      "provider": "anthropic",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
     },
     {
       "model": "codestral-2508",
