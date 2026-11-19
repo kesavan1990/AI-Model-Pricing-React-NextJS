@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-18",
+  "updated": "2026-11-19",
   "gemini": [
     {
       "name": "gemini-3.1-flash-lite-preview",
@@ -191,6 +191,12 @@
       "name": "gemini-4-hydrogen",
       "input": 1.5,
       "output": 7.5,
+      "cachedInput": null
+    },
+    {
+      "name": "gemini-4-neon",
+      "input": 3,
+      "output": 15,
       "cachedInput": null
     }
   ],
@@ -629,8 +635,8 @@
     },
     {
       "name": "gpt-6-rosalind",
-      "input": 15,
-      "output": 75,
+      "input": 10,
+      "output": 50,
       "cachedInput": null
     },
     {
@@ -757,6 +763,12 @@
     },
     {
       "name": "claude-mythos-5",
+      "input": 10,
+      "output": 50,
+      "cachedInput": null
+    },
+    {
+      "name": "claude-mythos-preview",
       "input": 10,
       "output": 50,
       "cachedInput": null
