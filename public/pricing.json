@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-19",
+  "updated": "2026-11-20",
   "gemini": [
     {
       "name": "gemini-3.1-flash-lite-preview",
@@ -197,6 +197,12 @@
       "name": "gemini-4-neon",
       "input": 3,
       "output": 15,
+      "cachedInput": null
+    },
+    {
+      "name": "genie-4",
+      "input": 1.5,
+      "output": 9,
       "cachedInput": null
     }
   ],
