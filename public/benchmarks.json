@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-15",
+  "updated": "2026-11-22",
   "benchmarks": [
     {
       "model": "gemini-3.1-flash-lite-preview",
@@ -251,6 +251,22 @@
     },
     {
       "model": "gemini-4-hydrogen",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "gemini-4-neon",
+      "provider": "gemini",
+      "mmlu": 80,
+      "code": 82,
+      "reasoning": 83,
+      "arena": 84
+    },
+    {
+      "model": "genie-4",
       "provider": "gemini",
       "mmlu": 80,
       "code": 82,
@@ -858,6 +874,30 @@
       "arena": 89
     },
     {
+      "model": "gpt-6.2-astra",
+      "provider": "openai",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
+      "model": "gpt-6.2-sol",
+      "provider": "openai",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
+      "model": "gpt-6.2-astra-law",
+      "provider": "openai",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
       "model": "claude-haiku-4-5-20251001",
       "provider": "anthropic",
       "mmlu": 84,
@@ -979,6 +1019,14 @@
     },
     {
       "model": "claude-mythos-5",
+      "provider": "anthropic",
+      "mmlu": 85,
+      "code": 87,
+      "reasoning": 88,
+      "arena": 89
+    },
+    {
+      "model": "claude-mythos-preview",
       "provider": "anthropic",
       "mmlu": 85,
       "code": 87,
